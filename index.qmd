@@ -1,0 +1,191 @@
+# Preface {.unnumbered}
+
+
+::: my-watch-out
+::: my-watch-out-header
+WATCH OUT: This is work in progress 
+:::
+
+::: my-watch-out-container
+
+**This is my personal learning material and is therefore neither a scientific peer reviewed article nor an authoritative textbook.**
+
+With this book I want to apply my statistical knowledge using the R language to investigate social inequality for Austria, my country of birth and where I am living.
+
+As an `r glossary("advanced organizer")` I will take "A Brief History of Euqality" by Thomas Piketty [@piketty2022].
+
+I am writing this book as a text for others to read because that forces me to become explicit and explain all my learning outcomes more carefully.
+
+Please keep in mind that this text is not written by an expert but by a learner.
+:::
+:::
+
+
+## Content {.unnumbered}
+
+
+My text and data evaluation tries to follow the material in the book by Thomas Piketty, mentioned above. But I will try to demonstrate his argumenation with data for Austria. Additionally I am planing to compare this data with other countries of my interest, especially Germany.
+
+
+## Glossary {.unnumbered}
+
+
+I am using the {**glossary**} package to create links to glossary
+entries.\]
+
+::: my-r-code
+::: my-r-code-header
+::: {#cnj-load-glossary}
+: Load glossary
+:::
+:::
+
+::: my-r-code-container
+
+
+```{r}
+#| label: load-glossary
+#| lst-label: lst-preface-load-glossary
+#| lst-cap: "Install and load the glossary package with the appropriate glossary.yml file"
+
+
+## 1. Install the glossary package:
+## https://debruine.github.io/glossary/
+
+library(glossary)
+
+## If you want to use my glossary.yml file:
+
+## 1. fork my repo
+##    https://github.com/petzi53/glossary-pb
+
+## 2. Download the `glossary.yml` file from
+##    https://github.com/petzi53/glossary-pb/blob/master/glossary.yml)
+
+## 3. Store the file on your hard disk
+##    and change the following path accordingly
+
+glossary::glossary_path("../glossary-pb/glossary.yml")
+
+```
+
+
+:::
+:::
+
+If you hover with your mouse over the double underlined links it opens
+an window with the appropriate glossary text. Try this example: `r glossary("Z-Score")`.
+
+::: my-watch-out
+::: my-watch-out-header
+WATCH OUT! There is no guarantee that the glossary text -- as well as the whole book -- contains correct information. Whenever possible I have mentioned the source of the glossary entry. (You will find an active linke to the source in the original glossary file at [GitHub](https://github.com/petzi53/glossary-pb/blob/master/glossary.yml))
+:::
+
+::: my-watch-out-container
+::: {layout="[10, 30]" layout-valign="center"}
+![](https://debruine.github.io/glossary/logo.png)
+
+I have added many of the glossary entries when I was working through
+other books either taking the text passage of these books I was reading
+or via an internet recherche from other resources. I have added the
+source of glossary entry. Sometimes I have used abbreviation, but I need
+still to provide a key what this short references mean.
+:::
+
+To apply the glossary into this text I have used the {**glossary**} package by [Lisa DeBruine](https://debruine.github.io/glossary/index.html).
+:::
+:::
+
+If you fork the [repository of this quarto
+book](https://github.com/petzi53/inequality-austria) then the glossary will not
+work out of the box. Load down the `glossary.yml` file from [my
+glossary-pb GitHub
+repo](https://github.com/petzi53/glossary-pb/blob/master/glossary.yml),
+store it on your hard disk and change the path in the code chunk
+@lst-preface-load-glossary.
+
+In any case I am the only responsible person for this text.
+
+## R Code {.unnumbered}
+
+
+For R code I am using mainly the [Tidyverse Style
+Guide](https://style.tidyverse.org/) with some additions from [Google’s R Style
+Guide](https://google.github.io/styleguide/Rguide.html). These additons are:
+
+-   Start the names of private functions with a dot.
+-   Don't use `base::attach()`.
+-   No right-hand assignments.
+-   Qualify namespace. 
+
+Especially the last point (qualifying namespace) is important for my
+learning. Besides preventing conflicts with functions of identical names
+from different packages it helps me to learn (or remember) which function
+belongs to which package. I think this justifies the small overhead and
+helps to make R code chunks self-sufficient. (No previous package
+loading, or library calls in the setup chunk.) To foster learning the
+relation between function and package I embrace the package name with
+curly brakes and format it in bold. Additionally I will add a special annex file "Used packages" with an alphabetically sorted list of short package descriptions.
+
+
+I am mentioning package name explicitly also for the default installation of base R. This wouldn't be necessary but it helps me to understand where the base R functions come from. What follows is a list of base R packages of the system library included into every installation and attached (opened) by
+default:
+
+-   {**base**}: The R Base Package
+-   {**datsets**}: The R Datasets Package
+-   {**graphics**}: The R Graphics Package
+-   {**grDevices**}: The R Graphics Devices and Support for Colours and Fonts
+-   {**methods**}: Formal Methods and Classes
+-   {**stats**}: The R Stats Package
+-   {**utils**}: The R Utils Package
+ 
+ But I will not always mention the name of the argument inside a function. When it is clear then I will follow the advice from Hadley Wickham:
+> When you call a function, you typically omit the names of data
+> arguments, because they are used so commonly. If you override the
+> default value of an argument, use the full name ([tidyverse style
+> guide](https://style.tidyverse.org/syntax.html)).
+
+## Data {.unnumbered}
+
+
+Piketty refers for all the data to the [World Inequality Database](https://wid.world/). I will also take most of my data from this website.
+
+## Resources {.unnumbered}
+
+
+::: {.my-resource}
+::: {.my-resource-header}
+:::::: {#lem-index-book-resources}
+: Resources used for this Quarto book
+::::::
+:::
+
+::: {.my-resource-container}
+
+- Piketty, T. (2020). Capital and Ideology (A. Goldhammer, Trans.; Illustrated Edition). Harvard University Press.
+- Piketty, T. (2022). A Brief History of Equality (S. Rendall, Trans.). Harvard University Press.
+- Piketty, T., & Goldhammer, A. (2017). Capital in the Twenty-First Century. Harvard University Press.
+- World Inequality Lab. (2024). WID - World Inequality Database. WID - World Inequality Database. https://wid.world/
+
+
+:::
+:::
+
+------------------------------------------------------------------------
+
+## Session Info {.unnumbered}
+
+::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::
+
