@@ -24,7 +24,7 @@ Please keep in mind that this text is not written by an expert but by a learner.
 ## Content {.unnumbered}
 
 
-My text and data evaluation tries to follow the material in the book by Thomas Piketty, mentioned above. But I will try to demonstrate his argumenation with data for Austria. Additionally I am planing to compare this data with other countries of my interest, especially Germany.
+My text and data evaluation tries to follow the material in the book by Thomas Piketty, mentioned above. But I will try to demonstrate his argumentation with data for Austria. Additionally I am planing to compare this data with other countries of my interest, especially Germany.
 
 
 ## Glossary {.unnumbered}
