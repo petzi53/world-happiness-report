@@ -1,5 +1,6 @@
 project:
   type: book
+  pre-render: R/helper.R
 
 book:
   title: "Inequality in Austria"
@@ -14,7 +15,11 @@ book:
 
   chapters:
     - index.qmd
-    - 01-intro.qmd
+    - 01-data-resources.qmd
+
+  appendices:
+    - 80-countries-in-regions.qmd
+    - 90-first-austria-trial.qmd
 
 bibliography:
     - references.bib

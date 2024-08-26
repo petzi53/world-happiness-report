@@ -1,0 +1,330 @@
+# Regions and their Countries {#sec-countries-in-regions}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = paste0(here::here(), "/R/helper.R"))
+
+ggplot2::theme_set(ggplot2::theme_bw())
+options(show.signif.stars = FALSE)
+
+```
+
+## Table of content {.unnumbered}
+
+::::: {#obj-chapter-template}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+List regions of the WIR2022 and their countries
+:::
+
+::: {.my-objectives-container}
+
+The World Inequality Report 2022 (WIR2022) describes global trends in inequality. It mostly condense data in eight different regions. See the following graph as an example:
+
+![A typical example for a graph in the World Inequality Report 2022 (WIR2022), showing the division of the world into eight different world regions ("MENA" stands for Middle East & North Arfica).](img/80-WIR2022-min.png){#fig-80-wir2022-example 
+fig-alt="The image shows the income shares for the bottom 50%, middle 40% and top 10% in 2021 dividing the world into eight different regions. With the exception of Europe the top 10% earn the biggest share of the income with the following order from lowest to the highest 10%: Europe, East Asia, North America, Russia & Central Asia, South & South-East Asia, Latin America, Sub-Saharan Africa, MENA (Middle East & North Africa). Example: In Latin America the top 10% captures 55% of national income compared to 36% of Europe." fig-align="center" 
+width="100%"}
+
+
+In this appendix I want to know the countries that form each of these eight regions. 
+
+:::
+::::
+:::::
+
+## Data
+
+My first task was to look for data where I could extract the information I am interested in. I scanned the files of the free accessible [GitHub repository of the WID](https://github.com/WIDworld/wid-world). I found `country-codes-core.xlsx`, an Excel file with the data I am looking for. It is sorted by a two letter code in the first column named appropriately `code`. "Core" means -- in contrast to [other `country-codes` files](https://github.com/WIDworld/wid-world/tree/master/data-input/country-codes) -- that it includes a column `corecountry` where the number `1` functions as a marker for a core country. The file itself has many hidden rows which feature either regions smaller than a country (like Alabama for US or Bavaria for Germany) or bigger than a country (like Asia or Western Europe).
+
+::: {.callout-important}
+`country-codes-core.xlsx` contains many hidden rows. It is therefore necessary to filter by `corecountry == 1`.
+:::
+
+
+### Download data
+
+The following code chunk is only applied once. It downloads the dataset, selects only the core countries and stores the file as `country-code.RDS`
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-download-country-codes-core}
+: Download the country-codes-core file, manipulate and save it
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: download-country-codes-core
+#| eval: false
+
+## run this code chunk only once (manually)
+
+## define variables
+url <- "https://github.com/WIDworld/wid-world/raw/master/data-input/country-codes/country-codes-core.xlsx"
+chapter_folder = "chap80"
+
+## create folder for chapter if not already done
+chap_folder <-
+        base::paste0(
+            here::here(),
+            paste0("/data/", chapter_folder, "/")
+        )
+    if (!base::file.exists(chap_folder))
+    {base::dir.create(chap_folder)}
+
+## get country-codes-core.xlsx
+destfile <- base::paste0(chap_folder, "country-codes-core.xlsx")
+utils::download.file(url, destfile)
+tmp <- readxl::read_xlsx(destfile)
+
+
+country_codes <- tmp |> 
+    ## filter for core countries
+    dplyr::filter(corecountry == 1) |> 
+    ## convert all region columns to factor variables
+    dplyr::mutate(dplyr::across(
+        tidyselect::starts_with("region"), forcats::as_factor)
+        )
+
+## save cleaned data
+save_data_file("chap80", country_codes, "country_codes.rds")
+
+```
+
+
+(*For this R code chunk is no output available*)
+
+::::
+:::::
+
+### Eplore Data
+
+An inspection of the data file shows that column `region5` contains the regions used in WIR2022.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-explore-data}
+: Explore Data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-explore-data}
+```{r}
+#| label: explore-data
+#| results: hold
+
+country_codes <- readRDS("data/chap80/country_codes.rds")
+
+skimr::skim(country_codes)
+
+glue::glue(" ")
+glue::glue("############################################################")
+glue::glue("Display number of countries for each region")
+glue::glue("############################################################")
+glue::glue(" ")
+country_codes |> 
+    dplyr::pull(region5) |> 
+    forcats::fct_count()
+```
+
+Summarize data and show the number of countries in each of the eight regions used in WIR2022.
+:::
+
+::::
+:::::
+
+## List countries
+
+:::::{.my-example}
+:::{.my-example-header}
+:::::: {#exm-list-countries}
+: List countries for each regions used in WIR2022
+::::::
+:::
+::::{.my-example-container}
+
+::: {.panel-tabset}
+
+###### Europe
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-europe}
+: Countries of the European region used in the WIR2022
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: europe
+#| results: hold
+
+wir2022_country_codes <- country_codes |> 
+    dplyr::select(code, shortname, region5)
+
+wir2022_country_codes |> 
+    dplyr::filter(region5 == "Europe") |> 
+    print(n = 50)
+```
+
+
+::::
+:::::
+
+
+###### MENA
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-mena}
+: Countries of the MENA region (Middle East & North Afrika)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: mena
+
+wir2022_country_codes |> 
+    dplyr::filter(region5 == "MENA") |> 
+    print(n = 50)
+```
+
+
+::::
+:::::
+
+###### South & South-East Asia
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-ssea}
+: Countries of the South & South-East Asia region used in the WIR2022
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: ssea
+
+wir2022_country_codes |> 
+    dplyr::filter(region5 == "South & South-East Asia") |> 
+    print(n = 50)
+```
+
+
+::::
+:::::
+
+###### Latin America
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-latin-america}
+: Countries of the Latoin America region used in the WIR2022
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: latin-america
+
+wir2022_country_codes |> 
+    dplyr::filter(region5 == "Latin America") |> 
+    print(n = 50)
+```
+
+
+::::
+:::::
+
+###### Russia & Central Asia
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-ruca}
+: Countries of the Russia & Central Asia region used in the WIR2022
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: ruca
+
+wir2022_country_codes |> 
+    dplyr::filter(region5 == "Russia & Central Asia") |> 
+    print(n = 50)
+```
+
+
+::::
+:::::
+
+###### Sub-Saharan Africa
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-susa}
+: Countries of the Sub-Saharan African region used in the WIR2022
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: susa
+
+wir2022_country_codes |> 
+    dplyr::filter(region5 == "Sub-Saharan Africa") |> 
+    print(n = 50)
+```
+
+
+::::
+:::::
+
+###### North America & Oceania
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-noac}
+: Countries of the North America & Oceania region used in the WIR2022
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: noac
+
+wir2022_country_codes |> 
+    dplyr::filter(region5 == "North America & Oceania") |> 
+    print(n = 50)
+```
+
+
+::::
+:::::
+
+###### East Asia
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-east-asia}
+: Countries of the East Asia region used in the WIR2022
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: east-asia
+
+wir2022_country_codes |> 
+    dplyr::filter(region5 == "East Asia") |> 
+    print(n = 50)
+```
+
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+***
+

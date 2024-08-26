@@ -1,0 +1,159 @@
+# Where do the data come from? {#sec-01-data-resources}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = paste0(here::here(), "/R/helper.R"))
+
+ggplot2::theme_set(ggplot2::theme_bw())
+options(show.signif.stars = FALSE)
+
+```
+
+## Objectives {.unnumbered}
+
+::::: {#obj-01-data-resources}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objective of this chapter
+:::
+
+::: {.my-objectives-container}
+
+This short chapter will list possible data resources. At the moment of this writing (August 2024) I do not know what data exactly I am going to use for my research. Therefore I will update this chapter continuously.
+
+
+:::
+::::
+:::::
+
+## Data resources 
+
+### World Inequality Lab (WIL)
+
+The WIL consists of a [team of about 40 people](https://inequalitylab.world/en/team/), based primarily at the Paris School of Economics and the University of Berkeley, California. It is supported by more than 200 researchers of diverse nationalities and institutions, forming the so-called [WID Fellows](https://inequalitylab.world/en/%20wid-fellows/). (See the [complete team](https://wid.world/team/) working on the WID.)
+
+#### World Inequality Database (WID)
+
+Generally I will prefer data already collected and cleaned by some trustful organizations or researchers. And from these I will preferable (or at least start) with data free accessible at the `r glossary("WID")`. These data are compiled by the `r glossary("WIL")` and presented as open-access datasets accompanied by publications, graphics, tables slides and an interactive website at https://wid.world.
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-wid}
+: Structure of the WID Resources
+::::::
+:::
+::::{.my-resource-container}
+
+### Interactive website {.unnumbered}
+
+- **World View**: Compare inequality between country on an interactive world map.
+- **Country Graphs**: Follow the evolution of inequality within countries with user-friendly graphs.
+- **Data Tables**: Download the `r glossary("open-access")` datasets from the [data page](https://wid.world/data/. You can prepare selected data to download or download the complete dataset.
+
+### Methodology {.unnumbered}
+
+- **Distributional National Account (DINA) Guidelines**: `r glossary("DINA")` is a resource to understand the methodology behind the decomposition of `r glossary("National Accounts")` and the estimation of inequality series for income and wealth. It explains methods and concepts used in the World Inequality Database. The version I am using is from February 2024, has 186 pages, and can be [downloaded as PDF](https://wid.world/document/distributional-national-accounts-guidelines-2020-concepts-and-methods-used-in-the-world-inequality-database/).
+
+- **
+
+
+::::
+:::::
+
+
+
+The WID is the main resource I am going to use. But there are additionally many projects with additional datasets. 
+
+What follows are lists of possible data resources. 
+
+As an `r glossary("advanced organizer")` I will take "A Brief History of
+Equality" by Thomas Piketty [@piketty2022]. 
+
+My text and data evaluation tries to follow the material in the book by
+Thomas Piketty, mentioned above. But I will try to demonstrate his
+argumentation with data for Austria. Additionally I am planing to
+compare this data with other countries of my interest, especially
+Germany.
+
+Piketty refers for all the data to the [World Inequality
+Database](https://wid.world/). But recently I have noted, that there are
+other important data resources on inequality as well:
+
+::: my-resource
+::: my-resource-header
+::: {#lem-inequality-data}
+: A short list of inequality data resources
+:::
+:::
+
+::: my-resource-container
+-   **WID**: The [World Inequality
+    Database](https://wid.world/wid-world/) (WID) aims to provide open
+    and convenient access to the most extensive available database on
+    the historical evolution of the world distribution of income and
+    wealth, both within countries and between countries
+    [@worldinequalitylab2024].
+-   **OWID**: [Our World In Data](https://ourworldindata.org/) (OWID) is
+    an online publication that focuses on large global problems such as
+    poverty, disease, hunger, climate change, war, existential risks,
+    and inequality [@globalchangedatalab2024].
+-   **PIP**: The [Poverty and Inequality
+    Platform](https://pip.worldbank.org/home) (PIP) is an interactive
+    computational tool that offers users quick access to the World
+    Bank’s estimates of poverty, inequality, and shared prosperity. PIP
+    provides a comprehensive view of global, regional, and country-level
+    trends for more than 160 economies around the world
+    [@worldbank2024].
+-   **LIS**: The [Luxembourg Income Study
+    Database](https://www.lisdatacenter.org/) (LIS) is a data archive
+    and research center dedicated to cross-national analysis. It is home
+    to the [Luxembourg Income Study
+    Database](http://www.lisdatacenter.org/our-data/lis-database/) (LIS)
+    and the [Luxembourg Wealth Study
+    Database](http://www.lisdatacenter.org/our-data/lws-database/) (LWS)
+    [@lisauthorcollective2024].
+:::
+:::
+
+To understand use all these data resources is a complex enterprise. As a
+first step and starting point I will concentrate on the World Inequality
+Database because there exist several monographs where these data are
+used and interpreted. But most of the time these books refer to global,
+regional or 'important' countries like China, France, German, India,
+United Kingdom, United States etc.
+
+The `r glossary("WIL")` is working on several important research projects, most of them have not only publication but also free and open accessible data sets. All of these projects can function as `r glossary("advanced organizer", "advanced organizers")` for me. I have to inspect their data sets and figure out what would be an effective learning approach.
+
+::: my-resource
+::: my-resource-header
+::: {#lem-inequality-projects}
+: `r glossary("WIL")` research projects
+:::
+:::
+
+::: my-resource-container
+-   **WIPD**: The [World Political Cleavages and Inequality
+    Database](https://wpid.world/) (WPID) is the result of a collaborative research program involving about twenty researchers all around the world. The central aim is to provide open and convenient access to the most extensive available dataset on the structure of political cleavages and social inequalities in electoral democracies, located on the five continents, from the mid-20th century to the present. [@gethin2024].
+-   Une histoire du conflit politique: Elections and social inequalities in France, 1789-2022 [@cage2023].
+-   [Climate Inequality Report 2023](https://wid.world/news-article/climate-inequality-report-2023-fair-taxes-for-a-sustainable-future-in-the-global-south/): The aim of this report is twofold. It endeavours first to shed light on these various dimensions of climate inequality in a systematic and detailed analysis, focusing on low- and middle-income countries in particular. It then builds on these insights, together with additional empirical work and interviews with experts, to suggest pathways to development cooperation, and tax and social policies that tackle climate inequalities at their core. (This project has at the moment not public data available.)
+-   **WIR2022**: [The World Inequality Report
+    2022](https://wir2022.wid.world/methodology/) (WIR2022) 
+:::
+:::
+
+I will try to follow the arguments of two books that I will use as
+`r glossary("advanced organizer", "advanced organizers")` to illustrate
+their discussion with data from Austria: These books are "A Brief
+History of Equality" (BHE) [@piketty2022] and the "World Inequality
+Report 2022" (WIR2022) [@chancel2022].
+
+
+
+
+
+
+
