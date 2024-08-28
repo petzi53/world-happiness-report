@@ -118,7 +118,7 @@ The WID will be my my starting point for exploring the inequality in Austria. Bu
 ::: my-resource
 ::: my-resource-header
 ::: {#lem-inequality-data}
-: A short list ofinequality data resources besides the WID
+: A short list of inequality data resources besides the WID
 :::
 :::
 
@@ -142,6 +142,7 @@ The WID will be my my starting point for exploring the inequality in Austria. Bu
     and the [Luxembourg Wealth Study
     Database](http://www.lisdatacenter.org/our-data/lws-database/) (LWS)
     [@lisauthorcollective2024].
+-   **IDD & WDD**: [OECD Income and wealth distribution databases](https://www.oecd.org/en/data/datasets/income-and-wealth-distribution-database.html) are two dedicated statistical databases to benchmark and monitor economic inequality across countries: The OECD Income Distribution Database (IDD) offers data on levels and trends in income inequality and poverty and is updated on a rolling basis, two to three times a year. The OECD Wealth Distribution Database (WDD) collects information on the distribution of household net wealth and is updated every two or three years.
 :::
 :::
 

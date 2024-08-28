@@ -1,0 +1,122 @@
+---
+format: 
+  html:
+    page-layout: custom
+---
+
+# Summary Table {#sec-full-summary-table}
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+font.size <- "10pt"
+
+summary_table <- readRDS("data/chap81/summary_table.rds")
+
+```
+
+
+## Display Most Variables of the Summary Table
+
+Go back to @sec-summary-table
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-full-summary-table}
+: Display All Variables of the Summary Table with the exception of the simple & technical explanations and the methods used for computations
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: summary-table
+
+summary_table |> 
+    dplyr::select(1:12, 17) |>  
+    DT::datatable(
+         options = list(
+           initComplete = htmlwidgets::JS(
+              "function(settings, json) {",
+              paste0("$(this.api().table().container()).css({'font-size': '", font.size, "'});"),
+              "}")
+           ) 
+         )
+```
+
+
+::::
+:::::
+
+
+
+
+## Explaining All Variables {#sec-explain-variables}
+
+Go back to @sec-summary-table
+
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-explain-all-variables}
+: Explain All 184 Variables Found in the Summary Table
+::::::
+:::
+::::{.my-r-code-container}
+
+```{r}
+#| label: explain-all-variables
+
+summary_table |>
+    dplyr::filter(Country == "USA") |> 
+    dplyr::select(3, 13, 14, 15) |> 
+    DT::datatable(
+         options = list(
+           initComplete = htmlwidgets::JS(
+              "function(settings, json) {",
+              paste0("$(this.api().table().container()).css({'font-size': '", font.size, "'});"),
+              "}")
+           ) 
+         )
+```
+
+
+::::
+:::::
+
+
+## Explain Austria's 21 Variables {#sec-explain-austria-variables}
+
+Go back to @sec-summary-table
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-explain-austria-variables}
+: Explain All 21 Variables Registered with Austria in the Summary Table
+::::::
+:::
+::::{.my-r-code-container}
+
+```{r}
+#| label: explain-austria-variables
+
+summary_table |>
+    dplyr::filter(Country == "Austria") |> 
+    dplyr::select(1, 3, 13, 14, 15) |> 
+    DT::datatable(
+         options = list(
+           initComplete = htmlwidgets::JS(
+              "function(settings, json) {",
+              paste0("$(this.api().table().container()).css({'font-size': '", font.size, "'});"),
+              "}"),
+           pageLength = 25,
+           lengthMenu = c(5, 10, 15, 20, 25)
+           ) 
+         )
+```
+
+
+::::
+:::::

@@ -1,0 +1,177 @@
+# Countries & Variables {#sec-summary-table}
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = paste0(here::here(), "/R/helper.R"))
+
+ggplot2::theme_set(ggplot2::theme_bw())
+options(show.signif.stars = FALSE)
+
+```
+
+## Table of content {.unnumbered}
+
+::: {#obj-chapter-template}
+::: my-objectives
+::: my-objectives-header
+Inspect countries and variables of the Summary Table
+:::
+
+::: my-objectives-container
+The idea of this chapter is to get an idea what kind of data is
+available for different countries. Scrolling the Summary Table
+interactively is a not very efficient way. Even filtering for countries
+does sometimes not work (for instance: it works for Austria, but not for
+Germany)[^81-countries-and-variables-1]
+
+One idea that comes to my mind is a list of countries and the number of their rows as an indicator how many variables are available. Perhaps I will invent other filters as well for a better understanding of the data.
+:::
+:::
+:::
+
+[^81-countries-and-variables-1]: Maybe a bug in the program of the web
+    interface?
+
+## Data
+
+### Download Data
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-81-download-data}
+: Numbered R Code Title
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: download-data
+#| eval: false
+
+## define variables
+url = "https://wid.world/wp-content/uploads/2019/05/WID_SummaryTable_24May2019.xlsx"
+chapter_folder = "chap81"
+file_name = "summary_table.xlsx"
+
+
+## create folder for chapter if not already done
+chap_folder <-
+        base::paste0(
+            here::here(),
+            paste0("/data/", chapter_folder, "/")
+        )
+    if (!base::file.exists(chap_folder))
+    {base::dir.create(chap_folder)}
+
+## get summary table
+destfile <- base::paste0(chap_folder, file_name)
+utils::download.file(url, destfile)
+summary_table <- readxl::read_xlsx(destfile)
+
+
+## save cleaned data
+save_data_file("chap81", summary_table, "summary_table.rds")
+
+```
+
+
+
+(*For this R code chunk is no output available*)
+::::
+:::::
+
+### Explore data
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-81-explore-data}
+: Explore Data of the Summary Table
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: explore-data
+#| results: hold
+
+summary_table <- readRDS("data/chap81/summary_table.rds")
+
+skimr::skim(summary_table)
+```
+
+
+
+
+
+::::
+:::::
+
+## Inspect Data
+
+### Number of Variables per Country
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-81-list-variable-numbers-per-country}
+: Number of Records (=Variables) per Country
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: list-variable-numbers-per-country
+
+summary_table |> 
+    dplyr::count(Country, `Country Code`) |> 
+    DT::datatable()
+
+```
+
+
+::::
+:::::
+
+### Full Table
+
+Another interesting type of table for inspecting data is an interactive table with all columns, except the very long descriptions of the columns 13-16. To get a better view I have created a special page with a full-page layout covering the full width of the browser: Go to @sec-full-summary-table.
+
+### List Variables of the Summary Table
+
+Another important type of table for understanding the datasets is a table with the short name of the variables with the simple, technical and methodical description.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-81-unique-variables}
+: Unique `Short name of variables`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: unique variables
+
+summary_table |>
+    dplyr::distinct(`Short name of variable`)
+```
+
+
+::::
+:::::
+
+### Explain All 184 Variables of the Summary Table
+
+It turned out that the number of unique 'Short name of variable` is the same number of rows as for the country with the most rows (= USA with 184 rows). It is therefore a reasonable assumption that all unique variable names can be found in the USA part of the database. See @sec-explain-variables.
+
+### Explain Variables for Austria of the Summary Table
+
+I believe that I will not need most of the 184 variables explained in the Summary Table. As a first approach I could start with the 21 variables that are registered with Austria. See @sec-explain-austria-variables.
+
+::: {.callout-caution #cau-quadruplicate}
+###### Post- & Pre-tax national income occur quadruple
+
+It turned out that two variables (Post-tax national income and Pre-tax national income) occur four times. But this happen the case also for other countries, like USA, Germany, Belgium etc.
+
+Maybe these variables were added with different research projects?
+
+:::
+
+So in the end there are not 184 variables in total but 178 and Austria has only 15 variable!

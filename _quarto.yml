@@ -12,6 +12,7 @@ book:
   repo-url: https://github.com/petzi53/inequality-austria
   repo-branch: master
   repo-actions: [edit, issue]
+  page-navigation: true
 
   chapters:
     - index.qmd
@@ -19,6 +20,8 @@ book:
 
   appendices:
     - 80-countries-in-regions.qmd
+    - 81-countries-and-variables.qmd
+    - 81a-countries-and-variables.qmd
     - 90-first-austria-trial.qmd
 
 bibliography:
