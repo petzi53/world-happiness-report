@@ -37,12 +37,12 @@ One idea that comes to my mind is a list of countries and the number of their ro
 
 ## Data
 
-### Download Data
+### Download Summary Table
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-81-download-data}
-: Numbered R Code Title
+: Download Summary Table
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -82,7 +82,7 @@ save_data_file("chap81", summary_table, "summary_table.rds")
 ::::
 :::::
 
-### Explore data
+### Explore Summary Table
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -107,7 +107,7 @@ skimr::skim(summary_table)
 ::::
 :::::
 
-## Inspect Data
+## Inspect Summary Table
 
 ### Number of Variables per Country
 
@@ -131,7 +131,7 @@ summary_table |>
 ::::
 :::::
 
-### Full Table
+### Display Many Columns At Once
 
 Another interesting type of table for inspecting data is an interactive table with all columns, except the very long descriptions of the columns 13-16. To get a better view I have created a special page with a full-page layout covering the full width of the browser: Go to @sec-full-summary-table.
 
@@ -174,4 +174,4 @@ Maybe these variables were added with different research projects?
 
 :::
 
-So in the end there are not 184 variables in total but 178 and Austria has only 15 variable!
+So in the end there are not 184 variables in total but 178 and Austria has only 15 variables!
