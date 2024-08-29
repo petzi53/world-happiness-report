@@ -357,7 +357,7 @@ alphabetically)
 
 [^01-data-resources-1]: But the WIID in is latest version is also
     already standardized. See
-    [WIID](https://www.wider.unu.edu/database/world-income-inequality-database-wiid). Additionally there are concerns about the data imputation model at least for versio 4.0.
+    [WIID](https://www.wider.unu.edu/database/world-income-inequality-database-wiid). Additionally there are concerns about the data imputation model at least for SWIID version 4.0 [@jenkins2015]. 
 
 To understand use all these data resources is a complex enterprise. As a
 first step and starting point I will concentrate on the World Inequality
