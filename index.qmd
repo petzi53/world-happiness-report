@@ -697,7 +697,7 @@ the threshold of the top (100-X)% group.
     [@alvaredo2018]
 -   Chancel, L., Piketty, T., Saez, E., Zucman, G., & Duflo, E. (2022).
     World Inequality Report 2022. Harvard University Press.
-    [@chancel2022]
+    [@chancel2022a]
 -   Gethin, A., Martínez-toleda, C., & Piketty, T. (2021). Political
     Cleavages and Social Inequalities - A Study of Fifty Democracies,
     1948-2020: A Study of Fifty Democracies, 1948–2020. Harvard
