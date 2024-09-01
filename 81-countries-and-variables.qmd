@@ -174,4 +174,4 @@ Maybe these variables were added with different research projects?
 
 :::
 
-So in the end there are not 184 variables in total but 178 and Austria has only 15 variables!
+So in the end there are not 184 variables in total but 178 and Austria has not 21 but only 15 variables!

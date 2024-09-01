@@ -17,12 +17,12 @@ book:
   chapters:
     - index.qmd
     - 01-data-resources.qmd
+    - 02-austrian-data.qmd
 
   appendices:
     - 80-countries-in-regions.qmd
     - 81-countries-and-variables.qmd
     - 81a-countries-and-variables.qmd
-    - 90-first-austria-trial.qmd
 
 bibliography:
     - references.bib

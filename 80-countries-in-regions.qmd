@@ -51,7 +51,7 @@ The following code chunk is only applied once. It downloads the dataset, selects
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-download-country-codes-core}
+:::::: {#cnj-80-download-country-codes-core}
 : Download the country-codes-core file, manipulate and save it
 ::::::
 :::
@@ -106,17 +106,16 @@ An inspection of the data file shows that column `region5` contains the regions 
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-explore-data}
+:::::: {#cnj-80-explore-data}
 : Explore Data
 ::::::
 :::
 ::::{.my-r-code-container}
-::: {#lst-explore-data}
 ```{r}
 #| label: explore-data
 #| results: hold
 
-country_codes <- readRDS("data/chap80/country_codes.rds")
+country_codes <- base::readRDS("data/chap80/country_codes.rds")
 
 skimr::skim(country_codes)
 
@@ -130,8 +129,6 @@ country_codes |>
     forcats::fct_count()
 ```
 
-Summarize data and show the number of countries in each of the eight regions used in WIR2022.
-:::
 
 ::::
 :::::
@@ -140,7 +137,7 @@ Summarize data and show the number of countries in each of the eight regions use
 
 :::::{.my-example}
 :::{.my-example-header}
-:::::: {#exm-list-countries}
+:::::: {#exm-80-list-countries}
 : List countries for each regions used in WIR2022
 ::::::
 :::
@@ -152,7 +149,7 @@ Summarize data and show the number of countries in each of the eight regions use
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-europe}
+:::::: {#cnj-80-europe}
 : Countries of the European region used in the WIR2022
 ::::::
 :::
@@ -178,7 +175,7 @@ wir2022_country_codes |>
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-mena}
+:::::: {#cnj-80-mena}
 : Countries of the MENA region (Middle East & North Afrika)
 ::::::
 :::
@@ -199,7 +196,7 @@ wir2022_country_codes |>
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-ssea}
+:::::: {#cnj-80-ssea}
 : Countries of the South & South-East Asia region used in the WIR2022
 ::::::
 :::
@@ -220,8 +217,8 @@ wir2022_country_codes |>
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-latin-america}
-: Countries of the Latoin America region used in the WIR2022
+:::::: {#cnj-80-latin-america}
+: Countries of the Latin America region used in the WIR2022
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -241,7 +238,7 @@ wir2022_country_codes |>
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-ruca}
+:::::: {#cnj-80-ruca}
 : Countries of the Russia & Central Asia region used in the WIR2022
 ::::::
 :::
@@ -262,7 +259,7 @@ wir2022_country_codes |>
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-susa}
+:::::: {#cnj-80-susa}
 : Countries of the Sub-Saharan African region used in the WIR2022
 ::::::
 :::
@@ -283,7 +280,7 @@ wir2022_country_codes |>
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-noac}
+:::::: {#cnj-80-noac}
 : Countries of the North America & Oceania region used in the WIR2022
 ::::::
 :::
@@ -304,7 +301,7 @@ wir2022_country_codes |>
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-east-asia}
+:::::: {#cnj-80-east-asia}
 : Countries of the East Asia region used in the WIR2022
 ::::::
 :::
