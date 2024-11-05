@@ -1,0 +1,504 @@
+# Well-Being {#sec-well-being}
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = paste0(here::here(), "/R/helper.R"))
+
+ggplot2::theme_set(ggplot2::theme_bw())
+```
+
+:::::: {#obj-chapter-template}
+::::: my-objectives
+::: my-objectives-header
+My objective for this chapter
+:::
+
+::: my-objectives-container
+In this chapter, I will take a first take on the well-being ranking data
+provided by the different [World Happiness Reports
+2012-2024](https://worldhappiness.report/analysis/)
+[@whr-download-analysis].
+
+There are figures for all countries trajectories during the years. This
+also includes Austria [@helliwell2024a, p.10]. My general aim is to
+provide a comparison of the series of rankings for Austria with other
+selected countries. I will focus on the so-called Cantril ladder of
+subjective life evaluation [@nilsson2024].
+
+As far as I can see from my first inspection, there are at least three
+challenges:
+
+1.  **Compatibility**: Check if all the data are compatible.
+2.  **Completeness**: Check if the data for the time series are
+    complete. I noticed already that there is no Excel data file
+    for 2013. Bu there data in a PDF file. How to get these data?
+    Another issue are the number of observed countries by year. How to
+    get consistent rankings if the number of countries varies?
+3.  **Visualization** Choose an appropriate visualization of the data.
+    There are already up-to-date (2005-2023) visualization of
+    trajectories. But these plots are visualizing the absolute value of
+    the life evaluations country-by-country as the following example of
+    Austria shows.
+
+![Series of the values of subjective life evaluations for Austria
+(2005-2023)](img/09-austria-well-being-trajectory-min.png){#fig-09-life-evaluation-austria
+fig-alt="alt-text" fig-align="center" width="80%"}
+
+
+@fig-09-life-evaluation-austria is a valuable figure to compare the development of the Austrian life evaluation index. But it is not useful for a comparison with other countries. Here I am thinking of two different visualizations:
+
+1. Series of several selected countries in one figure so that it facilitates a comparison. In this case I will develop a graph with different colored lines for different countries.
+2. With another figure I will try to capture the changes in rankings of some selected countries. The development of the absolute values of the life evaluations does not necessarily reflect the progress inside  countries because they are also influenced by global developments (e.g., COVID-19).
+:::
+:::::
+::::::
+
+## Import data
+
+The first step is to find the life-evaluation data and to store the file for further R processing. I will store the files in my "whr" folder inside my "data" folder. (As I do not the chapter number of the final publication I am not going to use "chapXX" ("XX" standing for the chapter number) but "whr" as my folder name.)
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-create-whr-folder}
+: Create folder for data files of the World Happiness Reports
+::::::
+:::
+::::{.my-r-code-container}
+
+
+The function `create_folder()` checks if the folder already exists. If this is the case it leaves it untouched, otherwise it creates the folder at the desired path.
+
+```{r}
+#| label: create-whr-folder
+
+create_folder(base::paste0(here::here(), "/data/"))
+create_folder(base::paste0(here::here(), "/data/whr"))
+```
+
+(*For this R code chunk is no output available*)
+
+
+::::
+:::::
+
+The next code chunks combines two actions for each year:
+
+1. At first I had to get the URL manually. Starting from the [WHR-Analysis website](https://worldhappiness.report/analysis/) I had to open each year and to look for the "Appendices & data" link. There I had to look for a data file.
+2. After downloading all data file as Excel files I had to inspect them manually to find the sheet with the Cantril ladder data. I had to note the sheet number for the appropriate download. (Default is sheet 1). Additionally I had to note the file format "xls" or "xlsx" for each year to call the correct function `readxl::read_xls` or `readxl::read_xlsx`. (I refrained from the format guessing with the more general `readxl::read_exel()` function.) Furthermore I had to skip the first three comment lines in the 2015 dataset.
+
+I am using the utility package [downloader](https://cran.r-project.org/web/packages/downloader/index.html) by Winston Chang because it provides a wrapper for the `utils::download.file()` function with the advantage that the download procedure works on Windows, Mac OS X, and other Unix-like platforms.
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-download-whr-data}
+: Download Data for the World Happiness Reports (WHR)
+::::::
+:::
+::::{.my-r-code-container}
+
+
+**Run the code just once manually**. It will download the data from the World Happiness Report (WHR) website for every year where data are available.
+
+
+```{r}
+#| label: download-whr-data
+#| eval: false
+
+## 2024 #########################################
+downloader::download(
+    url = "https://happiness-report.s3.amazonaws.com/2024/DataForFigure2.1+with+sub+bars+2024.xls",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-2024.xls")
+)
+WHR_data_2024 <- readxl::read_xls(base::paste0(here::here(), "/data/whr/WHR-2024.xls"))
+save_data_file("whr", WHR_data_2024, "WHR_data_2024.rds")
+
+## 2023 #########################################
+downloader::download(
+    url = "https://happiness-report.s3.amazonaws.com/2023/DataForFigure2.1WHR2023.xls",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-2023.xls")
+)
+WHR_data_2023 <- readxl::read_xls(base::paste0(here::here(), "/data/whr/WHR-2023.xls"))
+save_data_file("whr", WHR_data_2023, "WHR_data_2023.rds")
+
+## 2022 #########################################
+downloader::download(
+    url = "https://happiness-report.s3.amazonaws.com/2022/Appendix_2_Data_for_Figure_2.1.xls",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-2022.xls")
+)
+WHR_data_2022 <- readxl::read_xls(base::paste0(here::here(), "/data/whr/WHR-2022.xls"))
+save_data_file("whr", WHR_data_2022, "WHR_data_2022.rds")
+
+## 2021 #########################################
+downloader::download(
+    url = "https://happiness-report.s3.amazonaws.com/2021/DataForFigure2.1WHR2021C2.xls",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-2021.xls")
+)
+WHR_data_2021 <- readxl::read_xls(base::paste0(here::here(), "/data/whr/WHR-2021.xls"))
+save_data_file("whr", WHR_data_2021, "WHR_data_2021.rds")
+
+
+# 2020 #########################################
+downloader::download(
+    url = "https://happiness-report.s3.amazonaws.com/2020/WHR20_DataForFigure2.1.xls",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-2020.xls")
+)
+WHR_data_2020 <- readxl::read_xls(base::paste0(here::here(), "/data/whr/WHR-2020.xls"))
+save_data_file("whr", WHR_data_2020, "WHR_data_2020.rds")
+
+
+# 2019 #########################################
+downloader::download(
+    url = "https://s3.amazonaws.com/happiness-report/2019/Chapter2OnlineData.xls",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-2019.xls")
+)
+WHR_data_2019 <- readxl::read_xls(
+    path = base::paste0(here::here(), "/data/whr/WHR-2019.xls"), 
+    sheet = 2)
+save_data_file("whr", WHR_data_2019, "WHR_data_2019.rds")
+
+
+# 2018 #########################################
+downloader::download(
+    url = "https://s3.amazonaws.com/happiness-report/2018/WHR2018Chapter2OnlineData.xls",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-2018.xls")
+)
+WHR_data_2018 <- readxl::read_xls(
+    path = base::paste0(here::here(), "/data/whr/WHR-2018.xls"), 
+    sheet = 2)
+save_data_file("whr", WHR_data_2018, "WHR_data_2018.rds")
+
+
+# 2017 #########################################
+downloader::download(
+    url = "https://s3.amazonaws.com/happiness-report/2017/online-data-chapter-2-whr-2017.xlsx",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-2017.xlsx")
+)
+WHR_data_2017 <- readxl::read_xlsx(
+    path = base::paste0(here::here(), "/data/whr/WHR-2017.xlsx"), 
+    sheet = 3)
+save_data_file("whr", WHR_data_2017, "WHR_data_2017.rds")
+
+
+# 2016 #########################################
+downloader::download(
+    url = "https://s3.amazonaws.com/happiness-report/2016/Online-data-for-chapter-2-whr-2016.xlsx",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-2016.xlsx")
+)
+WHR_data_2016 <- readxl::read_xlsx(
+    path = base::paste0(here::here(), "/data/whr/WHR-2016.xlsx"), 
+    sheet = 3)
+save_data_file("whr", WHR_data_2016, "WHR_data_2016.rds")
+
+# 2015 #########################################
+downloader::download(
+    url = "https://s3.amazonaws.com/happiness-report/2015/Chapter2OnlineData_Expanded-with-Trust-and-Governance.xlsx",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-2015.xlsx")
+)
+WHR_data_2015 <- readxl::read_xlsx(
+    path = base::paste0(here::here(), "/data/whr/WHR-2015.xlsx"), 
+    sheet = 2,
+    skip = 3)
+save_data_file("whr", WHR_data_2015, "WHR_data_2015.rds")
+
+## 2014 missing ######################
+## 2013 data in PDF #######################
+
+
+# 2012 #########################################
+downloader::download(
+    url = "https://happiness-report.s3.amazonaws.com/2012/2012.xlsx",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-2012.xlsx")
+)
+WHR_data_2012 <- readxl::read_xlsx(
+    path = base::paste0(here::here(), "/data/whr/WHR-2012.xlsx"), 
+    sheet = 2)
+save_data_file("whr", WHR_data_2012, "WHR_data_2012.rds")
+
+```
+
+(*For this R code chunk is no output available*)
+
+
+::::
+:::::
+
+
+## Inspect Data
+
+:::::{.my-example}
+:::{.my-example-header}
+:::::: {#exm-ID-text}
+: Inspect WHR data that contains ladder score and ranking
+::::::
+:::
+::::{.my-example-container}
+
+::: {.panel-tabset}
+
+###### 2024
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2024}
+: Glimpse at WHR 2024 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2024}
+```{r}
+#| label: glimpse-whr-data-2024
+
+WHR_2024 <- base::readRDS("data/whr/WHR_data_2024.rds")
+dplyr::glimpse(WHR_2024)
+
+```
+Glimpse at ladder score 2024
+:::
+
+::::
+:::::
+
+
+###### 2023
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2023}
+: Glimpse at WHR 2023 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2023}
+```{r}
+#| label: glimpse-whr-data-2023
+
+WHR_2023 <- base::readRDS("data/whr/WHR_data_2023.rds")
+dplyr::glimpse(WHR_2023)
+```
+
+Glimpse at ladder score 2023
+:::
+
+::::
+:::::
+
+###### 2022
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2022}
+: Glimpse at WHR 2022 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2022}
+```{r}
+#| label: glimpse-whr-data-2022
+
+WHR_2022 <- base::readRDS("data/whr/WHR_data_2022.rds")
+dplyr::glimpse(WHR_2022)
+```
+
+Glimpse at ladder score 2022
+:::
+
+::::
+:::::
+
+###### 2021
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2021}
+: Glimpse at WHR 2021 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2021}
+```{r}
+#| label: glimpse-whr-data-2021
+
+WHR_2021 <- base::readRDS("data/whr/WHR_data_2021.rds")
+dplyr::glimpse(WHR_2021)
+```
+
+Glimpse at ladder score 2021
+:::
+
+::::
+:::::
+
+###### 2020
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2020}
+: Glimpse at WHR 2020 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2020}
+```{r}
+#| label: glimpse-whr-data-2020
+
+WHR_2020 <- base::readRDS("data/whr/WHR_data_2020.rds")
+dplyr::glimpse(WHR_2020)
+```
+
+Glimpse at ladder score 2020
+:::
+
+::::
+:::::
+
+###### 2019
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2019}
+: Glimpse at WHR 2019 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2019}
+```{r}
+#| label: glimpse-whr-data-2019
+
+WHR_2019 <- base::readRDS("data/whr/WHR_data_2019.rds")
+dplyr::glimpse(WHR_2019)
+```
+
+Glimpse at ladder score 2019
+:::
+
+::::
+:::::
+
+###### 2018
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2018}
+: Glimpse at WHR 2018 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2018}
+```{r}
+#| label: glimpse-whr-data-2018
+
+WHR_2018 <- base::readRDS("data/whr/WHR_data_2018.rds")
+dplyr::glimpse(WHR_2018)
+```
+
+Glimpse at ladder score 2018
+:::
+
+::::
+:::::
+
+###### 2017
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2017}
+: Glimpse at WHR 2017 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2017}
+```{r}
+#| label: glimpse-whr-data-2017
+
+WHR_2017 <- base::readRDS("data/whr/WHR_data_2017.rds")
+dplyr::glimpse(WHR_2017)
+```
+
+Glimpse at ladder score 2017
+:::
+
+::::
+:::::
+
+###### 2016
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2016}
+: Glimpse at WHR 2016 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2016}
+```{r}
+#| label: glimpse-whr-data-2016
+
+WHR_2016 <- base::readRDS("data/whr/WHR_data_2016.rds")
+dplyr::glimpse(WHR_2016)
+```
+
+Glimpse at ladder score 2016
+:::
+
+::::
+:::::
+
+
+###### 2015
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2015}
+: Glimpse at WHR 2015 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2015}
+```{r}
+#| label: glimpse-whr-data-2015
+
+WHR_2015 <- base::readRDS("data/whr/WHR_data_2015.rds")
+dplyr::glimpse(WHR_2015)
+```
+
+Glimpse at ladder score 2015
+:::
+
+::::
+:::::
+
+
+###### 2012
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2012}
+: Glimpse at WHR 2012 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2012}
+```{r}
+#| label: glimpse-whr-data-2012
+
+WHR_2012 <- base::readRDS("data/whr/WHR_data_2012.rds")
+dplyr::glimpse(WHR_2012)
+```
+
+Glimpse at ladder score 2012
+:::
+
+::::
+:::::
+
+
+:::
+
+::::
+:::::
+
+Inspecting the datasets it turned out that there is some variety in the number of rows (observed countries), number of columns (variables) and column names. I am interested only in the country column and the "ladder score" (sometimes "happiness score" and in 2012 just "ladder").

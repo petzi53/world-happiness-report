@@ -415,6 +415,8 @@ percentile is looked at.
 
 ## Inspect AT data
 
+### Summary look at the data
+
 ::: my-r-code
 ::: my-r-code-header
 ::: {#cnj-02-skim-AT-data}
@@ -431,6 +433,35 @@ skimr::skim(WID_AT)
 ```
 :::
 :::
+
+### Explore types of series
+
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-count-series-types}
+: Distribution of series types for Austrian Data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: count-series-types
+
+
+WID_AT |> 
+    dplyr::mutate(series = substr(variable, 1, 1)) |> 
+    dplyr::count(series) |> 
+    DT::datatable()
+```
+
+´
+
+::::
+:::::
+
+Comparing with the letters used for the series types only "f" (female population) and "p" (proportion of women) are mssing in the Austrian dataset.
+
 
 ## Trial to work with data
 
@@ -671,6 +702,8 @@ sptincj992_country_AT_50_40_10_1 <- WID_data_AT |>
 
 save_data_file("chap02", sptincj992_country_AT_50_40_10_1, "sptincj992_country_AT_50_40_10_1.rds")
 ```
+
+(*For this R code chunk is no output available*)
 :::
 :::
 
@@ -749,8 +782,8 @@ plotly::ggplotly(fig_sptincj992)
 :::
 ::::{.my-resource-container}
 
-- Interactive Website: Sievert, C. (2019). Interactive web-based data visualization with R, plotly, and shiny. https://plotly-r.com/
-- Book: Sievert, C. (2020). Interactive Web-Based Data Visualization with R, plotly, and shiny. Chapman and Hall/CRC.
+- **Website**: Sievert, C. (2019). Interactive web-based data visualization with R, plotly, and shiny. [https://plotly-r.com/](https://plotly-r.com/)
+- **Book**: Sievert, C. (2020). Interactive Web-Based Data Visualization with R, plotly, and shiny. Chapman and Hall/CRC. [DOI](https://doi.org/10.1201/9780429447273).
 
 ::::
 :::::

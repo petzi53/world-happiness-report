@@ -289,6 +289,21 @@ list_plotter <- function(color_list, names, package_name) {
     }
 }
 
+################################################################
+# create_folder:
+# Purpose:
+# check if folder already exists at parameter "path"
+# if not, then create folder
+# Author: Peter Baumgartner
+# path = character string:
+#                example: "/Users/xxyyzz/Documents/my-data/"
+################################################################
+create_folder <- function(path){
+
+  if (!base::file.exists(path))
+    {base::dir.create(path)}
+}
+
 
 ################################################################
 # save_data_file: Save data file for the specified chapter
