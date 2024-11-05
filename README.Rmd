@@ -11,22 +11,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Statistics With R
+# Exploring Inequality Data with an Austrian Focus
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-This Quarto book collects my personal notes, trials and exercises of
-[Statistics With R: Solving Problems Using Real-World
-Data](https://uk.sagepub.com/en-gb/eur/statistics-with-r/book253567) by
-Jenine K. Harris.
+This Quarto book looks into different aspects of inequality in my native country Austria. I am going to explore data from the [World Inequality Database](https://wid.world/) (WID) and from the [World Happiness Reports](https://worldhappiness.report/analysis/) (WHR).
 
-WATCH OUT: This is my personal learning material and is therefore
-neither an accurate replication nor an authoritative textbook.
+This is work in progress…
 
-I wrote this book as a text for others to read because that forces me to
-become explicit and explain all my learning outcomes more carefully.
-Please keep in mind that this text is not written by an expert but by a
-learner.
+
 
 
