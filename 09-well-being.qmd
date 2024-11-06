@@ -204,8 +204,18 @@ WHR_data_2015 <- readxl::read_xlsx(
     skip = 3)
 save_data_file("whr", WHR_data_2015, "WHR_data_2015.rds")
 
-## 2014 missing ######################
-## 2013 data in PDF #######################
+## 2014 missing #######################################
+
+
+
+## 2013 data in PDF ##################################
+## store PDF file locally to prevent link rotting
+downloader::download(
+    url = "https://s3.amazonaws.com/happiness-report/2013/Chapter-2_online-appendix_9-5-13_final.pdf",
+    destfile = base::paste0(here::here(), "/data/whr/WHR-PDF-2013.pdf")
+)
+
+## WHR_data_2013 will be generated and saved in the next section. 
 
 
 # 2012 #########################################
@@ -225,6 +235,173 @@ save_data_file("whr", WHR_data_2012, "WHR_data_2012.rds")
 
 ::::
 :::::
+
+## Extract 2013 WHR Data from PDF
+
+Data for the [World Happiness Report 2013](https://worldhappiness.report/ed/2013/#appendices-and-data) are not available in Excel format, unlike data from the other reports. Instead, the data are provided as a PDF file. (See also the second question of the [Frequently Asked Question](https://s3.amazonaws.com/happiness-report/2013/WHR-2013_FAQs_final.pdf))
+
+This section extracts data I am interested in --- the survey measure of SWB (Subjective Well-being) from the Gallup World Poll (GWP) --- with the help of the `tabulapdf` package.
+
+At first, I had to look for an appropriate R package because the one I had already used ([tabulizer](https://cran.r-project.org/web/packages/tabulizer/index.html)) was removed from CRAN. I found several packages for extracting PDF text (e.g., [pdftools](https://docs.ropensci.org/pdftools/), [PDE](https://cran.r-project.org/web/packages/PDE/vignettes/PDE.html), [PDFR](https://github.com/AllanCameron/PDFR)), but only [tabulapdf](https://docs.ropensci.org/tabulapdf/) is specialized in extracting table data.
+
+I read the [introductory vignette](https://docs.ropensci.org/tabulapdf/articles/tabulapdf.html) completely because only in the final section I found a solution for my specific PDF. To understand the descriptions of the problems I had to master have a look at [Chapter 2 Appendix](https://s3.amazonaws.com/happiness-report/2013/Chapter-2_online-appendix_9-5-13_final.pdf). We need the cantril ladder data presented in "Table A2. National Averages in 2010-12". To extract the data I had to overcome three separate problems:
+
+1. Table A2 spans over several pages (1-6).
+2. On page 6 starts already the next table "Table A3. National Averages in 2005-07" which has to be excluded.
+3. Pages 2-6 do not have column names.
+4. Some of the column names in page 1 span two lines
+
+The difficulties 1 and 2 arise because `tabulapdf` works page-oriented. Difficulty 3 originates from a faulty table design in the PDF. Difficulty 4 is a common problem that can be solved by setting the `col_names` argument to `FALSE`.
+
+The solution I found is an [interactive table extraction](https://docs.ropensci.org/tabulapdf/articles/tabulapdf.html#interactive-table-extraction) for each page with the `tabulapdf::locate_area()` function and to select only the figures without columns names as demonstrated in the [use case section](https://docs.ropensci.org/tabulapdf/articles/tabulapdf.html#use-case-covid-19-treatments-in-italy) of the vignette.
+
+
+:::::{.my-example}
+:::{.my-example-header}
+:::::: {#exm-extract-whr-table-data-2013}
+: Extract WHR 2013 Table Data from PDF and Tidy Data
+::::::
+:::
+::::{.my-example-container}
+
+::: {.panel-tabset}
+
+###### Extract
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-extract-pdf-table}
+: Extract 2013 Table Data from PDF
+::::::
+:::
+::::{.my-r-code-container}
+
+**Run the code just once manually**. It will download the WHR 2013 PDF, generate interactively the table coordinates and save them for further processing.
+
+```{r}
+#| label: extract-pdf-table
+#| eval: false
+
+library(tabulapdf)
+
+# set Java memory limit to 600 MB (optional)
+options(java.parameters = "-Xmx600m")
+
+# get the remote file and copy it to a temporary directory internally handled by R
+f <- "https://s3.amazonaws.com/happiness-report/2013/Chapter-2_online-appendix_9-5-13_final.pdf"
+
+# manual interactivity selection
+# appropriate page will appear in the RStudio viewer
+# point and drag to locate the areas coordinates
+# see details in screenshot for interactive table extraction
+# https://docs.ropensci.org/tabulapdf/articles/tabulapdf.html#interactive-table-extraction
+
+page1 <- locate_areas(f, pages = 1)[[1]]
+page2_5 <- locate_areas(f, pages = 2)[[1]]
+page6 <- locate_areas(f, pages = 6)[[1]]
+
+
+## store areas coordinates of WHR 2013 PDF data
+create_folder(base::paste0(here::here(), "/data/whr/2013-coord"))
+
+save_data_file("whr/2013-coord", page1, "page1.rds")
+save_data_file("whr/2013-coord", page2_5, "page2_5.rds")
+save_data_file("whr/2013-coord", page6, "page6.rds")
+
+```
+
+
+::::
+:::::
+
+
+###### Tidy PDF Data
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-tidy-pdf-data}
+: Tidy 2013 WHR Data
+::::::
+:::
+::::{.my-r-code-container}
+
+**Run the code just once manually**. It will restore the coordinates of the table data for the WHR 2013 PDF, tidy the dataset and save the result as R data object in `.rds` format.
+
+```{r}
+#| label: tidy-pdf-data
+#| eval: false
+
+
+page1 <- base::readRDS("data/whr/2013-coord/page1.rds")
+page2_5 <- base::readRDS("data/whr/2013-coord/page2_5.rds")
+page6 <- base::readRDS("data/whr/2013-coord/page6.rds")
+
+table1 <- extract_tables(
+    f,
+    pages = 1, 
+    guess = FALSE, 
+    col_names = FALSE,
+    area = list(page1)
+)
+
+table2_5 <- extract_tables(
+    f,
+    pages = c(2, 3, 4, 5), 
+    guess = FALSE, 
+    col_names = FALSE,
+    area = list(page2_5)
+)
+
+table6 <- extract_tables(
+    f,
+    pages = 6, 
+    guess = FALSE, 
+    col_names = FALSE,
+    area = list(page6)
+)
+
+WHR_data_2013 <- dplyr::bind_rows(table1[[1]], 
+                 table2_5[[1]], table2_5[[2]], table2_5[[3]], table2_5[[4]], 
+                 table6[[1]])
+
+column_names = c("Country", "Region", "Ladder", "Social support",
+                 "Freedom", "Corruption", "Donation", "Generosity",
+                 "Positive affect", "Negative affect", "Happiness (Yesterday)",
+                 "GDP per capita", "Healthy life expectancy")
+
+WHR_data_2013 <- WHR_data_2013 |> 
+    dplyr::rename_with(~column_names, dplyr::everything()) |> 
+
+WHR_data_2013[17, 1] <- "Bosnia and Herzegovina"
+WHR_data_2013[27, 1] <- "Central African Republic"
+WHR_data_2013[34, 1] <- "Congo (Brazzaville)"
+WHR_data_2013[43, 1] <- "Dominican Republic"
+WHR_data_2013[146, 1] <- "Trinidad and Tobago"
+WHR_data_2013[154, 1] <- "United Arab Emirates"
+
+## missing data (data is in wrong previous NA row)
+WHR_data_2013[154, 6] <- 0.355
+
+WHR_data_2013 <- na.omit(WHR_data_2013)
+
+
+save_data_file("whr", WHR_data_2013, "WHR_data_2013.rds")
+```
+
+(*For this R code chunk is no output available*)
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+***
+
+
+
 
 
 ## Inspect Data
@@ -471,6 +648,29 @@ Glimpse at ladder score 2015
 ::::
 :::::
 
+###### 2013
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-glimpse-whr-data-2013}
+: Glimpse at WHR 2013 ladder score data
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-glimpse-whr-data-2013}
+```{r}
+#| label: glimpse-whr-data-2013
+
+WHR_2013 <- base::readRDS("data/whr/WHR_data_2013.rds")
+dplyr::glimpse(WHR_2013)
+```
+
+Glimpse at ladder score 2013
+:::
+
+::::
+:::::
+
 
 ###### 2012
 
@@ -502,3 +702,4 @@ Glimpse at ladder score 2012
 :::::
 
 Inspecting the datasets it turned out that there is some variety in the number of rows (observed countries), number of columns (variables) and column names. I am interested only in the country column and the "ladder score" (sometimes "happiness score" and in 2012 just "ladder").
+

@@ -23,7 +23,7 @@ book:
   appendices:
     - 80-countries-in-regions.qmd
     - 81-countries-and-variables.qmd
-    - 81a-countries-and-variables.qmd
+    - 82-summary-table-wide.qmd
 
 bibliography:
     - references.bib
