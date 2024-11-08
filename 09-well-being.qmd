@@ -705,12 +705,12 @@ But for my later functions to create ladder score and ranks time series I need t
 
 Inspecting @exm-inspect-whr-data I have to change the column order for 
 
-- **2022**: delete first column 'RANK', as I will create column `rank` myself
-- **2021 and 2020**: Relocate second column 'Regional indicator' column 'Ladder score'
-- **2015**: Relocate first column 'WP5 Country' column 'Regional indicator' after column 'Ladder score'
-- **2013**: Move first column 'Region' after column 'Ladder'
+- **2022**: Relocate first column 'RANK' to the end of the columns, as I will create column `rank` myself.
+- **2021 and 2020**: Relocate second column 'Regional indicator' column 'Ladder score'.
+- **2015**: Relocate first column 'WP5 Country' column 'Regional indicator' after column 'Ladder score'.
+- **2013**: Move first column 'Region' after column 'Ladder'.
 
-To leave the original files untouched but to persevere the same structure of the data object names I will rename those five files and append "_raw" at the end of the file name. The new ".rds" object with the two ordered columns (first = country, second = ladder score) will get the same name structure as the objects presented in the code cunks of @exm-inspect-whr-data ("WHR_data_" + year).
+To leave the original files untouched but to persevere the same structure of the data object names I will rename those five files and append "_raw" at the end of the file name. The new ".rds" object with the two ordered columns (first = country, second = ladder score) will get the same name structure as the objects presented in the code chunks of @exm-inspect-whr-data ("WHR_data_" + year).
 
 :::::{.my-example}
 :::{.my-example-header}
@@ -727,7 +727,7 @@ To leave the original files untouched but to persevere the same structure of the
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-whr-order-columns-2022}
-: Delete first column 'RANK'
+: Relocate first column 'RANK' after the last column
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -736,11 +736,13 @@ To leave the original files untouched but to persevere the same structure of the
 #| label: whr-order-columns-2022
 #| results: hold
 
+
 WHR_data_2022_raw <-  base::readRDS("data/whr/WHR_data_2022.rds")
 save_data_file("whr", WHR_data_2022_raw, "WHR_data_2022_raw.rds")
 
 WHR_data_2022 <- WHR_data_2022_raw |> 
-    dplyr::select(-1)
+    dplyr::relocate("RANK", .after = last_col())
+
 
 dplyr::glimpse(WHR_data_2022)
 save_data_file("whr", WHR_data_2022, "WHR_data_2022.rds")
@@ -957,7 +959,7 @@ ladder_2012 <- create_ladder_table(2012)
 save_data_file("whr/ladder", ladder_2012, "WHR_ladder_2012.rds")
 
 
-whr_join <- dplyr::full_join(ladder_2024, ladder_2023, by = "country") |> 
+whr_join_raw <- dplyr::full_join(ladder_2024, ladder_2023, by = "country") |> 
     dplyr::full_join(ladder_2022, by = "country") |> 
     dplyr::full_join(ladder_2021, by = "country") |> 
     dplyr::full_join(ladder_2020, by = "country") |> 
@@ -969,6 +971,8 @@ whr_join <- dplyr::full_join(ladder_2024, ladder_2023, by = "country") |>
     dplyr::full_join(ladder_2013, by = "country") |> 
     dplyr::full_join(ladder_2012, by = "country")
 
+
+save_data_file("whr/ladder", whr_join_raw, "whr_join_raw.rds")
 ```
 
 Listing title
@@ -989,7 +993,7 @@ Listing title
 ```{r}
 #| label: prepare-test-figures
 
-df_ladder <- whr_join |> 
+df_ladder <- whr_join_raw |> 
     dplyr::select(c(1, dplyr::starts_with("l_"))) |> 
     dplyr::filter(country %in% c(
         "Austria", 
@@ -1012,7 +1016,7 @@ p1 <- ggplot2::ggplot(df_ladder, ggplot2::aes(
 p1
 
 
-df_rank <- whr_join |> 
+df_rank <- whr_join_raw |> 
     dplyr::select(c(1, dplyr::starts_with("r_"))) |> 
     dplyr::filter(country %in% c("Austria", 
                                  "Germany", 
