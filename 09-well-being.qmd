@@ -69,13 +69,13 @@ The first step is to find the life-evaluation data and to store the file for fur
 ::::{.my-r-code-container}
 
 
-The function `create_folder()` checks if the folder already exists. If this is the case it leaves it untouched, otherwise it creates the folder at the desired path.
+The function `pb_create_folder()` checks if the folder already exists. If this is the case it leaves it untouched, otherwise it creates the folder at the desired path.
 
 ```{r}
 #| label: create-whr-folder
 
-create_folder(base::paste0(here::here(), "/data/"))
-create_folder(base::paste0(here::here(), "/data/whr"))
+pb_create_folder(base::paste0(here::here(), "/data/"))
+pb_create_folder(base::paste0(here::here(), "/data/whr"))
 ```
 
 (*For this R code chunk is no output available*)
@@ -115,7 +115,7 @@ downloader::download(
     destfile = base::paste0(here::here(), "/data/whr/WHR-2024.xls")
 )
 WHR_data_2024 <- readxl::read_xls(base::paste0(here::here(), "/data/whr/WHR-2024.xls"))
-save_data_file("whr", WHR_data_2024, "WHR_data_2024.rds")
+pb_save_data_file("whr", WHR_data_2024, "WHR_data_2024.rds")
 
 ## 2023 #########################################
 downloader::download(
@@ -123,7 +123,7 @@ downloader::download(
     destfile = base::paste0(here::here(), "/data/whr/WHR-2023.xls")
 )
 WHR_data_2023 <- readxl::read_xls(base::paste0(here::here(), "/data/whr/WHR-2023.xls"))
-save_data_file("whr", WHR_data_2023, "WHR_data_2023.rds")
+pb_save_data_file("whr", WHR_data_2023, "WHR_data_2023.rds")
 
 ## 2022 #########################################
 downloader::download(
@@ -131,7 +131,7 @@ downloader::download(
     destfile = base::paste0(here::here(), "/data/whr/WHR-2022.xls")
 )
 WHR_data_2022 <- readxl::read_xls(base::paste0(here::here(), "/data/whr/WHR-2022.xls"))
-save_data_file("whr", WHR_data_2022, "WHR_data_2022.rds")
+pb_save_data_file("whr", WHR_data_2022, "WHR_data_2022.rds")
 
 ## 2021 #########################################
 downloader::download(
@@ -139,7 +139,7 @@ downloader::download(
     destfile = base::paste0(here::here(), "/data/whr/WHR-2021.xls")
 )
 WHR_data_2021 <- readxl::read_xls(base::paste0(here::here(), "/data/whr/WHR-2021.xls"))
-save_data_file("whr", WHR_data_2021, "WHR_data_2021.rds")
+pb_save_data_file("whr", WHR_data_2021, "WHR_data_2021.rds")
 
 
 # 2020 #########################################
@@ -148,7 +148,7 @@ downloader::download(
     destfile = base::paste0(here::here(), "/data/whr/WHR-2020.xls")
 )
 WHR_data_2020 <- readxl::read_xls(base::paste0(here::here(), "/data/whr/WHR-2020.xls"))
-save_data_file("whr", WHR_data_2020, "WHR_data_2020.rds")
+pb_save_data_file("whr", WHR_data_2020, "WHR_data_2020.rds")
 
 
 # 2019 #########################################
@@ -159,7 +159,7 @@ downloader::download(
 WHR_data_2019 <- readxl::read_xls(
     path = base::paste0(here::here(), "/data/whr/WHR-2019.xls"), 
     sheet = 2)
-save_data_file("whr", WHR_data_2019, "WHR_data_2019.rds")
+pb_save_data_file("whr", WHR_data_2019, "WHR_data_2019.rds")
 
 
 # 2018 #########################################
@@ -170,7 +170,7 @@ downloader::download(
 WHR_data_2018 <- readxl::read_xls(
     path = base::paste0(here::here(), "/data/whr/WHR-2018.xls"), 
     sheet = 2)
-save_data_file("whr", WHR_data_2018, "WHR_data_2018.rds")
+pb_save_data_file("whr", WHR_data_2018, "WHR_data_2018.rds")
 
 
 # 2017 #########################################
@@ -181,7 +181,7 @@ downloader::download(
 WHR_data_2017 <- readxl::read_xlsx(
     path = base::paste0(here::here(), "/data/whr/WHR-2017.xlsx"), 
     sheet = 3)
-save_data_file("whr", WHR_data_2017, "WHR_data_2017.rds")
+pb_save_data_file("whr", WHR_data_2017, "WHR_data_2017.rds")
 
 
 # 2016 #########################################
@@ -192,7 +192,7 @@ downloader::download(
 WHR_data_2016 <- readxl::read_xlsx(
     path = base::paste0(here::here(), "/data/whr/WHR-2016.xlsx"), 
     sheet = 3)
-save_data_file("whr", WHR_data_2016, "WHR_data_2016.rds")
+pb_save_data_file("whr", WHR_data_2016, "WHR_data_2016.rds")
 
 # 2015 #########################################
 downloader::download(
@@ -203,7 +203,7 @@ WHR_data_2015 <- readxl::read_xlsx(
     path = base::paste0(here::here(), "/data/whr/WHR-2015.xlsx"), 
     sheet = 2,
     skip = 3)
-save_data_file("whr", WHR_data_2015, "WHR_data_2015.rds")
+pb_save_data_file("whr", WHR_data_2015, "WHR_data_2015.rds")
 
 ## 2014 missing #######################################
 
@@ -227,7 +227,7 @@ downloader::download(
 WHR_data_2012 <- readxl::read_xlsx(
     path = base::paste0(here::here(), "/data/whr/WHR-2012.xlsx"), 
     sheet = 2)
-save_data_file("whr", WHR_data_2012, "WHR_data_2012.rds")
+pb_save_data_file("whr", WHR_data_2012, "WHR_data_2012.rds")
 
 ```
 
@@ -303,11 +303,11 @@ page6 <- locate_areas(f, pages = 6)[[1]]
 
 
 ## store areas coordinates of WHR 2013 PDF data
-create_folder(base::paste0(here::here(), "/data/whr/2013-coord"))
+pb_create_folder(base::paste0(here::here(), "/data/whr/2013-coord"))
 
-save_data_file("whr/2013-coord", page1, "page1.rds")
-save_data_file("whr/2013-coord", page2_5, "page2_5.rds")
-save_data_file("whr/2013-coord", page6, "page6.rds")
+pb_save_data_file("whr/2013-coord", page1, "page1.rds")
+pb_save_data_file("whr/2013-coord", page2_5, "page2_5.rds")
+pb_save_data_file("whr/2013-coord", page6, "page6.rds")
 
 ```
 
@@ -390,7 +390,7 @@ WHR_data_2013[154, 6] <- 0.355
 WHR_data_2013 <- na.omit(WHR_data_2013)
 
 
-save_data_file("whr", WHR_data_2013, "WHR_data_2013.rds")
+pb_save_data_file("whr", WHR_data_2013, "WHR_data_2013.rds")
 ```
 
 (*For this R code chunk is no output available*)
@@ -738,14 +738,14 @@ To leave the original files untouched but to persevere the same structure of the
 
 
 WHR_data_2022_raw <-  base::readRDS("data/whr/WHR_data_2022.rds")
-save_data_file("whr", WHR_data_2022_raw, "WHR_data_2022_raw.rds")
+pb_save_data_file("whr", WHR_data_2022_raw, "WHR_data_2022_raw.rds")
 
 WHR_data_2022 <- WHR_data_2022_raw |> 
     dplyr::relocate("RANK", .after = last_col())
 
 
 dplyr::glimpse(WHR_data_2022)
-save_data_file("whr", WHR_data_2022, "WHR_data_2022.rds")
+pb_save_data_file("whr", WHR_data_2022, "WHR_data_2022.rds")
 ```
 Listing text
 :::
@@ -769,13 +769,13 @@ Listing text
 #| results: hold
 
 WHR_data_2021_raw <-  base::readRDS("data/whr/WHR_data_2021.rds")
-save_data_file("whr", WHR_data_2021_raw, "WHR_data_2021_raw.rds")
+pb_save_data_file("whr", WHR_data_2021_raw, "WHR_data_2021_raw.rds")
 
 WHR_data_2021 <- WHR_data_2021_raw |> 
     dplyr::relocate("Regional indicator", .after = "Ladder score")
 
 dplyr::glimpse(WHR_data_2021)
-save_data_file("whr", WHR_data_2021, "WHR_data_2021.rds")
+pb_save_data_file("whr", WHR_data_2021, "WHR_data_2021.rds")
 ```
 
 Listing text
@@ -799,13 +799,13 @@ Listing text
 #| results: hold
 
 WHR_data_2020_raw <-  base::readRDS("data/whr/WHR_data_2020.rds")
-save_data_file("whr", WHR_data_2020_raw, "WHR_data_2020_raw.rds")
+pb_save_data_file("whr", WHR_data_2020_raw, "WHR_data_2020_raw.rds")
 
 WHR_data_2020 <- WHR_data_2020_raw |> 
     dplyr::relocate("Regional indicator", .after = "Ladder score")
 
 dplyr::glimpse(WHR_data_2020)
-save_data_file("whr", WHR_data_2020, "WHR_data_2020.rds")
+pb_save_data_file("whr", WHR_data_2020, "WHR_data_2020.rds")
 ```
 
 Listing text
@@ -829,7 +829,7 @@ Listing text
 #| results: hold
 
 WHR_data_2015_raw <-  base::readRDS("data/whr/WHR_data_2015.rds")
-save_data_file("whr", WHR_data_2015_raw, "WHR_data_2015_raw.rds")
+pb_save_data_file("whr", WHR_data_2015_raw, "WHR_data_2015_raw.rds")
 
 
 WHR_data_2015 <- WHR_data_2015_raw  |> 
@@ -837,7 +837,7 @@ WHR_data_2015 <- WHR_data_2015_raw  |>
     dplyr::relocate("Regional indicator", .after = "Ladder score")
 
 dplyr::glimpse(WHR_data_2015)
-save_data_file("whr", WHR_data_2015, "WHR_data_2015.rds")
+pb_save_data_file("whr", WHR_data_2015, "WHR_data_2015.rds")
 ```
 
 Listing text
@@ -864,14 +864,14 @@ Listing text
 #| results: hold
 
 WHR_data_2013_raw <-  base::readRDS("data/whr/WHR_data_2013.rds")
-save_data_file("whr", WHR_data_2013_raw, "WHR_data_2013_raw.rds")
+pb_save_data_file("whr", WHR_data_2013_raw, "WHR_data_2013_raw.rds")
 
 WHR_data_2013 <- WHR_data_2013_raw |> 
     dplyr::relocate("Region", .after = "Ladder") |> 
     dplyr::arrange(dplyr::desc(Ladder))
 
 dplyr::glimpse(WHR_data_2013)
-save_data_file("whr", WHR_data_2013, "WHR_data_2013.rds")
+pb_save_data_file("whr", WHR_data_2013, "WHR_data_2013.rds")
 ```
 
 Listing text
@@ -906,7 +906,7 @@ For comparisons I need a dataset with the variables
 #| label: create-whr-dataset
 #| results: hold
 
-create_folder(base::paste0(here::here(), "/data/whr/ladder"))
+pb_create_folder(base::paste0(here::here(), "/data/whr/ladder"))
 
 create_ladder_table <- function(year) {
     string_orig <- base::paste0("data/whr/WHR_data_", year, ".rds")
@@ -923,40 +923,40 @@ create_ladder_table <- function(year) {
 }
 
 ladder_2024 <- create_ladder_table(2024)
-save_data_file("whr/ladder", ladder_2024, "WHR_ladder_2024.rds")
+pb_save_data_file("whr/ladder", ladder_2024, "WHR_ladder_2024.rds")
 
 ladder_2023 <- create_ladder_table(2023)
-save_data_file("whr/ladder", ladder_2023, "WHR_ladder_2023.rds")
+pb_save_data_file("whr/ladder", ladder_2023, "WHR_ladder_2023.rds")
 
 ladder_2022 <- create_ladder_table(2022)
-save_data_file("whr/ladder", ladder_2022, "WHR_ladder_2022.rds")
+pb_save_data_file("whr/ladder", ladder_2022, "WHR_ladder_2022.rds")
 
 ladder_2021 <- create_ladder_table(2021)
-save_data_file("whr/ladder", ladder_2021, "WHR_ladder_2021.rds")
+pb_save_data_file("whr/ladder", ladder_2021, "WHR_ladder_2021.rds")
 
 ladder_2020 <- create_ladder_table(2020)
-save_data_file("whr/ladder", ladder_2020, "WHR_ladder_2020.rds")
+pb_save_data_file("whr/ladder", ladder_2020, "WHR_ladder_2020.rds")
 
 ladder_2019 <- create_ladder_table(2019)
-save_data_file("whr/ladder", ladder_2019, "WHR_ladder_2019.rds")
+pb_save_data_file("whr/ladder", ladder_2019, "WHR_ladder_2019.rds")
 
 ladder_2018 <- create_ladder_table(2018)
-save_data_file("whr/ladder", ladder_2018, "WHR_ladder_2018.rds")
+pb_save_data_file("whr/ladder", ladder_2018, "WHR_ladder_2018.rds")
 
 ladder_2017 <- create_ladder_table(2017)
-save_data_file("whr/ladder", ladder_2017, "WHR_ladder_2017.rds")
+pb_save_data_file("whr/ladder", ladder_2017, "WHR_ladder_2017.rds")
 
 ladder_2016 <- create_ladder_table(2016)
-save_data_file("whr/ladder", ladder_2016, "WHR_ladder_2016.rds")
+pb_save_data_file("whr/ladder", ladder_2016, "WHR_ladder_2016.rds")
 
 ladder_2015 <- create_ladder_table(2015)
-save_data_file("whr/ladder", ladder_2015, "WHR_ladder_2015.rds")
+pb_save_data_file("whr/ladder", ladder_2015, "WHR_ladder_2015.rds")
 
 ladder_2013 <- create_ladder_table(2013)
-save_data_file("whr/ladder", ladder_2013, "WHR_ladder_2013.rds")
+pb_save_data_file("whr/ladder", ladder_2013, "WHR_ladder_2013.rds")
 
 ladder_2012 <- create_ladder_table(2012)
-save_data_file("whr/ladder", ladder_2012, "WHR_ladder_2012.rds")
+pb_save_data_file("whr/ladder", ladder_2012, "WHR_ladder_2012.rds")
 
 
 whr_join_raw <- dplyr::full_join(ladder_2024, ladder_2023, by = "country") |> 
@@ -972,7 +972,7 @@ whr_join_raw <- dplyr::full_join(ladder_2024, ladder_2023, by = "country") |>
     dplyr::full_join(ladder_2012, by = "country")
 
 
-save_data_file("whr/ladder", whr_join_raw, "whr_join_raw.rds")
+pb_save_data_file("whr/ladder", whr_join_raw, "whr_join_raw.rds")
 ```
 
 Listing title

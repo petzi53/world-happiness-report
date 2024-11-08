@@ -290,7 +290,7 @@ list_plotter <- function(color_list, names, package_name) {
 }
 
 ################################################################
-# create_folder:
+# pb_create_folder:
 # Purpose:
 # check if folder already exists at parameter "path"
 # if not, then create folder
@@ -298,7 +298,7 @@ list_plotter <- function(color_list, names, package_name) {
 # path = character string:
 #                example: "/Users/xxyyzz/Documents/my-data/"
 ################################################################
-create_folder <- function(path){
+pb_create_folder <- function(path){
 
   if (!base::file.exists(path))
     {base::dir.create(path)}
@@ -318,7 +318,7 @@ create_folder <- function(path){
 # # See: https://bookdown.org/pbaumgartner/swr-harris/
 ################################################################
 
-save_data_file <- function(chapter_folder, object, file_name){
+pb_save_data_file <- function(chapter_folder, object, file_name){
     data_folder <- base::paste0(here::here(), "/data/")
     if (!base::file.exists(data_folder))
     {base::dir.create(data_folder)}
