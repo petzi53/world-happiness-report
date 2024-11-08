@@ -103,6 +103,80 @@ iframe {
 }
 
 
+/* ############## Code Collection ############ */
+
+
+.my-code-collection {
+  margin: 1em 0;
+  border: 2px solid gray;
+  border-left: 10px solid #36648B;
+  border-radius: 10px;
+}
+
+.my-code-collection-header {
+  margin-left: 0;
+  padding-left:  60px;
+  padding-top:  15px;
+  padding-bottom: 0.1em;
+  color: white;
+  background-color: #5CACEE;
+  border-top-right-radius: 10px;
+  font-size: 1em;
+  font-weight: bold;
+  background-size: 40px;
+  background-repeat: no-repeat;
+  background-position: 15px center;
+  background-image: url("img/icons8/quellcode-64.png");
+}
+
+.my-code-collection-container {
+  padding-top: 5px;
+  padding-left: 10px;
+  color: black;
+  background-color: white;
+  border-bottom-right-radius: 10px;
+}
+
+/* ##############   Example   ############# */
+
+
+/* ##############   Example   ############# */
+
+.my-example {
+  margin: 1em 0;
+  border: 2px solid gray;
+  border-left: 10px solid #36648B;
+  border-radius: 10px;
+}
+
+.my-example-header {
+  margin-left: 0;
+  padding-left:  60px;
+  padding-top:  15px;
+  padding-bottom: 0.1em;
+  color: white;
+  background-color: #5CACEE;
+  border-top-right-radius: 10px;
+  font-size: 1em;
+  font-weight: bold;
+  background-size: 40px;
+  background-repeat: no-repeat;
+  background-position: 15px center;
+  background-image: url("img/icons8/example-64.png");
+}
+
+
+.my-example-container {
+  padding-top: 5px;
+  padding-left: 10px;
+  color: black;
+  background-color: white;
+  border-bottom-right-radius: 10px;
+}
+
+
+
+
 /* ##############   Definition   ############# */
 
 .my-definition {
@@ -837,10 +911,6 @@ iframe {
 /* #############    Report      ################ */
 /* ############################################### */
 
-
-
-/* ######################################################### */
-
 .my-reportbox {
     margin-left: 0;
     padding-bottom: 0.1em;
@@ -882,6 +952,61 @@ iframe {
 
 
 .my-reportbox-body > :last-child {
+    padding-bottom: 0.5rem;
+    margin-bottom: 0;
+}
+
+
+
+/* ******************************************************* */
+
+
+/* #############    Collection Code      ################ */
+/* ###################################################### */
+
+/* ##### lavenderblush 2 (#EEE0E5) and 4 (#8B8386) */
+
+.my-collection {
+    margin-left: 0;
+    padding-bottom: 0.1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    opacity: 85%;
+
+    border-radius: .25rem;
+    border-left: solid #8B8386 .3rem;
+    border-right: solid 1px #8B8386;
+    border-top: solid 1px #8B8386;
+    border-bottom: solid 1px #8B8386;
+    border-left-color: #8B8386 !important;
+}
+
+.my-collection-header {
+    margin-left: 0;
+    padding-left:  60px;
+    padding-top:  15px;
+    padding-bottom: 0.1em;
+    display: flex;
+    color: #6d7a86;
+    background-color: #EEE0E5;
+    border-top-right-radius: .25rem;
+    font-size: 1em;
+    font-weight: bold;
+    background-size: 40px;
+    background-repeat: no-repeat;
+    background-position: 15px center;
+    background-image: url("img/icons8/icons8-quellcode-64.png");
+}
+
+.my-collection-body {
+    font-weight: 400;
+    margin-top: 5px;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+}
+
+
+.my-collection-body > :last-child {
     padding-bottom: 0.5rem;
     margin-bottom: 0;
 }

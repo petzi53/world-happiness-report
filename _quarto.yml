@@ -103,6 +103,10 @@ crossref:
     - kind: float
       reference-prefix: Checklist
       key: tdo
+    - kind: float
+      reference-prefix: Collection Code
+      key: col
+
 
 
 tip-cap-location: top
@@ -110,17 +114,17 @@ pak-cap-location: top
 bul-cap-location: bottom
 
 language:
-   crossref-cnj-title: "R Code"      # replaces "Conjecture"
-   crossref-cor-title: "Assessment"  # replaces "Corollary"
-   crossref-def-title: "Experiment"  # replaces "Definition"
-   crossref-exm-title: "Example"     # remains  "Example"
-   crossref-exr-title: "Exercise"    # remains  "Exercise"
-   crossref-fig-title: "Graph"       # replaces "Figure"
-   crossref-lem-title: "Resource"    # replaces "Lemma"
-   crossref-lst-title: "Listing / Output"  # replaces  "Listing"
-   crossref-prp-title: "Procedure"   # replaces "Proposition"
-   crossref-tbl-title: "Table"       # remains  "Table"
-   crossref-thm-title: "Formula"     # replaces "Theorem"
+   crossref-cnj-title: "R Code"             # replaces "Conjecture"
+   crossref-cor-title: "Assessment"         # replaces "Corollary"
+   crossref-def-title: "Experiment"         # replaces "Definition"
+   crossref-exm-title: "Code Collection"    # replaces  "Example"
+   crossref-exr-title: "Exercise"           # remains  "Exercise"
+   crossref-fig-title: "Graph"              # replaces "Figure"
+   crossref-lem-title: "Resource"           # replaces "Lemma"
+   crossref-lst-title: "Listing / Output"   # replaces  "Listing"
+   crossref-prp-title: "Procedure"          # replaces "Proposition"
+   crossref-tbl-title: "Table"              # remains  "Table"
+   crossref-thm-title: "Formula"            # replaces "Theorem"
 #   crossref-int-title: "Interpretation"
 
 # https://github.com/quarto-dev/quarto-cli/blob/main/src/resources/language/_language.yml
