@@ -908,7 +908,6 @@ For comparisons I need a dataset with the variables
 ::::::
 :::
 ::::{.my-r-code-container}
-::: {#lst-chaplisting-ID}
 ```{r}
 #| label: create-whr-dataset
 #| results: hold
@@ -964,6 +963,27 @@ ladder_2012 <- pb_create_ladder_table(2012)
 pb_save_data_file("whr/analysis", ladder_2012, "WHR_ladder_2012.rds")
 
 
+
+```
+
+
+::::
+:::::
+
+## Join ladder data
+
+We have now prepared the data for every year separately and can now join them to a single tibble.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-join-ladder-data-raw}
+: Join ladder data from all years
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: join-ladder-data-raw
+
 whr_join_raw <- dplyr::full_join(ladder_2024, ladder_2023, by = "country") |> 
     dplyr::full_join(ladder_2022, by = "country") |> 
     dplyr::full_join(ladder_2021, by = "country") |> 
@@ -980,21 +1000,20 @@ whr_join_raw <- dplyr::full_join(ladder_2024, ladder_2023, by = "country") |>
 pb_save_data_file("whr/analysis", whr_join_raw, "whr_join_raw.rds")
 ```
 
-Listing title
-:::
 
 ::::
 :::::
 
+## TEST CHUNKS
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-ID-text}
+:::::: {#cnj-prepare-test-figures}
 : Numbered R Code Title
 ::::::
 :::
 ::::{.my-r-code-container}
-::: {#lst-chaplisting-ID}
+
 ```{r}
 #| label: prepare-test-figures
 
@@ -1046,8 +1065,7 @@ p2
 
 ```
 
-Listing title
-:::
+
 
 ::::
 :::::
