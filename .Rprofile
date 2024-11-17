@@ -1,3 +1,4 @@
+# source("renv/activate.R")
 source("~/.Rprofile")
 library(glossary)
 glossary_path("../glossary-pb/glossary.yml")

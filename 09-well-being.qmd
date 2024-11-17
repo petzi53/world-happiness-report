@@ -222,7 +222,7 @@ pb_save_data_file("whr/rds", WHR_data_2017, "WHR_data_2017.rds")
 # 2016 #########################################
 downloader::download(
     url = "https://s3.amazonaws.com/happiness-report/2016/Online-data-for-chapter-2-whr-2016.xlsx",
-    destfile = base::paste0(here::here(), "/data/whr/excel/WHR-2016.xlsx")
+    destfile = base::paste0(here::here(), "/data/whr/excel/WHR-2015.xlsx")
 )
 WHR_data_2016 <- readxl::read_xlsx(
     path = base::paste0(here::here(), "/data/whr/excel/WHR-2016.xlsx"), 
@@ -540,7 +540,7 @@ dplyr::glimpse(base::readRDS("data/whr/rds/WHR_data_2021.rds"))
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-glimpse-whr-data-2020}
-: Glimpse at WHR 2020 ladder score data
+: Glimpse at WHR 2019 ladder score data
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -719,7 +719,7 @@ But for my later functions to create ladder score and ranks time series I need t
 Inspecting @exm-inspect-whr-data I have to change the column order for 
 
 - **2022**: Relocate first column 'RANK' to the end of the columns, as I will create column `rank` myself.
-- **2021 and 2020**: Relocate second column 'Regional indicator' column 'Ladder score'.
+- **2021 and 2019**: Relocate second column 'Regional indicator' column 'Ladder score'.
 - **2015**: Relocate first column 'WP5 Country' column 'Regional indicator' after column 'Ladder score'.
 - **2013**: Move first column 'Region' after column 'Ladder'.
 
@@ -794,28 +794,28 @@ pb_save_data_file("whr/rds", WHR_data_2021, "WHR_data_2021.rds")
 ::::
 :::::
 
-###### 2020
+###### 2019
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-whr-order-columns-2020}
-: Order columns for WHR 2020
+:::::: {#cnj-whr-order-columns-2019}
+: Order columns for WHR 2019
 ::::::
 :::
 ::::{.my-r-code-container}
 
 ```{r}
-#| label: whr-order-columns-2020
+#| label: whr-order-columns-2019
 #| results: hold
 
-WHR_data_2020_raw <-  base::readRDS("data/whr/rds/WHR_data_2020.rds")
-pb_save_data_file("whr/rds", WHR_data_2020_raw, "WHR_data_2020_raw.rds")
+WHR_data_2019_raw <-  base::readRDS("data/whr/rds/WHR_data_2019.rds")
+pb_save_data_file("whr/rds", WHR_data_2019_raw, "WHR_data_2019_raw.rds")
 
-WHR_data_2020 <- WHR_data_2020_raw |> 
-    dplyr::relocate("Regional indicator", .after = "Ladder score")
+WHR_data_2019 <- WHR_data_2019_raw  
+#     dplyr::relocate("Regional indicator", .after = "Ladder score")
 
-dplyr::glimpse(WHR_data_2020)
-pb_save_data_file("whr/rds", WHR_data_2020, "WHR_data_2020.rds")
+dplyr::glimpse(WHR_data_2019)
+pb_save_data_file("whr/rds", WHR_data_2019, "WHR_data_2019.rds")
 ```
 
 
@@ -938,20 +938,20 @@ pb_save_data_file("whr/analysis", ladder_2022, "WHR_ladder_2022.rds")
 ladder_2021 <- pb_create_ladder_table(2021)
 pb_save_data_file("whr/analysis", ladder_2021, "WHR_ladder_2021.rds")
 
-ladder_2020 <- pb_create_ladder_table(2020)
-pb_save_data_file("whr/analysis", ladder_2020, "WHR_ladder_2020.rds")
+ladder_2019 <- pb_create_ladder_table(2019)
+pb_save_data_file("whr/analysis", ladder_2019, "WHR_ladder_2019.rds")
 
 ladder_2019 <- pb_create_ladder_table(2019)
 pb_save_data_file("whr/analysis", ladder_2019, "WHR_ladder_2019.rds")
 
-ladder_2018 <- pb_create_ladder_table(2018)
-pb_save_data_file("whr/analysis", ladder_2018, "WHR_ladder_2018.rds")
+ladder_2017 <- pb_create_ladder_table(2017)
+pb_save_data_file("whr/analysis", ladder_2017, "WHR_ladder_2017.rds")
 
 ladder_2017 <- pb_create_ladder_table(2017)
 pb_save_data_file("whr/analysis", ladder_2017, "WHR_ladder_2017.rds")
 
-ladder_2016 <- pb_create_ladder_table(2016)
-pb_save_data_file("whr/analysis", ladder_2016, "WHR_ladder_2016.rds")
+ladder_2015 <- pb_create_ladder_table(2015)
+pb_save_data_file("whr/analysis", ladder_2015, "WHR_ladder_2015.rds")
 
 ladder_2015 <- pb_create_ladder_table(2015)
 pb_save_data_file("whr/analysis", ladder_2015, "WHR_ladder_2015.rds")
@@ -983,21 +983,24 @@ We have now prepared the data for every year separately and can now join them to
 ::::{.my-r-code-container}
 ```{r}
 #| label: join-ladder-data-raw
+#| eval: false
 
 whr_join_raw <- dplyr::full_join(ladder_2024, ladder_2023, by = "country") |> 
     dplyr::full_join(ladder_2022, by = "country") |> 
     dplyr::full_join(ladder_2021, by = "country") |> 
-    dplyr::full_join(ladder_2020, by = "country") |> 
     dplyr::full_join(ladder_2019, by = "country") |> 
-    dplyr::full_join(ladder_2018, by = "country") |> 
+    dplyr::full_join(ladder_2019, by = "country") |> 
     dplyr::full_join(ladder_2017, by = "country") |> 
-    dplyr::full_join(ladder_2016, by = "country") |> 
+    dplyr::full_join(ladder_2017, by = "country") |> 
+    dplyr::full_join(ladder_2015, by = "country") |> 
     dplyr::full_join(ladder_2015, by = "country") |> 
     dplyr::full_join(ladder_2013, by = "country") |> 
     dplyr::full_join(ladder_2012, by = "country")
 
 
 pb_save_data_file("whr/analysis", whr_join_raw, "whr_join_raw.rds")
+
+whr_join_raw1 <- dplyr::full_join(ladder_2024, ladder_2023, by = "country")
 ```
 
 
@@ -1006,16 +1009,22 @@ pb_save_data_file("whr/analysis", whr_join_raw, "whr_join_raw.rds")
 
 ## TEST CHUNKS
 
+`r glossary("CRAN")`
+
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-prepare-test-figures}
-: Numbered R Code Title
+: Numbered R Code Titled
 ::::::
 :::
 ::::{.my-r-code-container}
 
 ```{r}
 #| label: prepare-test-figures
+#| eval: false
+
+
+whr_join_raw <-  base::readRDS("data/whr/analysis/whr_join_raw.rds")
 
 df_ladder <- whr_join_raw |> 
     dplyr::select(c(1, dplyr::starts_with("l_"))) |> 
@@ -1066,8 +1075,1946 @@ p2
 ```
 
 
+***
+
+**Run the code just once manually**. It will download country classification data from the [World Bank webpage: "How does the World Bank classify countries?"](https://datahelpdesk.worldbank.org/knowledgebase/articles/378834-how-does-the-world-bank-classify-countries)
 
 ::::
 :::::
 
 
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-get-country-names}
+: Numbered R Code Title
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-chaplisting-ID}
+```{r}
+#| label: get-country-names
+#| eval: false
+
+
+whr_join_raw <-  base::readRDS("data/whr/analysis/whr_join_raw.rds")
+country_class <-  base::readRDS("data/countries/country_class.rds") |> 
+    # dplyr::rename(country = Economy) |> 
+    dplyr::slice_head(n = 218)
+
+
+whr_country_raw <- dplyr::full_join(
+    whr_join_raw,
+    country_class,
+    dplyr::join_by(country == Economy)
+)
+```
+
+Listing title
+:::
+
+::::
+:::::
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-whr-countries}
+: Numbered R Code Title
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-chaplisting-ID}
+```{r}
+#| label: clean-whr-countries
+#| eval: false
+
+WHR_names_2022 <-  base::readRDS("data/whr/rds/WHR_data_2022.rds") |> 
+    dplyr::select(1:2) |> 
+    rlang::set_names("country", "s_2022") |> 
+    dplyr::mutate(country = gsub("\\*", "", country)) |> 
+    dplyr::slice_head(n = 146) |> 
+    dplyr::arrange(country)
+```
+
+Listing title
+:::
+
+::::
+:::::
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names}
+: Numbered R Code Title
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-chaplisting-ID}
+```{r}
+#| label: clean-country-names
+#| eval: false
+
+WHR_names_2024 <- base::readRDS("data/whr/rds/WHR_data_2024.rds") |> 
+    dplyr::select(1:2) |> 
+    rlang::set_names(c("country", "s_2024")) |> 
+    dplyr::arrange(country)
+
+WHR_names_2023 <- base::readRDS("data/whr/rds/WHR_data_2023.rds") |> 
+    dplyr::select(1:2) |> 
+    rlang::set_names(c("country", "s_2023")) |> 
+    dplyr::arrange(country)
+
+WHR_names_24_23 <- dplyr::full_join(
+    WHR_names_2024,
+    WHR_names_2023,
+    by = dplyr::join_by(country)
+    )
+
+WHR_names_24_22 <- dplyr::full_join(
+    WHR_names_24_23,
+    WHR_names_2022,
+    by = dplyr::join_by(country)
+    )
+    
+```
+
+Listing title
+:::
+
+::::
+:::::
+
+## 2024
+
+
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names}
+: Clean WHR Country Names --- 2024
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Get file
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-country-names}
+: Get file for official country names
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: get-file-for-country-names
+#| eval: false
+
+pb_create_folder(base::paste0(here::here(), "/data/"))
+pb_create_folder(base::paste0(here::here(), "/data/countries"))
+
+
+downloader::download(
+    url = "https://datacatalogfiles.worldbank.org/ddh-published/0037712/DR0090755/CLASS.xlsx",
+    destfile = base::paste0(here::here(), "/data/countries/country-class_world_bank.xlsx")
+)
+country_class <- readxl::read_xlsx(base::paste0(here::here(), "/data/countries/country-class_world_bank.xlsx")) 
+pb_save_data_file("countries", country_class, "country_class.rds")
+
+country_only <-  country_class |> 
+    dplyr::select(Economy) |> 
+    dplyr::rename(Country = Economy) |> 
+    dplyr::slice_head(n = 218)
+pb_save_data_file("countries", country_only, "country_only.rds")
+```
+
+(*For this R code chunk is no output available*)
+
+::::
+:::::
+
+
+###### Country names 2024
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-country-names-2024}
+: Country Names 2024
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2024
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2024}
+: Before cleaning 2024
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2024
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2024 <- base::readRDS("data/whr/analysis/WHR_ladder_2024.rds") |> 
+    dplyr::select(1)
+
+country_2024 <- dplyr::full_join(
+    country_names,
+    names_2024,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2024
+```
+
+::::
+:::::
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2024}
+: Cleaning 2024
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2024
+#| code-fold: show
+
+
+names_2024_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2024.rds") |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R. of China" ~ "Hong Kong SAR, China",
+        country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkiye" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "State of Palestine" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Yemen" ~"Yemen, Rep.",
+        country == "Congo (Kinshasa)" ~ "Congo, Dem. Rep.",
+        TRUE ~ country))
+    
+```
+
+::::
+:::::
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2024}
+: After cleaning 2024
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-clearning-2024
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2024_countries <- names_2024_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2024_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+
+
+## 2023
+
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names-2023}
+: Clean WHR Country Names --- 2023
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Country names
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names-2023}
+: Country names for 2023
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2023
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2023}
+: Before cleaning 2023
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2023
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2023 <- base::readRDS("data/whr/analysis/WHR_ladder_2023.rds") |> 
+    dplyr::select(1)
+
+country_2023 <- dplyr::full_join(
+    country_names,
+    names_2023,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2023
+```
+
+::::
+:::::
+
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2023}
+: Cleaning of WHR country data 2023
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2023
+#| code-fold: show
+
+
+names_2023_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2023.rds") |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R. of China" ~ "Hong Kong SAR, China",
+        country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkiye" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "State of Palestine" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Congo (Kinshasa)" ~ "Congo, Dem. Rep.",
+        TRUE ~ country))
+    
+```
+
+::::
+:::::
+
+
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2023}
+: After cleaning 2023
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-cleaning-2023
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2023_countries <- names_2023_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2023_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+
+## 2022
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names-2022}
+: Clean WHR Country Names --- 2022
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Country names
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names-2022}
+: Country names for 2022
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2022
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2022}
+: Before cleaning 2022
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2022
+
+options(pillar.print_max = Inf)
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2022 <- base::readRDS("data/whr/analysis/WHR_ladder_2022.rds") |> 
+    dplyr::select(1)
+
+country_2022 <- dplyr::full_join(
+    country_names,
+    names_2022,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2022
+```
+
+::::
+:::::
+
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2022}
+: Cleaning of WHR country data 2022
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2022
+#| code-fold: show
+
+
+names_2022_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2022.rds") |> 
+    dplyr::mutate(country = gsub("\\*", "", country)) |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R. of China" ~ "Hong Kong SAR, China",
+        country == "Congo" ~ "Congo, Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkey" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "Palestinian Territories" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Eswatini, Kingdom of" ~ "Eswatini",
+        country == "Yemen" ~"Yemen, Rep.",
+        TRUE ~ country)) |> 
+    # dplyr::filter(country != "xx" & country != "North Cyprus")  # difficult to understand
+    dplyr::filter(!(country == "xx" | country == "North Cyprus")) # easier to understand
+```
+
+::::
+:::::
+
+
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2022}
+: After cleaning 2022
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-cleaning-2022
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2022_countries <- names_2022_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2022_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+## 2021
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names-2021}
+: Clean WHR Country Names --- 2021
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Country names
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names-2021}
+: Country names for 2021
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2021
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2021}
+: Before cleaning 2021
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2021
+
+options(pillar.print_max = Inf)
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2021 <- base::readRDS("data/whr/analysis/WHR_ladder_2021.rds") |> 
+    dplyr::select(1)
+
+country_2021 <- dplyr::full_join(
+    country_names,
+    names_2021,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2021
+```
+
+::::
+:::::
+
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2021}
+: Cleaning of WHR country data 2021
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2021
+#| code-fold: show
+
+
+names_2021_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2021.rds") |> 
+    dplyr::mutate(country = gsub("\\*", "", country)) |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Czech Republic" ~"Czechia",
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R. of China" ~ "Hong Kong SAR, China",
+        country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkey" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "Palestinian Territories" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Swaziland" ~ "Eswatini",
+        country == "Yemen" ~"Yemen, Rep.",
+        TRUE ~ country)) |> 
+    dplyr::filter(country != "North Cyprus")
+```
+
+::::
+:::::
+
+
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2021}
+: After cleaning 2021
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-cleaning-2021
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2021_countries <- names_2021_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2021_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+## 2020
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names-2020}
+: Clean WHR Country Names --- 2020
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Country names
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names-2020}
+: Country names for 2020
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2020
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2020}
+: Before cleaning 2020
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2020
+
+options(pillar.print_max = Inf)
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2020 <- base::readRDS("data/whr/analysis/WHR_ladder_2020.rds") |> 
+    dplyr::select(1)
+
+country_2020 <- dplyr::full_join(
+    country_names,
+    names_2020,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2020
+```
+
+::::
+:::::
+
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2020}
+: Cleaning of WHR country data 2020
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2020
+#| code-fold: show
+
+names_2020_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2020.rds") |> 
+    dplyr::mutate(country = gsub("\\*", "", country)) |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Czech Republic" ~"Czechia",
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R. of China" ~ "Hong Kong SAR, China",
+        country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+        country == "Congo (Kinshasa)" ~ "Congo, Dem. Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkey" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "Palestinian Territories" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Swaziland" ~ "Eswatini",
+        country == "Yemen" ~"Yemen, Rep.",
+        country == "Macedonia" ~ "North Macedonia",
+        TRUE ~ country)) |> 
+    dplyr::filter(country != "North Cyprus")
+```
+
+::::
+:::::
+
+
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2020}
+: After cleaning 2020
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-cleaning-2020
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2020_countries <- names_2020_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2020_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+## 2019
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names-2019}
+: Clean WHR Country Names --- 2019
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Country names
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names-2019}
+: Country names for 2019
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2019
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2019}
+: Before cleaning 2019
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2019
+
+options(pillar.print_max = Inf)
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2019 <- base::readRDS("data/whr/analysis/WHR_ladder_2019.rds") |> 
+    dplyr::select(1)
+
+country_2019 <- dplyr::full_join(
+    country_names,
+    names_2019,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2019
+```
+
+::::
+:::::
+
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2019}
+: Cleaning of WHR country data 2019
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2019
+#| code-fold: show
+
+names_2019_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2019.rds") |> 
+    dplyr::mutate(country = gsub("\\*", "", country)) |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Czech Republic" ~"Czechia",
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R. of China" ~ "Hong Kong SAR, China",
+        country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+        country == "Congo (Kinshasa)" ~ "Congo, Dem. Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkey" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "Palestinian Territories" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Swaziland" ~ "Eswatini",
+        country == "Yemen" ~"Yemen, Rep.",
+        country == "Macedonia" ~ "North Macedonia",
+        country == "Syria" ~ "Syrian Arab Republic",
+        TRUE ~ country)) |> 
+    dplyr::filter(country != "North Cyprus")
+```
+
+::::
+:::::
+
+
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2019}
+: After cleaning 2019
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-cleaning-2019
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2019_countries <- names_2019_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2019_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+## 2018
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names-2018}
+: Clean WHR Country Names --- 2018
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Country names
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names-2018}
+: Country names for 2018
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2018
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2018}
+: Before cleaning 2018
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2018
+
+options(pillar.print_max = Inf)
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2018 <- base::readRDS("data/whr/analysis/WHR_ladder_2018.rds") |> 
+    dplyr::select(1)
+
+country_2018 <- dplyr::full_join(
+    country_names,
+    names_2018,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2018
+```
+
+::::
+:::::
+
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2018}
+: Cleaning of WHR country data 2018
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2018
+#| code-fold: show
+
+names_2018_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2018.rds") |> 
+    dplyr::mutate(country = gsub("\\*", "", country)) |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Czech Republic" ~"Czechia",
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R. of China" ~ "Hong Kong SAR, China",
+        country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+        country == "Congo (Kinshasa)" ~ "Congo, Dem. Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkey" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "Palestinian Territories" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Swaziland" ~ "Eswatini",
+        country == "Yemen" ~"Yemen, Rep.",
+        country == "Macedonia" ~ "North Macedonia",
+        country == "Syria" ~ "Syrian Arab Republic",
+        country == "Trinidad & Tobago" ~ "Trinidad and Tobago",
+        TRUE ~ country)) |> 
+    dplyr::filter(country != "Northern Cyprus")
+```
+
+::::
+:::::
+
+
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2018}
+: After cleaning 2018
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-cleaning-2018
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2018_countries <- names_2018_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2018_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+## 2017
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names-2017}
+: Clean WHR Country Names --- 2017
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Country names
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names-2017}
+: Country names for 2017
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2017
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2017}
+: Before cleaning 2017
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2017
+
+options(pillar.print_max = Inf)
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2017 <- base::readRDS("data/whr/analysis/WHR_ladder_2017.rds") |> 
+    dplyr::select(1)
+
+country_2017 <- dplyr::full_join(
+    country_names,
+    names_2017,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2017
+```
+
+::::
+:::::
+
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2017}
+: Cleaning of WHR country data 2017
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2017
+#| code-fold: show
+
+names_2017_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2017.rds") |> 
+    dplyr::mutate(country = gsub("\\*", "", country)) |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Czech Republic" ~"Czechia",
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R., China" ~ "Hong Kong SAR, China",
+        country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+        country == "Congo (Kinshasa)" ~ "Congo, Dem. Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkey" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "Palestinian Territories" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Swaziland" ~ "Eswatini",
+        country == "Yemen" ~"Yemen, Rep.",
+        country == "Macedonia" ~ "North Macedonia",
+        country == "Syria" ~ "Syrian Arab Republic",
+        country == "Trinidad & Tobago" ~ "Trinidad and Tobago",
+        TRUE ~ country)) |> 
+    dplyr::filter(country != "North Cyprus")
+```
+
+::::
+:::::
+
+
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2017}
+: After cleaning 2017
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-cleaning-2017
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2017_countries <- names_2017_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2017_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+## 2016
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names-2016}
+: Clean WHR Country Names --- 2016
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Country names
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names-2016}
+: Country names for 2016
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2016
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2016}
+: Before cleaning 2016
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2016
+
+options(pillar.print_max = Inf)
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2016 <- base::readRDS("data/whr/analysis/WHR_ladder_2016.rds") |> 
+    dplyr::select(1)
+
+country_2016 <- dplyr::full_join(
+    country_names,
+    names_2016,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2016
+```
+
+::::
+:::::
+
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2016}
+: Cleaning of WHR country data 2016
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2016
+#| code-fold: show
+
+names_2016_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2016.rds") |> 
+    dplyr::mutate(country = gsub("\\*", "", country)) |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Czech Republic" ~"Czechia",
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Taiwan" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R., China" ~ "Hong Kong SAR, China",
+        country == "Hong Kong" ~ "Hong Kong SAR, China",
+        country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+        country == "Congo (Kinshasa)" ~ "Congo, Dem. Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkey" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "Palestinian Territories" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Swaziland" ~ "Eswatini",
+        country == "Yemen" ~"Yemen, Rep.",
+        country == "Macedonia" ~ "North Macedonia",
+        country == "Syria" ~ "Syrian Arab Republic",
+        country == "Trinidad & Tobago" ~ "Trinidad and Tobago",
+        country == "Somaliland region" ~ "Somalia",
+        TRUE ~ country)) |> 
+    dplyr::filter(country != "North Cyprus")
+```
+
+::::
+:::::
+
+
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2016}
+: After cleaning 2016
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-cleaning-2016
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2016_countries <- names_2016_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2016_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+## 2015
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names-2015}
+: Clean WHR Country Names --- 2015
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Country names
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names-2015}
+: Country names for 2015
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2015
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2015}
+: Before cleaning 2015
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2015
+
+options(pillar.print_max = Inf)
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2015 <- base::readRDS("data/whr/analysis/WHR_ladder_2015.rds") |> 
+    dplyr::select(1)
+
+country_2015 <- dplyr::full_join(
+    country_names,
+    names_2015,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2015
+```
+
+::::
+:::::
+
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2015}
+: Cleaning of WHR country data 2015
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2015
+#| code-fold: show
+
+names_2015_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2015.rds") |> 
+    dplyr::mutate(country = gsub("\\*", "", country)) |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Czech Republic" ~"Czechia",
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Taiwan" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R., China" ~ "Hong Kong SAR, China",
+        country == "Hong Kong" ~ "Hong Kong SAR, China",
+        country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+        country == "Congo (Kinshasa)" ~ "Congo, Dem. Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkey" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "Palestinian Territories" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Swaziland" ~ "Eswatini",
+        country == "Yemen" ~"Yemen, Rep.",
+        country == "Macedonia" ~ "North Macedonia",
+        country == "Syria" ~ "Syrian Arab Republic",
+        country == "Trinidad & Tobago" ~ "Trinidad and Tobago",
+        country == "Somaliland region" ~ "Somalia",
+        TRUE ~ country)) |> 
+    dplyr::filter(country != "North Cyprus")
+```
+
+::::
+:::::
+
+
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2015}
+: After cleaning 2015
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-cleaning-2015
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2015_countries <- names_2015_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2015_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+## 2013
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names-2013}
+: Clean WHR Country Names --- 2013
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Country names
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names-2013}
+: Country names for 2013
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2013
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2013}
+: Before cleaning 2013
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2013
+
+options(pillar.print_max = Inf)
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2013 <- base::readRDS("data/whr/analysis/WHR_ladder_2013.rds") |> 
+    dplyr::select(1)
+
+country_2013 <- dplyr::full_join(
+    country_names,
+    names_2013,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2013
+```
+
+::::
+:::::
+
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2013}
+: Cleaning of WHR country data 2013
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2013
+#| code-fold: show
+
+names_2013_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2013.rds") |> 
+    dplyr::mutate(country = gsub("\\*", "", country)) |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Czech Republic" ~"Czechia",
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Taiwan" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R., China" ~ "Hong Kong SAR, China",
+        country == "Hong Kong" ~ "Hong Kong SAR, China",
+        country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+        country == "Congo (Kinshasa)" ~ "Congo, Dem. Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkey" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "Palestinian Territories" ~ "West Bank and Gaza",
+        country == "Palestine" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Swaziland" ~ "Eswatini",
+        country == "Yemen" ~"Yemen, Rep.",
+        country == "Macedonia" ~ "North Macedonia",
+        country == "Syria" ~ "Syrian Arab Republic",
+        country == "Trinidad & Tobago" ~ "Trinidad and Tobago",
+        country == "Somaliland" ~ "Somalia",
+        TRUE ~ country)) |> 
+    dplyr::filter(country != "North Cyprus")
+```
+
+::::
+:::::
+
+
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2013}
+: After cleaning 2013
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-cleaning-2013
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2013_countries <- names_2013_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2013_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+
+## 2012
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+:::::: {#exm-clean-country-names-2012}
+: Clean WHR Country Names --- 2012
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Country names
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-country-names-2012}
+: Country names for 2012
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: country-names-2012
+
+DT::datatable(base::readRDS("data/countries/country_only.rds"))
+```
+
+
+
+::::
+:::::
+
+
+###### Before cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-before-cleaning-2012}
+: Before cleaning 2012
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: before-cleaning-2012
+
+options(pillar.print_max = Inf)
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2012 <- base::readRDS("data/whr/analysis/WHR_ladder_2012.rds") |> 
+    dplyr::select(1)
+
+country_2012 <- dplyr::full_join(
+    country_names,
+    names_2012,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+country_2012
+```
+
+::::
+:::::
+
+
+###### Cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-cleaning-2012}
+: Cleaning of WHR country data 2012
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: cleaning-2012
+#| code-fold: show
+
+names_2012_clean <- base::readRDS("data/whr/analysis/WHR_ladder_2012.rds") |> 
+    dplyr::mutate(country = gsub("\\*", "", country)) |> 
+    dplyr::mutate(country = dplyr::case_when(
+        country == "Czech Republic" ~"Czechia",
+        country == "Taiwan Province of China" ~"Taiwan, China",
+        country == "Taiwan" ~"Taiwan, China",
+        country == "Slovakia" ~ "Slovak Republic",
+        country == "South Korea" ~ "Korea, Rep.",
+        country == "Russia" ~"Russian Federation",
+        country == "Kyrgyzstan" ~ "Kyrgyz Republic",
+        country == "Venezuela" ~ "Venezuela, RB",
+        country == "Hong Kong S.A.R., China" ~ "Hong Kong SAR, China",
+        country == "Hong Kong" ~ "Hong Kong SAR, China",
+        country == "Congo (Brazzaville)" ~ "Congo, Rep.",
+        country == "Congo (Kinshasa)" ~ "Congo, Dem. Rep.",
+        country == "Laos" ~ "Lao PDR",
+        country == "Ivory Coast" ~"Côte d’Ivoire",
+        country == "Turkey" ~ "Türkiye",
+        country == "Iran" ~ "Iran, Islamic Rep.",
+        country == "Palestinian Territories" ~ "West Bank and Gaza",
+        country == "Palestine" ~ "West Bank and Gaza",
+        country == "Gambia" ~ "Gambia, The",
+        country == "Egypt" ~ "Egypt, Arab Rep.",
+        country == "Swaziland" ~ "Eswatini",
+        country == "Yemen" ~"Yemen, Rep.",
+        country == "Macedonia" ~ "North Macedonia",
+        country == "Syria" ~ "Syrian Arab Republic",
+        country == "Trinidad & Tobago" ~ "Trinidad and Tobago",
+        country == "Somaliland" ~ "Somalia",
+        country == "Somaliland Region" ~"Somalia",
+        country == "Somaliland region" ~"Somalia",
+        TRUE ~ country)) |> 
+    dplyr::filter(country != "North Cyprus")
+```
+
+::::
+:::::
+
+
+
+###### After cleaning
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-after-cleaning-2012}
+: After cleaning 2012
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: after-cleaning-2012
+
+country_names <- base::readRDS("data/countries/country_only.rds")
+
+names_2012_countries <- names_2012_clean |> 
+    dplyr::select(1)
+
+dplyr::full_join(
+    country_names,
+    names_2012_countries,
+    by = dplyr::join_by(Country == country)
+    ) |> 
+    dplyr::slice(219:dplyr::n())
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+## Join ladder data
+
+We have now prepared the data for every year separately and can now join them to a single tibble.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-join-ladder-data-clean}
+: Join ladder data from all years
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: join-ladder-data-clean
+
+whr_join_clean <- dplyr::full_join(names_2024_clean, names_2023_clean, by = "country") |> 
+    dplyr::full_join(names_2022_clean, by = "country") |> 
+    dplyr::full_join(names_2021_clean, by = "country") |> 
+    dplyr::full_join(names_2020_clean, by = "country") |> 
+    dplyr::full_join(names_2019_clean, by = "country") |> 
+    dplyr::full_join(names_2018_clean, by = "country") |> 
+    dplyr::full_join(names_2017_clean, by = "country") |> 
+    dplyr::full_join(names_2016_clean, by = "country") |> 
+    dplyr::full_join(names_2015_clean, by = "country") |> 
+    dplyr::full_join(names_2013_clean, by = "country") |> 
+    dplyr::full_join(names_2012_clean, by = "country") |> 
+    dplyr::arrange(country)
+
+
+# pb_save_data_file("whr/analysis", whr_join_raw, "whr_join_raw.rds")
+# 
+# whr_join_raw1 <- dplyr::full_join(ladder_2024, ladder_2023, by = "country")
+```
+
+::::
+:::::
