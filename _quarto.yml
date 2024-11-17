@@ -18,7 +18,7 @@ book:
     - index.qmd
     - 01-data-resources.qmd
     - 02-austrian-data.qmd
-    - 09-well-being.qmd
+    - 03-whr-data.qmd
 
   appendices:
     - 80-countries-in-regions.qmd
