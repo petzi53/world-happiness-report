@@ -625,7 +625,7 @@ prepare_whr_data <-  function(year, first, second) {
     
   df2 <- base::readRDS(df) |> 
     dplyr::select(tidyselect::all_of(c(first, second))) |> 
-    dplyr::mutate(r_year = dplyr::row_number()) |> 
+    dplyr::mutate(r_year = base::as.integer(dplyr::row_number())) |> 
     dplyr::rename_with(.fn = ~c("country", h_year, r_year)) |> 
     dplyr::mutate(country = gsub("\\*", "", country)) |>
     
@@ -716,6 +716,28 @@ prepare_whr_data("2016", 1, 2)
 prepare_whr_data("2015", 2, 4)
 prepare_whr_data("2013", 1, 2)
 prepare_whr_data("2012", 1, 2)
+
+tbl3 <-
+  tibble::tibble(id = letters[1:3], x = 9:11) %>%
+  dplyr::mutate(
+    y = x + 1,
+    z = x * x,
+    v = y + z,
+    lag = dplyr::lag(x, default = x[[1]]),
+    sin = sin(x),
+    mean = mean(v),
+    var = var(x)
+  )
+
+tbl3
+
+tbl4 <- tbl3 |> 
+  dplyr::mutate(
+    dplyr::across(tidyselect::where(is.integer), ~ formattable::digits(.x, 1)),
+    dplyr::across(tidyselect::where(is.numeric) & !tidyselect::where(is.integer), 
+                  ~ formattable::digits(.x, 3))
+  )
+tbl4
 ```
 
 Call the function in @lst-prepare-whr-data with the year of the data file and the position of the country and happiness score column.
@@ -742,8 +764,12 @@ We have now prepared the data for every year separately and can now join them to
 ::::::
 :::
 ::::{.my-r-code-container}
+
+For sorting ranks for a certain year click the happiness score value `h_` of the appropriate year **twice**.
+
 ```{r}
 #| label: join-data
+#| results: hold
 
 whr_join_score <- dplyr::full_join(
   base::readRDS("data/whr/clean/whr_clean_2024.rds"),
@@ -758,10 +784,35 @@ whr_join_score <- dplyr::full_join(
     dplyr::full_join(base::readRDS("data/whr/clean/whr_clean_2015.rds"), by = "country") |> 
     dplyr::full_join(base::readRDS("data/whr/clean/whr_clean_2013.rds"), by = "country") |> 
     dplyr::full_join(base::readRDS("data/whr/clean/whr_clean_2012.rds"), by = "country") |> 
-    dplyr::arrange(country)
+    dplyr::arrange(country) 
 
+
+DT::datatable(whr_join_score, extensions = 'FixedColumns',
+  options = list(
+    dom = 'Blfrtip',
+    scrollX = TRUE,
+    fixedColumns = TRUE,
+    pageLength = 10, 
+    lengthMenu = c(5, 10, 20, 50, 100, 200)
+  ),
+  rownames = FALSE
+  ) |> 
+  DT::formatRound(columns = c(2,4,6,8,10,12,14,16,18,20), digits = 3)
+
+
+# DT::datatable(whr_join_score,
+  # extensions = 'FixedColumns',
+  # options = list(
+  #   dom = 't',
+  #   scrollX = TRUE,
+  #   fixedColumns = TRUE
+  # ),
+#   rownames = FALSE
+# ) |> 
+#   DT::formatRound(columns = c(2,4,6,8,10,12,14,16,18,20), digits = 3)
 
 pb_save_data_file("whr/analysis", whr_join_score, "whr_join_score.rds")
+
 ```
 
 ::::
