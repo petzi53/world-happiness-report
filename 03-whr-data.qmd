@@ -463,8 +463,8 @@ pb_save_data_file("whr/raw", whr_raw_2013, "whr_raw_2013.rds")
 ::::{.my-procedure-container}
 1. Load raw data file
 2. Select only the columns with country names and ladder respectively happiness score. (@lst-prepare-whr-data)
-3. Rename the two columns to `country`, `h_<year>`. (@lst-prepare-whr-data)
-4. Create third column `r_<year>` with the calculated rank. (@lst-prepare-whr-data)
+3. Rename the two columns to `country`, `s_<year>`. ("s" stands for score.) (@lst-prepare-whr-data)
+4. Create third column `r_<year>` with the calculated rank. ("r" stands for rank) (@lst-prepare-whr-data)
 5. Detect country names that are not a standard name. (You can see an example with the year 2024 in @lst-compare-country-names-2024)
 5. Clean country names according to the unifying classification schema of country names. (@lst-prepare-whr-data)
 6. Sort data by country name. (@lst-prepare-whr-data)
@@ -620,13 +620,13 @@ prepare_whr_data <-  function(year, first, second) {
   
   ## definitions
   df <-  base::paste0("data/whr/raw/whr_raw_", year, ".rds")
-  h_year <- paste0("h_", year) # happiness scores
+  s_year <- paste0("s_", year) # happiness scores
   r_year <- paste0("r_", year) # ranks
     
   df2 <- base::readRDS(df) |> 
     dplyr::select(tidyselect::all_of(c(first, second))) |> 
     dplyr::mutate(r_year = base::as.integer(dplyr::row_number())) |> 
-    dplyr::rename_with(.fn = ~c("country", h_year, r_year)) |> 
+    dplyr::rename_with(.fn = ~c("country", s_year, r_year)) |> 
     dplyr::mutate(country = gsub("\\*", "", country)) |>
     
     ## correct country names
@@ -765,7 +765,7 @@ We have now prepared the data for every year separately and can now join them to
 :::
 ::::{.my-r-code-container}
 
-For sorting ranks for a certain year click the happiness score value `h_` of the appropriate year **twice**.
+For sorting ranks for a certain year click the happiness score value `s_` of the appropriate year **twice**.
 
 ```{r}
 #| label: join-data

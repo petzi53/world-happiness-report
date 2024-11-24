@@ -111,6 +111,21 @@ skimr::skim(summary_table)
 
 ### Number of Variables per Country
 
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-81-country-codes-variables}
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Variables per Country
+
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-81-list-variable-numbers-per-country}
@@ -126,6 +141,36 @@ summary_table |>
     DT::datatable()
 
 ```
+
+
+::::
+:::::
+
+###### Without Subregions
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-81-countries-without-subregions}
+: Number of Records (=Variables) per Country without Subregions
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: tab-81-variable-list-without-subregions
+
+summary_table |> 
+    dplyr::filter(!stringr::str_detect(`Country Code`, '-')) |> 
+    dplyr::count(Country, `Country Code`) |> 
+    DT::datatable()
+```
+***
+
+Even if the codes for the sub-regions are eliminated the list still doesn't show only countries because it includes "meta"-areas like "Africa", "Americas" etc.
+
+:::
+
+::::
+:::::
 
 
 ::::
