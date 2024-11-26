@@ -79,13 +79,23 @@ class_scheme <- function(df, sel1, sel2) {
         dplyr::nest_by(!!sel2) |> 
         dplyr::mutate(data = as.vector(data)) |>
         dplyr::mutate(data = stringr::str_c(data, collapse = "; ")) |>
-        dplyr::mutate(N = lengths(gregexpr(";", data)) + 1) |> 
-        dplyr::rename(Country = data) |>
-        DT::datatable(class = 'cell-border stripe')
+        dplyr::mutate(data = paste(data, ";")) |> 
+        dplyr::mutate(N = lengths(gregexpr(";", data))) |> 
+        dplyr::rename(Country = data) |> 
+        dplyr::arrange(!!sel2) |> 
+        DT::datatable(class = 'cell-border compact stripe', 
+            options = list(
+              pageLength = 25,
+              lengthMenu = c(5, 10, 15, 20, 25, 50)
+              )
+        )
 }
 
 df_whr <-  base::readRDS("data/whr/raw/whr_raw_2021.rds")
 df_wid <-  base::readRDS("data/chap80/country_codes.rds")
+df_wid <-  df_wid |> 
+  dplyr::mutate(dplyr::across(tidyselect::where(
+    base::is.factor), base::as.character))
 
 ```
 
@@ -103,18 +113,19 @@ program with dplyr" [@berroth-2019].
 As our function is now in place, we can display the different grouping
 schemes.
 
-:::::::::::::::::::::::::::::::: my-code-collection
-::::: my-code-collection-header
-::: my-code-collection-icon
-:::
-
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
 ::: {#exm-country-classifications}
 : Grouping schemata of WHR and WID datasets
 :::
-:::::
 
-:::::::::::::::::::::::::::: my-code-collection-container
-::::::::::::::::::::::::::: panel-tabset
+::::
+
+:::::: my-code-collection-container
+::: panel-tabset
+
 ###### WHR
 
 :::::: my-r-code
@@ -151,7 +162,7 @@ classification scheme with **`r sum(whr_class$x$data$N)` countries in
 
 :::::: my-r-code
 :::: my-r-code-header
-::: {#cnj-code-name-b}
+::: {#cnj-wid1-class}
 : Classifications of the WID data with column "region1"
 :::
 ::::
@@ -159,6 +170,7 @@ classification scheme with **`r sum(whr_class$x$data$N)` countries in
 ::: my-r-code-container
 ```{r}
 #| label: wid1-class
+
 
 (
     wid1_class <- class_scheme(
@@ -180,15 +192,15 @@ countries in `r length(wid1_class$x$data$N)` regions**.
 :::
 ::::::
 
+
+
 ###### WID2
 
 :::::: my-r-code
 :::: my-r-code-header
-<div>
-
+::: {#cnj-wid2-class}
 : Classifications of the WID data with column "region2"
-
-</div>
+:::
 ::::
 
 ::: my-r-code-container
@@ -217,11 +229,9 @@ countries in `r length(wid2_class$x$data$N)` regions**.
 
 :::::: my-r-code
 :::: my-r-code-header
-<div>
-
+::: {#cnj-wid3-class}
 : Classifications of the WID data with column "region3"
-
-</div>
+:::
 ::::
 
 ::: my-r-code-container
@@ -250,11 +260,9 @@ countries in `r length(wid3_class$x$data$N)` regions**.
 
 :::::: my-r-code
 :::: my-r-code-header
-<div>
-
+::: {#cnj-wid4-class}
 : Classifications of the WID data with column "region4"
-
-</div>
+:::
 ::::
 
 ::: my-r-code-container
@@ -282,11 +290,9 @@ countries in `r length(wid4_class$x$data$N)` regions**.
 
 :::::: my-r-code
 :::: my-r-code-header
-<div>
-
+::: {#cnj-wid5-class}
 : Classifications of the WID data with column "region5"
-
-</div>
+:::
 ::::
 
 ::: my-r-code-container
@@ -307,11 +313,56 @@ countries in `r length(wid4_class$x$data$N)` regions**.
 
 `region5` is a classification scheme with **`r sum(wid5_class$x$data$N)`
 countries in `r length(wid5_class$x$data$N)` regions**.
+
 :::
 ::::::
-:::::::::::::::::::::::::::
-::::::::::::::::::::::::::::
-::::::::::::::::::::::::::::::::
+
+###### WID6
+
+:::::: my-r-code
+:::: my-r-code-header
+::: {#cnj-wid6-class}
+: Classifications of the WID data with column "region6"
+:::
+::::
+
+::: my-r-code-container
+
+```{r}
+#| label: wid6-class
+
+
+## replace NAs of region4 with values of region5
+df_wid6 <- df_wid |> 
+  dplyr::mutate(region6 = 
+         base::ifelse(is.na(region4), region5, region4)
+         )
+
+(
+    wid_class6 <- class_scheme(
+            df = df_wid6,
+            sel1 = rlang::quo(shortname),
+            sel2 = rlang::quo(region6)
+            )
+)
+
+```
+
+------------------------------------------------------------------------
+
+`region6` is a classification scheme with **`r sum(wid_class6$x$data$N)`
+countries in `r length(wid_class6$x$data$N)` regions**.
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+
+
 
 ### Summary
 
@@ -322,7 +373,7 @@ XY = STILL TO WRITE!
 
 ## Official classifications
 
-In a first step I want to findout  where these classifications systems come from and compare
+In a first step I want to find out  where these classifications systems come from and compare
 them to the country groupings in the WID and WHR data. I will look into the two official classifications schemes of World Bank and United Nations and apply the following procedure:
 
 :::::{.my-procedure}
@@ -333,8 +384,8 @@ them to the country groupings in the WID and WHR data. I will look into the two 
 :::
 ::::{.my-procedure-container}
 1. Create a directory for storing the different country classification files (see @sec-80-create-data-dirs).
-2. Download classification files and store them for faster access as R objects with `r glossary("rds")` format (see @sec-80-download-class-files).
-3. Inspect the data classification files of World Bank (@sec-80-inspect-wb) and of the United Nations (@sec-80-unsd) in detail.
+2. Download classification files and store them for faster access as R objects with `r glossary("rds")` format  (see @sec-80-wb-download and @sec-80-unsd-download).
+3. Inspect the data classification files of World Bank (@sec-80-inspect-wb) and of the United Nations (@sec-80-inspect-unsd) in detail.
 ::::
 :::::
 
@@ -364,97 +415,9 @@ pb_create_folder(base::paste0(here::here(), "/data/country-class"))
 ::::
 :::::
 
-### Downloading classification files {#sec-80-download-class-files}
+### Download classification files {#sec-80-download-class-files}
 
-::: {.my-code-collection}
-:::: {.my-code-collection-header}
-::::: {.my-code-collection-icon}
-:::::
-:::::: {#exm-download-class-files}
-: Download classification files
-::::::
-
-::::
-
-::::{.my-code-collection-container}
-
-::: {.panel-tabset}
-
-###### World Bank {#sec-80-wb}
-
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-wb-class}
-: Download and saving sheets "List of economies" and "compositions" of the World Bank Country Classification File `Class.xlsx`
-::::::
-:::
-::::{.my-r-code-container}
-
-<center>**Run this code chunk manually if the file still needs to be downloaded.**</center>
-
-```{r}
-#| label: wb-class
-#| code-fold: show
-#| eval: false
-
-downloader::download(
-    url = "https://datacatalogfiles.worldbank.org/ddh-published/0037712/DR0090755/CLASS.xlsx",
-    destfile = base::paste0(here::here(), "/data/country-class/wb-class.xlsx")
-)
-
-wb_class_economies <- readxl::read_xlsx(base::paste0(here::here(), "/data/country-class/wb-class.xlsx"),
-                                           sheet = "List of economies") 
-pb_save_data_file("country-class", wb_class_economies, "wb_class_economies.rds")
-
-wb_class_compositions <- readxl::read_xlsx(base::paste0(here::here(), "/data/country-class/wb-class.xlsx"),
-                                           sheet = "compositions")
-pb_save_data_file("country-class", wb_class_compositions, "wb_class_compositions.rds")
-
-```
-
-<center>(*For this R code chunk is no output available*)</center>
-
-::::
-:::::
-
-
-###### UNSD
-
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-code-name-b}
-: Save the manually downloaded UNSD Excel classification file as `.rds` object
-::::::
-:::
-::::{.my-r-code-container}
-
-<center>**Run this code chunk manually if the file still needs to be downloaded.**</center>
-
-```{r}
-#| label: unsd-class
-#| code-fold: show
-#| eval: false
-
-unsd_class <- readxl::read_xlsx(base::paste0(here::here(), 
-                 "/data/country-class/unsd-class.xlsx")) 
-pb_save_data_file("country-class", unsd_class, "unsd_class.rds")
-
-```
-
-<center>(*For this R code chunk is no output available*)</center>
-
-::::
-:::::
-
-:::
-
-::::
-:::::
-
-
-### Inspect classification files
-
-#### World Bank {#sec-80-inspect-wb}
+#### World Bank {#sec-80-wb-download}
 
 The World Bank Classification can be downloaded from [How does the World Bank classify countries?](https://datahelpdesk.worldbank.org/knowledgebase/articles/378834-how-does-the-world-bank-classify-countries). At the bottom of the page you can see the line "Download an Excel file of historical classifications by income.", providing a link with word "Download". The downloaded file `CLASS.xlsx` does *not* contain a historical classification by income but the general classification system of the last available year (2023).  
 
@@ -468,7 +431,145 @@ The file `CLASS.xlsx` am interested here consists of three sheets:
 2. "compositions" and
 3. "Notes"
 
-##### Data
+I am going to download the first two Excel sheets.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-ID-text}
+: Numbered R Code Title
+::::::
+:::
+::::{.my-r-code-container}
+
+<center>**Run this code chunk manually if the file still needs to be downloaded.**</center>
+
+```{r}
+#| label: wb-class
+#| code-fold: show
+#| eval: false
+
+
+## download wb-class file ##############
+downloader::download(
+    url = "https://datacatalogfiles.worldbank.org/ddh-published/0037712/DR0090755/CLASS.xlsx",
+    destfile = base::paste0(here::here(), 
+            "/data/country-class/wb-class.xlsx")
+)
+
+## create R object ############
+wb_class_economies <- 
+  readxl::read_xlsx(
+    base::paste0(here::here(), 
+    "/data/country-class/wb-class.xlsx"),
+           sheet = "List of economies") 
+
+
+wb_class_compositions <- 
+  readxl::read_xlsx(
+    base::paste0(here::here(), 
+    "/data/country-class/wb-class.xlsx"),
+           sheet = "compositions")
+
+## save as .rds files ###############
+pb_save_data_file(
+  "country-class", 
+  wb_class_economies, 
+  "wb_class_economies.rds"
+)
+
+
+pb_save_data_file(
+  "country-class", 
+  wb_class_compositions, 
+  "wb_class_compositions.rds"
+)
+
+```
+
+<center>(*For this R code chunk is no output available*)</center>
+
+
+::::
+:::::
+
+
+#### UNSD-M49 {#sec-80-unsd-download}
+
+Another more detailed classification system expressively developed for
+statistical purposes is developed by the United Nations Statistics
+Division `r glossary("UNSD")` using the `r glossary("M49")` methodology.
+
+The result is called [Standard country or area codes for statistical use
+(M49)](https://unstats.un.org/unsd/methodology/m49/) and can be
+downloaded manually in different languages and formats (Copy into the
+clipboard, Excel or CSV) from the [Overview
+page](https://unstats.un.org/unsd/methodology/m49/overview/). On this page is
+no URL for an R script available, because triggering one of the buttons
+copies or downloads the data with the help of Javascript. So I had to download the file manually or to find another location where I could download it programmatically. I stored it as `unsd-class.csv` under the "data/country-class" folder. 
+
+I found with the OMNIKA DataStore an [external source for the UNSD-M49 country classification](https://github.com/omnika-datastore/unsd-m49-standard-area-codes). The OMNIKA DataStore is an open-access data science resource for researchers, authors, and technologists. OMNIKA Foundation is a 501c3 nonprofit whose mission is to digitize, organize, and make freely available important contents. For security reason I checked the two files with `base::all.equal()` to determine if those two files are identical. Yes, they are!
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-ID-text}
+: Numbered R Code Title
+::::::
+:::
+::::{.my-r-code-container}
+
+<center>**Run this code chunk manually if the file still needs to be downloaded.**</center>
+
+```{r}
+#| label: unsd-class
+#| code-fold: show
+#| eval: false
+
+## download unsd-m49 file ############
+url <- "https://github.com/omnika-datastore/unsd-m49-standard-area-codes/raw/refs/heads/main/2022-09-24__CSV_UNSD_M49.csv"
+
+downloader::download(
+    url = url,
+    destfile = base::paste0(here::here(), 
+            "/data/country-class/unsd-class.csv")
+)
+
+
+## create R object ###############
+unsd_class <- 
+  readr::read_delim(
+    file = base::paste0(here::here(), 
+    "/data/country-class/unsd-class.csv"),
+    delim = ";"
+  )
+
+
+## save as .rds file ################
+pb_save_data_file(
+  "country-class", 
+  unsd_class, 
+  "unsd_class.rds")
+
+
+
+```
+
+<center>(*For this R code chunk is no output available*)</center>
+
+::::
+:::::
+
+
+
+
+
+### Inspect classification files {#sec-80-inspect-class-files}
+
+To get an detailed understanding of the data structures I will provide the following outputs:
+
+1. A summary statistics with `skimr::skim()` followed by inspection of the first data with `dplyr::glimpse()`.
+2. Several detailed outputs of the classifications categories (regions) and their elements (countries) in different code chunks (tabs).
+
+#### World Bank {#sec-80-inspect-wb}
 
 ::: {.my-code-collection}
 :::: {.my-code-collection-header}
@@ -543,23 +644,23 @@ dplyr::glimpse(wb_class_compositions)
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-wb-class1}
-: Numbered R Code Title
+:::::: {#cnj-wb-class-standard}
+: Pre-defined standard categorization
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: wb-class1
+#| label: wb-class-standard
 
 
-df_wb1 <-  base::readRDS("data/country-class/wb_class_economies.rds") |> 
+df_wb_standard <-  base::readRDS("data/country-class/wb_class_economies.rds") |> 
     dplyr::slice(1:218)
 
 
 
 (
-    wb1_class <- class_scheme(
-            df = df_wb1,
+    wb_class_standard <- class_scheme(
+            df = df_wb_standard,
             sel1 = rlang::quo(`Economy`),
             sel2 = rlang::quo(`Region`)
             )
@@ -568,7 +669,7 @@ df_wb1 <-  base::readRDS("data/country-class/wb_class_economies.rds") |>
 
 ***
 
-`Region` is a coarse classification scheme with only **`r length(wb1_class$x$data$N)` regions formed by `r sum(wb1_class$x$data$N)` countries**.
+`Region` is a coarse classification scheme with only **`r length(wb_class_standard$x$data$N)` regions formed by `r sum(wb_class_standard$x$data$N)` countries**.
 
 ::::
 :::::
@@ -577,26 +678,101 @@ df_wb1 <-  base::readRDS("data/country-class/wb_class_economies.rds") |>
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-wb-class2}
-: Numbered R Code Title
+:::::: {#cnj-wb-class-all}
+: All provided groups, regional, economical and political
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: wb-class2
+#| label: wb-class-all
 
-df_wb2 <-  base::readRDS("data/country-class/wb_class_compositions.rds")
+df_wb_all <-  base::readRDS("data/country-class/wb_class_compositions.rds")
 
 
 (
-    wb1_class <- class_scheme(
-            df = df_wb2,
+    wb_class_all <- class_scheme(
+            df = df_wb_all,
             sel1 = rlang::quo(`WB_Country_Name`),
             sel2 = rlang::quo(`WB_Group_Name`)
             )
 )
 ```
 
+***
+
+`WB_Group_Name` in the "compositions" file contains all available groups. They are not restricted to regional groups because they are formed by economical and political criteria as well. There is no 1:1 match, because almost all countries belong to two or more groups. There are **`r length(wb_class_all$x$data$N)` groups with a total of `r sum(wb_class_all$x$data$N)` elements**.
+
+::::
+:::::
+
+###### Region1
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-wb-class-regional}
+: Groups formed by regional criteria (without the redundant `World` region)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: wb-class-regional
+
+str_reg <- c("AFE", "AFW", "ARB", "CSS", "CEB",
+             "EAS", "ECS", "LCN", "MEA", "NAC",
+             "OSS", "PSS", "SST", "SAS", "SSF")
+
+df_wb_reg <-  base::readRDS("data/country-class/wb_class_compositions.rds") |> 
+  dplyr::filter(WB_Group_Code %in% str_reg)
+
+(
+    wb_class_reg <- class_scheme(
+            df = df_wb_reg,
+            sel1 = rlang::quo(`WB_Country_Name`),
+            sel2 = rlang::quo(`WB_Group_Name`)
+            )
+)
+  
+```
+
+***
+
+Browsing through the `composition` data I have defined 15 `WB_GROUP_CODE`s as regional codes. These regional classification criteria results per definition to **`r length(wb_class_reg$x$data$N)` regions containing `r sum(wb_class_reg$x$data$N)` countries**.
+
+::::
+:::::
+
+###### Region2
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-wb-class-regional}
+: Groups formed by regional criteria (without the redundant `World` region)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: wb-class-regional2
+
+str_reg2 <- c("AFE", "AFW", "ARB", "CEB",
+             "EAS", "ECS", "LCN", "MEA", "NAC",
+             "SAS", "SSF")
+
+df_wb_reg2 <-  base::readRDS("data/country-class/wb_class_compositions.rds") |> 
+  dplyr::filter(WB_Group_Code %in% str_reg2)
+
+(
+    wb_class_reg2 <- class_scheme(
+            df = df_wb_reg2,
+            sel1 = rlang::quo(`WB_Country_Name`),
+            sel2 = rlang::quo(`WB_Group_Name`)
+            )
+)
+  
+```
+
+***
+
+Browsing through the `composition` data I have declassified all small states for an alternative regional group. These regional classification criteria are smaller and results to **`r length(wb_class_reg2$x$data$N)` regions containing `r sum(wb_class_reg2$x$data$N)` countries**.
 
 ::::
 :::::
@@ -674,22 +850,275 @@ All these groups may be of interests for analysis of different trends. But the r
 The World Bank file `CLASS.xslx` classifies all World Bank member countries (189), and all other economies with populations of more than 30,000 (29) in a coarse grid of only seven regions. For operational and analytical purposes, these economies are divided among income groups according to their [gross national income (GNI) per capita](https://datahelpdesk.worldbank.org/knowledgebase/articles/378831-why-use-gni-per-capita-to-classify-economies-into) in 2023, calculated using the [World Bank Atlas method](https://datahelpdesk.worldbank.org/knowledgebase/articles/378832-what-is-the-world-bank-atlas-method). 
 
 
-### United Nations {#sec-80-unsd}
+#### United Nations {#sec-80-inspect-unsd}
 
-Another more detailed classification system expressively developed for
-statistical purposes is developed by the United Nations Statistics
-Division `r glossary("UNSD")` using the `r glossary("M49")` methodology.
 
-The result is called [Standard country or area codes for statistical use
-(M49)](https://unstats.un.org/unsd/methodology/m49/) and can be
-downloaded manually in different languages and formats (Copy into the
-clipboard, Excel or CSV) from the [Overview
-page](https://unstats.un.org/unsd/methodology/m49/overview/). There is
-no URL for an R script available, because triggering one of the buttons
-copies or downloads the data with the help of Javascript. So I had to download the file manually. I stored it as `unsd-class.csv` under the "data/country-class" folder. 
 
-The file has 15 columns as you can see from the [Overview
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-inspect-unsd}
+: Inspect UNSD-M49 geoscheme classification
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### raw
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-inspect-unsd-m49}
+: Inspect UNSD M49 geoscheme classification
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: inspect-unsd-m49
+#| results: hold
+
+unsd_class <- base::readRDS("data/country-class/unsd_class.rds")
+glue::glue("******************* Using skimr::skim() ***************************")
+skimr::skim(unsd_class)
+glue::glue("")
+glue::glue("****************** Using dplyr::glimpse() *************************")
+dplyr::glimpse(unsd_class)
+
+```
+
+::::
+:::::
+
+
+###### clean 
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-clean-unsc-m49}
+: Clean UNSD M49 geoscheme classification
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: clean-unsd-49
+#| results: hold
+
+## column renaming vector ########
+m49_cols = c(
+  region_c = "Region Code", region_n = "Region Name",
+  subr_c = "Sub-region Code", subr_n = "Sub-region Name", 
+  midr_c = "Intermediate Region Code", midr_n = "Intermediate Region Name",
+  country = "Country or Area", m49 = "M49 Code", 
+  iso2 = "ISO-alpha2 Code", iso3 = "ISO-alpha3 Code",
+  ldc = "Least Developed Countries (LDC)", 
+  lldc = "Land Locked Developing Countries (LLDC)", 
+  sids = "Small Island Developing States (SIDS)"
+  )
+  
+## clean data ###############################
+unsd_class <- base::readRDS("data/country-class/unsd_class.rds")
+unsd_class_clean <- unsd_class |> 
+  dplyr::select(-(1:2)) |> 
+  dplyr::rename(tidyselect::all_of(m49_cols)) |> 
+  dplyr::filter(country != "Antarctica") |> 
+  dplyr::mutate(iso2 = base::ifelse(country == "Namibia", "NA", iso2)) |> 
+  dplyr::relocate(country, .before = region_c) |> 
+  # .x = anonymous function; "x" = value in cols of unsd_class
+  dplyr::mutate(dplyr::across(
+    ldc:sids, ~ dplyr::if_else(.x == "x", "1", "999", "0") 
+    )) |> 
+  dplyr::arrange(country)
+
+## save new tibble ##########
+pb_save_data_file(
+  "country-class",
+  unsd_class_clean,
+  "unsd_class_clean.rds"
+)
+
+
+## prepare skimmers ##########
+my_skim <- skimr::skim_with(
+  character = skimr::sfl(
+    whitespace = NULL,
+    min = NULL,
+    max = NULL,
+    empty = NULL
+    )
+)
+
+
+## display results ##########
+unsd_class <- base::readRDS("data/country-class/unsd_class.rds")
+glue::glue("******************* Using skimr::skim() ***************************")
+my_skim(unsd_class_clean) |> dplyr::select(-complete_rate)
+glue::glue("")
+glue::glue("****************** Using dplyr::glimpse() *************************")
+dplyr::glimpse(unsd_class_clean)
+
+```
+
+
+
+
+::::
+:::::
+
+###### Region
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-ID-text}
+: Numbered R Code Title
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: unsd-class1
+
+df_unsd <-  base::readRDS("data/country-class/unsd_class_clean.rds")
+
+(
+    unsd_class1 <- class_scheme(
+            df = df_unsd,
+            sel1 = rlang::quo(`country`),
+            sel2 = rlang::quo(`region_n`)
+            )
+)
+```
+
+::::
+:::::
+
+###### Sub-region
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-ID-text}
+: Numbered R Code Title
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: unsd-class2
+
+df_unsd <-  base::readRDS("data/country-class/unsd_class_clean.rds")
+
+(
+    unsd_class2 <- class_scheme(
+            df = df_unsd,
+            sel1 = rlang::quo(`country`),
+            sel2 = rlang::quo(`subr_n`)
+            )
+)
+```
+
+::::
+:::::
+
+###### Intermediate
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-ID-text}
+: Numbered R Code Title
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: unsd-class3
+
+df_unsd <-  base::readRDS("data/country-class/unsd_class_clean.rds")
+
+(
+    unsd_class3 <- class_scheme(
+            df = df_unsd,
+            sel1 = rlang::quo(`country`),
+            sel2 = rlang::quo(`midr_n`)
+            )
+)
+```
+
+::::
+:::::
+
+###### Intermediate2
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-ID-text}
+: Numbered R Code Title
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: unsd-class4
+
+unsd_class4 <-  base::readRDS("data/country-class/unsd_class_clean.rds")
+
+unsd_class4 <- unsd_class4 |> 
+  dplyr::mutate(midr_n2 = 
+         base::ifelse(is.na(midr_n), subr_n, midr_n)
+         )
+
+(
+    unsd_class4 <- class_scheme(
+            df = unsd_class4,
+            sel1 = rlang::quo(`country`),
+            sel2 = rlang::quo(`midr_n2`)
+            )
+) 
+  
+```
+
+`midr_n2` is a classification scheme with **`r sum(unsd_class4$x$data$N)`
+countries in `r length(unsd_class4$x$data$N)` regions**.
+::::
+:::::
+
+
+
+
+:::
+
+::::
+:::::
+
+
+##### Descriptions of the XY tabs
+
+The file has 15 columns as you can also see online from the [Overview
 page](https://unstats.un.org/unsd/methodology/m49/overview/). 
+
+The many missing values (`NAs`) for the categories LDC, LLDC and SIDS are easy explained: These three columns are coded with an 'x' if the country of this row belong to this category. Recoding these three columns with 1 and 0 (1 = yes, belongs to this category, 0 = no, does not belong to this category) will reduce most of their missing values.
+
+One missing value in the regional categories (Region, Sub-Region and Intermediate Region) is related to Antarctica which is not seen by the M49 scheme as a separated region. It has therefore no regional codes and names with the exception of the overall comprising global region. But it has M49 as well ISO-alpha codes.
+
+One of the missing values for ISO-alpha2 and ISO-alpha3 is related to Sark, which is "recognized by the United Nations Statistics Division (UNSD) as a separate territory" but was not accepted by ISO now for more than 20 years [@mccarthy-2020]. Recently a new application (see [PDF](https://www.sarkid.org/assets/pdf/SarkID%20Identity%20info%20v1_2.pdf)) will change that but currently Sark is still waiting for [ISO 3166 codes](https://www.iso.org/iso-3166-country-codes.html).
+
+The other missing value for ISO-alpha2 codes belongs to Namibia because its abbreviation `NA` is interpreted by R as a missing value!
+
+To clean the data I will
+
+- Remove the global codes and names because they a redundant: All rows have global code "001" ("World").
+- Rename the columns to get shorter names.
+- Remove Antarctica because it is not seen as separate country.
+- Replace `NA` in the column ISO-alpha2 Code" of Namibia with the string "NA".
+- Recode the columns LDC, LLDC and SIDS with 0 and 1.
+- Relocate the column "country" (previously "Country or Area") to the first column because than it easier to find some relevant content
+- Sort the data alphabetically by "country".
+
+
+
+
+
+##### Summary
+
+
 
 
 
@@ -697,7 +1126,8 @@ page](https://unstats.un.org/unsd/methodology/m49/overview/).
 ## XY STOPPED HERE - WHAT FOLLOW ARE SOME (OLDER) TEXT MODULES
 
 
-***
+### Modul: Why looking at classification systems?
+
 Only sometimes are they used identically in the data I will look at. So
 I also have to understand these data-driven differences (e.g., in the
 `r glossary("WID")` database or the `r glossary("WHR")` data) with the
@@ -727,6 +1157,9 @@ approach poses two problems:
     `r glossary("EU membership applications", "EU membership status")`
     are not part of the international standardized statistical
     groupings.
+
+
+### Modul: UNSD M49 geoscheme preliminiary rsults
 
 After some research I found out that the most detailed and for
 statistical purposes most relevant classification system is
@@ -855,30 +1288,33 @@ Geoscheme of the United Nations as a `.csv` file and saves it as an R
 
 ## define variables
 url <- "https://github.com/omnika-datastore/unsd-m49-standard-area-codes/raw/refs/heads/main/2022-09-24__CSV_UNSD_M49.csv"
-chapter_folder = "chap80"
+folder = "country-class"
 
 ## create folder for chapter if not already done
-chap_folder <-
+data_folder <-
         base::paste0(
             here::here(),
-            paste0("/data/", chapter_folder, "/")
+            paste0("/data/", folder, "/")
         )
-    if (!base::file.exists(chap_folder))
-    {base::dir.create(chap_folder)}
+    if (!base::file.exists(data_folder))
+    {base::dir.create(data_folder)}
 
 ## get the UNSD M49 .csv file from the OMNIKA Foundation GitHub
-destfile <- base::paste0(chap_folder, "unsd_m49.csv")
+destfile <- base::paste0(data_folder, "unsd_m49.csv")
 utils::download.file(url, destfile)
 tmp <- readr::read_csv2(destfile)
 
 
 ## save original file without changes
-pb_save_data_file("chap80", tmp, "unsd_m49.rds")
+pb_save_data_file("country-class", tmp, "unsd_m49.rds")
 ```
 
 
 ::::
 :::::::
+
+
+### Modul: WIR2022 data inspection & exploration
 
 :::::: {#obj-chapter-template}
 ::::: my-objectives

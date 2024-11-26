@@ -114,7 +114,7 @@ pb_save_data_file("chap02", WID_data_AT, "WID_data_AT.rds")
     The result is a folder with the same name but without the extension
     ".zip".
 6.  Delete the ".zip" file.
-7.  Add the path of the huge `wid_all_data` folder (2.38 GB) to `.gitignore` because you don't want to store all this files in your GitHub repo. Whenever you need a file to work on copy it programmatically in those areas that will be saved with Git.
+7.  Add the path of the huge `wid_all_data` folder (2.38 GB) to `.gitignore` because you don't want to store all these files in your GitHub repo. Whenever you need a file to work on copy it programmatically in those areas that will be saved with Git.
 :::
 :::
 
