@@ -3,13 +3,13 @@ project:
   pre-render: R/helper.R
 
 book:
-  title: "Inequality in Austria"
+  title: "Inequality Research"
   author: "Peter Baumgartner"
   date: last-modified
   date-format: YYYY-MM-DD HH:mm
   favicon: "img/favicon_io/apple-touch-icon.png"
-  site-url: https://bookdown.org/pbaumgartner/inequality-austria/
-  repo-url: https://github.com/petzi53/inequality-austria
+  site-url: https://bookdown.org/pbaumgartner/inequality-research/
+  repo-url: https://github.com/petzi53/inequality-research
   repo-branch: master
   repo-actions: [edit, issue]
   page-navigation: true
