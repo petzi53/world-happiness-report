@@ -1,15 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# Exploring Inequality Data with an Austrian Focus
+# World Happiness Reports
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
-This Quarto book looks into different aspects of inequality in my native
-country Austria. I am going to explore data from the [World Inequality
-Database](https://wid.world/) (WID) and from the [World Happiness
-Reports](https://worldhappiness.report/analysis/) (WHR).
+This Quarto book explores data from the [World Happiness
+Reports](https://worldhappiness.report/) (WHR) between 2012-2025.
 
 This is work in progress…
