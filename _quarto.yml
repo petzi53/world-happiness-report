@@ -3,27 +3,25 @@ project:
   pre-render: R/helper.R
 
 book:
-  title: "Inequality Research"
+  title: "World Happiness Report"
   author: "Peter Baumgartner"
   date: last-modified
   date-format: YYYY-MM-DD HH:mm
   favicon: "img/favicon_io/apple-touch-icon.png"
-  site-url: https://bookdown.org/pbaumgartner/inequality-research/
-  repo-url: https://github.com/petzi53/inequality-research
+  site-url: https://bookdown.org/pbaumgartner/world-happiness-report/
+  repo-url: https://github.com/petzi53/world-happiness-report
   repo-branch: master
   repo-actions: [edit, issue]
   page-navigation: true
 
   chapters:
     - index.qmd
-    - 01-data-resources.qmd
-    - 02-austrian-data.qmd
-    - 03-whr-data.qmd
+    - 01-download-data.qmd
+    - 02-ranking-2024.qmd
+    - 03-country-charts.qmd
 
-  appendices:
-    - 80-countries-in-regions.qmd
-    - 81-countries-and-variables.qmd
-    - 82-summary-table-wide.qmd
+  # appendices:
+  #   - 80-countries-in-regions.qmd
 
 bibliography:
     - references.bib

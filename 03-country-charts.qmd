@@ -1,0 +1,132 @@
+---
+execute:
+  cache: false
+---
+
+# Country Charts {#sec-country-charts}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = paste0(here::here(), "/R/helper.R"))
+
+ggplot2::theme_set(ggplot2::theme_bw())
+```
+
+::::: {#obj-chapter-template}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objective of this chapter
+:::
+
+::: {.my-objectives-container}
+
+I will display the yearly variations of the `r glossary("cantril ladder")` values for certain countries. My focus will be on German speaking countries (Austria, Germany, Switzerland) and on some major European countries.
+
+:::
+::::
+:::::
+
+```{r}
+#| label: line-graph-function
+#| include: false
+
+country_selection_line_graph <-  function(df) {
+    ggplot2::ggplot(df,
+      ggplot2::aes(x = Year, y = `Ladder score`, color = `Country name`)
+      ) +
+    ggplot2::geom_line() +
+    ggplot2::geom_point(
+        shape = 21,
+        color = "black",
+        fill = "grey",
+        size = 2
+    ) +
+   ggplot2::scale_x_continuous(breaks = scales::pretty_breaks(n = 13))
+}
+```
+
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-show-eval-DACH}
+: Evolution of life evaluation for German speaking countries
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-eval-DACH
+
+ranking_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024.rds")
+
+ranking_2024 |> 
+    dplyr::filter(
+        `Country name` == "Austria" |
+        `Country name` == "Germany" |
+        `Country name` == "Switzerland"
+        ) |> 
+    country_selection_line_graph()
+```
+
+::::
+:::::
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-show-eval-european-countries}
+: Evolution of life evaluation for some European countries
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-eval-european-countries
+
+ranking_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024.rds")
+
+ranking_2024 |> 
+    dplyr::filter(
+        `Country name` == "Germany" |
+        `Country name` == "France" |
+        `Country name` == "Italy" | 
+        `Country name` == "Spain" |
+        `Country name` == "Poland"
+        ) |> 
+    country_selection_line_graph()
+```
+
+::::
+:::::
+
+
+## Glossary
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info
+
+::::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::::
+
+

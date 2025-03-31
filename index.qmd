@@ -16,9 +16,8 @@ WATCH OUT: This is work in progress
 **This is my personal learning material and is therefore neither a
 scientific peer reviewed article nor an authoritative textbook.**
 
-With this book I want to apply my statistical knowledge using the R
-language to investigate social inequality for Austria, my country of
-birth and where I am living.
+With this book I want to explore the data from the [World Happiness Reports 2012-2025](https://worldhappiness.report/analysis/) using the R
+language.
 
 I am writing this book as a text for others to read because that forces
 me to become explicit and explain all my learning outcomes more
@@ -32,8 +31,8 @@ learner.
 
 ## Glossary {.unnumbered}
 
-I am using the {**glossary**} package to create links to glossary
-entries.\]
+I am using the [glossary package](https://debruine.github.io/glossary/) to create links to glossary
+entries.
 
 ::: my-r-code
 ::: my-r-code-header
@@ -73,7 +72,7 @@ glossary::glossary_path("../glossary-pb/glossary.yml")
 
 If you hover with your mouse over the double underlined links it opens
 an window with the appropriate glossary text. Try this example:
-`r glossary("Z-Score")`.
+`r glossary("WHR")`.
 
 To apply the glossary into this text I have used the {**glossary**}
 package by [Lisa
@@ -112,7 +111,7 @@ still to provide a key what this short references mean.
 :::
 
 If you fork the [repository of this quarto
-book](https://github.com/petzi53/inequality-austria) then the glossary
+book](https://github.com/petzi53/world-happiness-report) then the glossary
 will not work out of the box. Load down the `glossary.yml` file from [my
 glossary-pb GitHub
 repo](https://github.com/petzi53/glossary-pb/blob/master/glossary.yml),
@@ -144,7 +143,7 @@ name with curly brakes and format it in bold. Additionally I will add a
 special annex file "Used packages" with an alphabetically sorted list of
 short package descriptions.
 
-I am mentioning package name explicitly also for the default
+I am mentioning package names explicitly also for the default
 installation of base R. This wouldn't be necessary but it helps me to
 understand where the base R functions come from. What follows is a list
 of base R packages of the system library included into every
@@ -165,521 +164,6 @@ Wickham:
 
 > When you call a function, you typically omit the names of data arguments, because they are used so commonly. If you overridethe default value of an argument, use the full name ([tidyverse style guide](https://style.tidyverse.org/syntax.html)).
 
-## Get data
-
-::: my-example
-::: my-example-header
-::: {#exm-get-austrian-data}
-: Get Austrian Data
-:::
-:::
-
-::: my-example-container
-::: panel-tabset
-
-####### Country codes
-
-::: my-r-code
-::: my-r-code-header
-::: {#cnj-country-codes}
-: List and meaning of all country and region codes
-:::
-:::
-
-::: my-r-code-container
-::: {#lst-country-codes}
-```{r}
-#| label: country-codes
-#| eval: false
-
-url <- "_archive/datasets/WID_fulldataset_AT_27-06-2024_14_57_47/WID_countries.csv"
-
-WID_countries <- readr::read_delim(
-    file = url, 
-    delim = ";", 
-    col_types = "ccccc",
-    escape_double = FALSE, 
-    trim_ws = TRUE
-    )
-
-save_data_file("chap0", WID_countries, "WID_countries.rds")
-
-```
-
-Get list and meaning of all country and region codes and save it to
-`WID_countries`.
-:::
-:::
-:::
-
-(*For this R code chunk is no output available*)
-
-####### Country data (AT)
-
-::: my-r-code
-::: my-r-code-header
-::: {#cnj-austria-data-file}
-: Austria data file
-:::
-:::
-
-::: my-r-code-container
-::: {#lst-austria-data-file}
-```{r}
-#| label: austria-data-file
-#| eval: false
-
-url <-  "_archive/datasets/WID_fulldataset_AT_27-06-2024_14_57_47/WID_data_AT.csv"
-
-WID_data_AT <- readr::read_delim(
-    file = url, 
-    delim = ";", 
-    col_types = "cccddcc",
-    escape_double = FALSE, 
-    trim_ws = TRUE
-    )
-
-save_data_file("chap0", WID_data_AT, "WID_data_AT.rds")
-```
-
-Get Austria data from the `WID_data_AT.csv` file
-:::
-:::
-:::
-
-(*For this R code chunk is no output available*)
-
-####### Metadata
-
-::: my-r-code
-::: my-r-code-header
-::: {#cnj-get-metadata}
-: Get metadata
-:::
-:::
-
-::: my-r-code-container
-::: {#lst-get-metadata}
-```{r}
-#| label: get-metadata
-#| eval: false
-
-url <- "_archive/datasets/WID_fulldataset_AT_27-06-2024_14_57_47/WID_metadata_AT.csv"
-
-WID_metadata_AT <- read_delim(
-    file = url, 
-    delim = ";", 
-    col_types = "ccccccccccccccccccc", # 19 character columns
-    escape_double = FALSE, 
-    trim_ws = TRUE
-    )
-
-save_data_file("chap0", WID_metadata_AT, "WID_metadata_AT.rds")
-```
-
-Get Austrian metadata from the `WID_metadata_AT.csv` file
-:::
-:::
-:::
-
-(*For this R code chunk is no output available*)
-:::
-:::
-:::
-
-## Inspect data
-
-::: my-example
-::: my-example-header
-::: {#exm-inspect-data}
-: Inspect Austrian data
-:::
-:::
-
-::: my-example-container
-::: panel-tabset
-####### Country codes
-
-::: my-r-code
-::: my-r-code-header
-::: {#cnj-inspect-country-codes}
-: Inspect country codes
-:::
-:::
-
-::: my-r-code-container
-::: {#lst-inspect-country-codes}
-```{r}
-#| label: inspect-country-codes
-#| results: hold
-
-WID_countries <- base::readRDS("data/chap0/WID_countries.rds")
-
-glue::glue("############################################################")
-glue::glue("Glimpse first rows")
-glue::glue("############################################################")
-glue::glue(" ")
-dplyr::glimpse(WID_countries)
-
-glue::glue(" ")
-glue::glue("############################################################")
-glue::glue("Display first and last row and 8 random rows between")
-glue::glue("############################################################")
-glue::glue(" ")
-my_glance_data(WID_countries, seed = 420)
-
-glue::glue(" ")
-glue::glue("############################################################")
-glue::glue("Display rows for Austria and Germany")
-glue::glue("############################################################")
-glue::glue(" ")
-WID_countries |> 
-    dplyr::filter(alpha2 == "AT" | alpha2 == "DE")
-
-
-```
-
-List and meaning of all country and region codes
-:::
-
-------------------------------------------------------------------------
-
--   `alpha2`: the 2-letter country/region code [^index-1].
--   `titlename`: the name of the country/region, including the definite
-    article, if any.
--   `shortname`: the name of the country/region, excluding the definite
-    article.
--   `region`: broad world region to which the country belongs.
--   `region2`: detailed world region to which the country belongs.
-:::
-:::
-
-####### Inspect metadata
-
-::: my-r-code
-::: my-r-code-header
-::: {#cnj-inspect-metadata}
-: Inspect metadata
-:::
-:::
-
-::: my-r-code-container
-::: {#lst-inspect-metadata}
-```{r}
-#| label: inspect-metadata
-#| results: hold
-
-WID_metadata_AT <- base::readRDS("data/chap0/WID_metadata_AT.rds")
-
-glue::glue("############################################################")
-glue::glue("Glimpse first rows")
-glue::glue("############################################################")
-glue::glue(" ")
-dplyr::glimpse(WID_metadata_AT)
-
-glue::glue(" ")
-glue::glue("############################################################")
-glue::glue("Get useful summary statistics")
-glue::glue("############################################################")
-glue::glue(" ")
-skimr::skim(WID_metadata_AT)
-```
-
-Inspect metadata for Austrian data file
-:::
-
-------------------------------------------------------------------------
-
-The dataset contains seventeen (+ two) variables:
-
--   `country`: the country/region code.
--   `variable`: the variable code to which the metadata refer.
--   `age`: the code of the age group to which the population refer.
--   `pop`: the code of the population unit to which the population
-    refer.
--   `countryname`: the name of the country/region as it would appear in
-    an English sentence.
--   `shortname`: the name of the country/region as it would appear on
-    its own in English.
--   `simpledes`: decription of the variable in plain English.
--   `technicaldes`: description of the variable via accounting
-    identities.
--   `shorttype`: short description of the variable type (average,
-    aggregate, share, index, etc.) in plain English.
--   `longtype`: longer, more detailed description of the variable type
-    in plain English.
--   `shortpop`: short description of the population unit (individuals,
-    tax units, equal-split, etc.) in plain English.
--   `longpop`: longer, more detailed description of the population unit
-    in plain English.
--   `shortage`: short description of the age group (adults, full
-    population, etc.) in plain English.
--   `longage`: longer, more detailed description of the age group in
-    plain English.
--   `unit`: unit of the variable (the 3-letter currency code for
-    monetary amounts).
--   `source`: The source(s) used to compute the data.
--   `method`: Methological details describing how the data was
-    constructed and/or caveats.
--   `extrapolation`: Not explained in the "README.md" file. Just the
-    first row contains data.
--   `data_points`: Not explained in the "README.md" file, but does not
-    data.
-
-There is an explanation for the last two columns in the WID vignette:
-
-> In some countries, many data points are the result of interpolations
-> or extrapolations. For example, estimates in most African countries
-> are based on surveys that are only realized every few years, which we
-> interpolate to produce yearly series and perform regional
-> aggregations.
-:::
-:::
-
-####### Inspect Austria data
-
-::: my-r-code
-::: my-r-code-header
-::: {#cnj-inspect-austrian-data}
-: Inspect Austrian data
-:::
-:::
-
-::: my-r-code-container
-::: {#lst-inspect-austrian-data}
-```{r}
-#| label: inspect-austrian-data
-#| results: hold
-
-WID_data_AT <- base::readRDS("data/chap0/WID_data_AT.rds")
-
-glue::glue("############################################################")
-glue::glue("Glimpse first rows")
-glue::glue("############################################################")
-glue::glue(" ")
-dplyr::glimpse(WID_data_AT)
-
-glue::glue(" ")
-glue::glue("############################################################")
-glue::glue("Display first and last row and 8 random rows between")
-glue::glue("############################################################")
-glue::glue(" ")
-my_glance_data(WID_data_AT)
-
-glue::glue(" ")
-glue::glue("############################################################")
-glue::glue("Get useful summary statistics")
-glue::glue("############################################################")
-glue::glue(" ")
-skimr::skim(WID_data_AT)
-```
-
-Variables of the Austrian data file
-:::
-
--   `country`: country/region code (see @lst-inspect-country-codes).
--   `variable`: WID variable code (see @sec-chap0-variable-codes).
--   `percentile`: WID percentile code (see @sec-chap0-percentile-codes).
--   `year`: the year of the data point.
--   `value`: the value of the data point.
--   `age`: code indicating the age group to which the data point refers
-    to.
--   `pop`: code indicating the population unit to which the data point
-    refers to.
-:::
-:::
-:::
-:::
-:::
-
-[^index-1]: Regions within country XX are indicated as XX-YY, where YY
-    is the region code. World regions are indicated as XX and XX-MER,
-    the first one using purchasing power parities (the default) and the
-    second one using market exchange rates. See [the technical note
-    "Prices and currency conversions in
-    WID.world"](https://wid.world/document/convert-wid-world-series/)
-    for details.
-
-## How interpreting the data codes?
-
-### Variable codes {#sec-chap0-variable-codes}
-
-The meaning of each variable is described in the metadata files. The
-complete WID variable codes (i.e. sptinc992j) obey to the following
-logic:
-
--   the first letter indicates the variable type (i.e. "s" for share).
--   the next five letters indicate the income/wealth/other concept (i.e.
-    "ptinc" for pre-tax national income).
--   the next three digits indicate the age group (i.e. "992" for
-    adults).
--   the last letter indicate the population unit (i.e. "j" for
-    equal-split).
-
-### Percentile Codes {#sec-chap0-percentile-codes}
-
-There are two types of percentiles on WID.world : (1) group percentiles
-and (2) generalized percentiles. The interpretation of income (or
-wealth) average, share or threshold series depends on which type of
-percentile is looked at.
-
-#### Group Percentiles
-
-Group percentiles are defined as follows:
-
-**Bottom and top**
-
--   p0p50 (bottom 50% of the population),
--   p50p90 (next 40%),
--   p90p100 (top 10%),
--   p99p100 (top 1%),
--   p0p90 (bottom 90%),
--   p0p99 (bottom 99% of the population),
--   p99.9p100 (top 0.1%),
--   p99.99p100 (top 0.01%)
-
-**Deciles**
-
--   p0p10 (bottom 10% of the population, i.e. first decile),
--   p10p20 (next 10%, i.e. second decile),
--   p20p30 (next 10%, i.e. third decile),
--   p30p40 (next 10%, i.e. fourth decile),
--   p40p50 (next 10%, i.e. fifth decile),
--   p50p60 (next 10%, i.e. sixth decile),
--   p60p70 (next 10%, i.e. seventh decile),
--   p70p80 (next 10%, i.e. eighth decile),
--   p80p90 (next 10%, i.e. ninth decile),
-
-For each group percentiles, we provide the associated income or wealth
-shares, averages and thresholds.
-
--   **group percentile shares** correspond to the income (or wealth)
-    share held by a given group percentile. For instance, the
-    fiscal income share of group p0p50 is the share of total fiscal
-    income captured by the bottom 50% group.
--   **group percentile averages** correspond to the income or wealth
-    annual income (or wealth) average within a given group percentile
-    group. For instance, the fiscal income average of group p0p50 is the
-    average annual fiscal income of the bottom 50% group.
--   **group percentile thresholds** correspond to the minimum income (or
-    wealth) level required to belong to a given group percentile. For
-    instance, the fiscal income threshold of group p90p100 is the
-    minimum annual fiscal income required to belong to the top 10%
-    group.
-
-::: {#imp-group-percentiles .callout-important}
-When the data allows, the [WID.world website](https://wid.world/) makes
-it possible to produce shares, averages and thresholds for any group
-percentile (say, for instance, average income of p43p99.92). These are
-not stored in bulk data tables.
-:::
-
-For certain countries, because of data limitations, we are not able to
-provide the list of group percentiles described above. We instead store
-specific group percentiles (these can be, depending on the countries
-p90p95, p95p100, p95p99, p99.5p100, p99.5p99.9, p99.75p100, p99.95p100,
-p99.95p99.99, p99.995p100, p99.9p99.95, p99.9p99.99 or p99p99.5).
-
-#### Generalized Percentiles
-
-Generalized percentiles (g-percentiles) are defined to as follows: p0,
-p1, p2, ..., p99, p99.1, p99.2, ..., p99.9, p99.91, p99.92, ..., p99.99,
-p99.991, p99.992 ,..., p99.999. There are 127 g-percentiles in total.
-
-For each g-percentiles, we provide shares, averages, top averages and
-thresholds.
-
-**g-percentile shares**
-
-correspond to the income (or wealth) share captured by the population
-group above a given g-percentile value.
-
-::: {#nte-g-percentile-shares .callout-note style="color: blue;"}
-##### Examples for g-percentile shares
-
--   The fiscal income share of g-percentile p90 corresponds to the
-    fiscal income share held by the top 10% group.
--   The fiscal income share of g-percentile p99.9 corresponds to the
-    fiscal income share of the top 0.1% income group and so on.
-
-By construction, the fiscal income share of g-percentile p0 corresponds
-to the share held by 100% of the population and is equal to 100%.
-Formally, the g-percentile share at g-percentile pX corresponds to the
-share of the top (100-X)% group.
-:::
-
-**g-percentile averages**
-
-correspond to the average income or wealth between two consecutive
-g-percentiles.
-
--   Average income of g-percentile `p0` corresponds to the average
-    annual income of the bottom 1% group, `p2` corresponds to the next
-    1% group and so on until `p98` (the 1% population group below the
-    top 1%).
--   Average income of g-percentile `p99` corresponds to average annual
-    of group percentile `p99p99.1` (i.e. the bottom 10% group of earners
-    within the top 1% group of earners), `p99.1` corresponds to the next
-    0.1% group, `p99.2` corresponds to the next 0.1% group and so on
-    until `p99.8`.
--   Average income of `p99.9` corresponds to the average annual income
-    of group percentile `p99.9p99.91` (i.e. the bottom 10% group of
-    earners within the top 0.1% group of earners), `p99.91` corresponds
-    to the next 0.01% group, `p99.92` corresponds to the next 0.01%
-    group and so on until `p99.98`.
--   Average income of `p99.99`, corresponds to the average annual income
-    of group percentile `p99.99p99.991` (i.e. the bottom 10% group
-    within the top 0.01% group of earners), `p99.991` corresponds to the
-    next 0.001%, `p99.992` corresponds to the next 0.001% group and so
-    on until `p99.999` (average income of the top 0.001% group).
-
-::: {#nte-examples-g-percentile-averages .callout-note style="color: blue;"}
-##### Examples for the g-percentile-averages
-
--   The average fiscal income of g-percentile p50 is equal to the
-    average annual fiscal income of the p50p51 group percentile (i.e.
-    the average annual income of the population group earning more than
-    50% of the population and less than the top 49% of the population).
--   The average fiscal income of g-percentile p99 is equal to the
-    average annual fiscal income within group percentile p99p99.1 (i.e.
-    a group representing 0.1% of the total population earning more than
-    99% of the population but less than the top 0.9% of the population).
-:::
-
-**g-percentile top-averages**
-
-correspond to the average income or wealth above a given g-percentile
-threshold.
-
-::: {#nte-examples-g-percentile-top-averages .callout-note style="color: blue;"}
-##### Examples for the g-percentile-top-averages
-
--   The top average fiscal income at g-percentile p50 corresponds to the
-    average annual fiscal income of individuals earning more than 50% of
-    the population.
--   The top average fiscal income at g-percentile p90 corresponds to the
-    average annual fiscal income of the top 10% group.
-:::
-
-**g-percentile thresholds**
-
-correspond to minimum income (or wealth) level required to belong to the
-population group above a given g-percentile value.
-
-::: {#nte-examples-g-percentile-thresholds .callout-note style="color: blue;"}
-##### Examples for the g-percentile-thresholds
-
--   The fiscal income threshold at g-percentile p90 corresponds to the
-    minimum annual fiscal income required to belong to the top 10%
-    group.
--   The fiscal income threshold at g-percentile p99.9 corresponds to the
-    minimum annual fiscal income required to belong to the top 0.1%
-    group.
-
-Formally, the g-percentile threshold at g-percentile pX corresponds to
-the threshold of the top (100-X)% group.
-:::
-
 ## Resources {.unnumbered}
 
 ::: my-resource
@@ -692,65 +176,43 @@ the threshold of the top (100-X)% group.
 ::: my-resource-container
 **Literature**
 
--   Alvaredo, F., Chancel, L., Piketty, T., Saez, E., & Zucman, G.
-    (2018). The World Inequality Report 2018. Harvard University Press.
-    [@alvaredo2018]
--   Chancel, L., Piketty, T., Saez, E., Zucman, G., & Duflo, E. (2022).
-    World Inequality Report 2022. Harvard University Press.
-    [@chancel2022a]
--   Gethin, A., Martínez-toleda, C., & Piketty, T. (2021). Political
-    Cleavages and Social Inequalities - A Study of Fifty Democracies,
-    1948-2020: A Study of Fifty Democracies, 1948–2020. Harvard
-    University Press. [@gethin2021]
--   Piketty, T. (2020). Capital and Ideology (A. Goldhammer, Trans.;
-    Illustrated Edition). Harvard University Press. [@piketty2020a]
--   Piketty, T. (2022). A Brief History of Equality (S. Rendall,
-    Trans.). Harvard University Press. [@piketty2022]
--   Piketty, T., & Goldhammer, A. (2017). Capital in the Twenty-First
-    Century. Harvard University Press. [@piketty2017]
+- Helliwell, J. F., Layard, R., & Sachs, J. D. (Eds.). (2012). World Happiness Report 2012. UN Sustainable Development Solutions Network. [https://s3.amazonaws.com/happiness-report/2012/World_Happiness_Report_2012.pdf](https://s3.amazonaws.com/happiness-report/2012/World_Happiness_Report_2012.pdf)
+- Helliwell, J. F., Layard, R., & Sachs, J. D. (Eds.). (2013). World Happiness Report 2013. UN Sustainable Development Solutions Network. [https://s3.amazonaws.com/happiness-report/2013/WorldHappinessReport2013_online.pdf](https://s3.amazonaws.com/happiness-report/2013/WorldHappinessReport2013_online.pdf)
+- Helliwell, J. F., Layard, R., & Sachs, J. D. (Eds.). (2015). World Happiness Report 2015. UN Sustainable Development Solutions Network. [https://s3.amazonaws.com/happiness-report/2015/WHR15_Sep15.pdf](https://s3.amazonaws.com/happiness-report/2015/WHR15_Sep15.pdf)
+- Helliwell, J. F., Layard, R., & Sachs, J. D. (Eds.). (2016). World Happiness Report 2016 Update: Volume I. UN Sustainable Development Solutions Network. [https://s3.amazonaws.com/happiness-report/2016/HR-V1_web.pdf](https://s3.amazonaws.com/happiness-report/2016/HR-V1_web.pdf)
+- Sachs, J. D., Becchetti, L., & Annett, A. M. (2016). World Happiness Report 2016: Volume II. Sustainable Development Solutions Network. [https://s3.amazonaws.com/happiness-report/2016/HR-V2_web.pdf](https://s3.amazonaws.com/happiness-report/2016/HR-V2_web.pdf)
+- Helliwell, J. F., Layard, R., & Sachs, J. D. (Eds.). (2017). World Happiness Report 2017. UN Sustainable Development Solutions Network. [https://s3.amazonaws.com/happiness-report/2017/HR17.pdf](https://s3.amazonaws.com/happiness-report/2017/HR17.pdf)
+- Helliwell, J. F., Layard, R., & Sachs, J. D. (Eds.). (2018). World Happiness Report 2018. UN Sustainable Development Solutions Network. [https://s3.amazonaws.com/happiness-report/2018/WHR_web.pdf](https://s3.amazonaws.com/happiness-report/2018/WHR_web.pdf)
+- Helliwell, J. F., Layard, R., & Sachs, J. D. (Eds.). (2019). World Happiness Report 2019. UN Sustainable Development Solutions Network. [https://s3.amazonaws.com/happiness-report/2019/WHR19.pdf](https://s3.amazonaws.com/happiness-report/2019/WHR19.pdf)
+- Helliwell, J. F., Layard, R., Sachs, J. D., & Neve, J.-E. D. (Eds.). (2020). World Happiness Report 2020. UN Sustainable Development Solutions Network. [https://happiness-report.s3.amazonaws.com/2020/WHR20.pdf](https://happiness-report.s3.amazonaws.com/2020/WHR20.pdf)
+- Helliwell, J. F., Layard, R., Sachs, J. D., Neve, J.-E. D., Aknin, L. B., & Wang, S. (Eds.). (2021). World Happiness Report 2021. UN Sustainable Development Solutions Network. [https://happiness-report.s3.amazonaws.com/2021/WHR+21.pdf](https://happiness-report.s3.amazonaws.com/2021/WHR+21.pdf)
+- Helliwell, J. F., Layard, R., Sachs, J. D., Neve, J.-E. D., Aknin, L. B., & Wang, S. (Eds.). (2022). World Happiness Report 2022. UN Sustainable Development Solutions Network. [https://happiness-report.s3.amazonaws.com/2022/WHR+22.pdf](https://happiness-report.s3.amazonaws.com/2022/WHR+22.pdf)
+- Helliwell, J. F., Layard, R., Sachs, J. D., Neve, J.-E. D., Aknin, L. B., & Wang, S. (Eds.). (2023). World Happiness Report 2023. UN Sustainable Development Solutions Network. [https://happiness-report.s3.amazonaws.com/2023/WHR+23.pdf](https://happiness-report.s3.amazonaws.com/2023/WHR+23.pdf)
+- Helliwell, J. F., Layard, R., Sachs, J. D., Neve, J.-E. D., Aknin, L. B., & Wang, S. (Eds.). (2024). World Happiness Report 2024. University of Oxford: Wellbeing Research Centre. [https://happiness-report.s3.amazonaws.com/2024/WHR+24.pdf](https://happiness-report.s3.amazonaws.com/2024/WHR+24.pdf)
+- Helliwell, J. F., Layard, R., Sachs, J. D., Neve, J.-E. D., Aknin, L. B., & Wang, S. (Eds.). (2025). World Happiness Report 2025. University of Oxford: Wellbeing Research Centre. [https://happiness-report.s3.amazonaws.com/2025/WHR+25.pdf](https://happiness-report.s3.amazonaws.com/2025/WHR+25.pdf)
 
 **Websites**
 
--   Author Collective "World Inequality Lab". (2024).
-    [WID](https://wid.world/) - World Inequality Database. WID. The
-    source for global inequality data. Open access, high quality wealth
-    and income inequality data developed by an international academic
-    consortium. [@worldinequalitylab2024]
--   Gethin, A., Martinez-Toledo, C., & Piketty, T. (2024).
-    [WPID](https://wpid.world/) - World Political Cleavages and
-    Inequality Database. Who votes for whom? The WPID provides the most
-    comprehensive available data on the structure of the vote in
-    contemporary democracies, drawing on a rich set of electoral surveys
-    conducted since 1948. [@gethin2024]
+-   [WHR Dashboard](https://data.worldhappiness.report/map)
+-   [Analysis](https://worldhappiness.report/analysis/): Online chapters of all the yearly online reports 2019-2025.
+-   [World Happiness Report 2025](https://worldhappiness.report/ed/2025/)
+-   [World Happiness Report 2024](https://worldhappiness.report/ed/2024/)
+-   [World Happiness Report 2023](https://worldhappiness.report/ed/2023/)
+-   [World Happiness Report 2022](https://worldhappiness.report/ed/2022/)
+-   [World Happiness Report 2021](https://worldhappiness.report/ed/2021/)
+-   [World Happiness Report 2020](https://worldhappiness.report/ed/2020/)
+-   [World Happiness Report 2019](https://worldhappiness.report/ed/2019/)
+-   [World Happiness Report 2018](https://worldhappiness.report/ed/2018/)
+-   [World Happiness Report 2017](https://worldhappiness.report/ed/2017/)
+-   [World Happiness Report 2016](https://worldhappiness.report/ed/2016/)
+-   [World Happiness Report 2015](https://worldhappiness.report/ed/2015/)
+-   [World Happiness Report 2013](https://worldhappiness.report/ed/2013/)
+-   [World Happiness Report 2012](https://worldhappiness.report/ed/2012/)
 
-**Methodology**
-
--   World Inequality Lab. (2024). Distributional National Accounts
-    Guidelines. [@worldinequalitylab2024a]
--   Codes Dictionary. (n.d.). WID - World Inequality Database. Retrieved
-    June 28, 2024, from https://wid.world/codes-dictionary/.
-    [@worldinequalitylab2024b]
--   Summary table. (n.d.). WID - World Inequality Database. Retrieved
-    June 28, 2024, from https://wid.world/summary-table/.
-    [@worldinequalitylab2024c]
--   World Inequality Lab. (2024). Generalized Pareto interpolation.
-    WID - World Inequality Database. https://wid.world/gpinter/.
-    [@worldinequalitylab2024d]
-
-**R Packages**
-
--   Blanchet, T. (2024). Thomasblanchet/gpinter \[R\].
-    https://github.com/thomasblanchet/gpinter (Original work published
-    2016). R package for generalized Pareto interpolation. [@gpinter].
--   Blanchet, T. (2024). Thomasblanchet/wid-r-tool \[R\].
-    https://github.com/thomasblanchet/wid-r-tool (Original work
-    published 2017). R package to download data from the WID.world
-    database. [@wid]
 
 **Icons**
 
--   <a target="_blank" href="https://icons8.com/icon/04hoBXXdLoDq/austria">Austria</a>
-    fav icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+-   Icon <a target="_blank" href="https://icons8.com/icon/dGRnU8I97GUY/graphic">Graphic</a> by  <a href="https://icons8.com">Icons8</a> used for Well-being Statistics.
     But I have used many other icons by
     <a target="_blank" href="https://icons8.com">Icons8</a> for the
     Quarto callout boxes.

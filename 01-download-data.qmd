@@ -1,0 +1,257 @@
+---
+execute:
+  cache: true
+---
+# Download Data {#sec-download-data}
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = paste0(here::here(), "/R/helper.R"))
+
+```
+
+:::::: {#obj-chapter-template}
+::::: my-objectives
+::: my-objectives-header
+My objective for this chapter
+:::
+
+::: my-objectives-container
+In this chapter, I will download all well-being data 
+provided by the different [World Happiness Reports
+2012-2025](https://worldhappiness.report/analysis/).
+:::
+:::::
+::::::
+
+
+
+
+## Introduction
+
+From the years 2012-2024 only data for one year was provided. For example, the World Happiness Report (`r glossary("WHR")`) from 2012 included data from Gallup research conducted in 2011. However, starting with the 2025 report, all data are combined into a single dataset covering the years 2011 to 2024, with the exception of 2012 (as there was no report in 2013).
+
+For the years 2011 to 2018, only the `r glossary("Cantril ladder")` data along with country rankings are available. Beginning with 2019 (in the report published in 2020), the complete dataset is included. This full dataset contains the upper whisker/lower whisker data and the six presumed contributing factors for subjective well-being: log GDP per capita, social support, healthy life expectancy, freedom to make life choices, generosity, and perception of corruption. Additionally, it includes the residuals for "`r glossary("dystopia")`," an imaginary country representing the lowest scores for each of the six variables observed.
+
+## Folder and file oganization
+
+The first step is to find the life-evaluation data for each year and to store the files for further R processing. I will store the files in the "whr-cantril" folder inside my "data" folder.
+
+The `pb_create_folder()` function in the following code chunk checks if the folder already exists. If this is the case it leaves it untouched, otherwise it creates the folder at the desired path. The code for this private function is in the file `helper.R` inside the `R` folder at root level of this working directory.
+
+:::::{.my-resource}
+:::{.my-resource-header}
+:::::: {#lem-folder-structure}
+: File Organization
+::::::
+:::
+::::{.my-resource-container}
+
+I will organize files into several sub folders:
+
+- **/data/**: main folder for all data files related to this project
+- **/data/whr-cantril/excel/**: untouched original Excel file(s) (to prevent possible link rot at the original source)
+- **/data/whr-cantril/rds/**: R objects of the original data of the Excel file(s)
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-create-whr-folder}
+: Create folders for data files of the World Happiness Reports
+::::::
+:::
+::::{.my-r-code-container}
+
+
+
+```{r}
+#| label: create-whr-folders
+#| code-fold: show
+
+pb_create_folder(base::paste0(here::here(), "/data/"))
+pb_create_folder(base::paste0(here::here(), "/data/whr-cantril/"))
+pb_create_folder(base::paste0(here::here(), "/data/whr-cantril/excel"))
+pb_create_folder(base::paste0(here::here(), "/data/whr-cantril/rds"))
+```
+<center>(*For this R code chunk is no output available*)</center>
+
+
+::::
+:::::
+
+::::
+:::::
+
+
+:::::{.my-watch-out}
+:::{.my-watch-out-header}
+WATCH OUT! Excel file contains many hidden rows
+:::
+::::{.my-watch-out-container}
+A manual inspection of the Excel data file revealed that only the last year 2024 are shown. All the other years are hidden. I had therefore to download and save the file in "/data/whr-cantril/excel" manually. Then I had to 
+::::
+:::::
+
+:::::{.my-procedure}
+:::{.my-procedure-header}
+Actions manually done
+:::
+::::{.my-procedure-container}
+The prepare for the next code chunks I need to run the following actions unfortunately manually:
+
+1. At first I had to get the URL manually. Starting from the last year of the WHR reports (currently on 2025-03-30 it is the WHR 2025) I had to look for the data file. (It is the Excel file behind the link [Data for Figure 2.1](https://happiness-report.s3.us-east-1.amazonaws.com/2025/Data+for+Figure+2.1+(2011%E2%80%932024).xlsx).
+2. A manual inspection of the Excel data file revealed that only the last year 2024 are shown. All the other years are hidden. Therefore I had to download and save this Excel file into the folder "/data/whr-cantril/excel" with the name "Data+for+Figure+2.1+(2011–2024).xlsx" manually. 
+3. Then I had to open and save the file manually with another name with all rows showing:
+  - Open the file manually.
+  - Select all content from first cell of first row to last cell of last row.
+  - Go to the "File" menu and select "Format -> Rows -> Show".
+  - Go to the "File" menu and select "Save As" and save the file as "whr_cantril_ladder_2011_2024_all_years.xlsx".
+4. Open the new file manually and 
+  - Check if all the years 2011-2024 are visible. 
+  - Find the sheet with the Cantril ladder data. (There is only one sheet.) 
+  - Note the file format to call the correct function `readxl::read_xls` or `readxl::read_xlsx`. I refrained from the format guessing with the more general `readxl::read_exel()` function. (It is a `.xlsx`-file.) 
+  - Inspect if there are comment line to skip. (There are no comment lines in the 2025 report dataset.)
+
+::::
+:::::
+
+## Save data as ".rds" object
+
+Finally I can convert the new and renamed Excel file to an R data object `.rds` programmatically. I will store it into the folder "data/whr-cantril/raw" as "whr_cantril_ladder_2011_2024_all_years.rds". Additionally I will sort it by country name and year.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-download-whr-data}
+: Save data for the World Happiness Reports 2011-2024 as ".rds" object
+::::::
+:::
+::::{.my-r-code-container}
+
+
+<center>**Run this code chunk manually if the file still needs to be converted to an ".rds" object.**</center>
+
+
+```{r}
+#| label: download-whr-data
+#| eval: false
+
+
+## WHR 2025 #########################################
+
+my_path <- "/data/whr-cantril/excel/whr_cantril_ladder_2011_2024_all_years.xlsx"
+pb_save_data_file("whr-cantril/rds", whr_2011_2024, "whr_2011_2024.rds")
+
+whr_2011_2024 <- dplyr::arrange(whr_2011_2024, `Country name`, Year)
+pb_save_data_file("whr-cantril/rds", whr_2011_2024, "whr_2011_2024.rds")
+
+
+
+```
+
+<center>(*For this R code chunk is no output available*)</center>
+
+
+::::
+:::::
+
+
+## Inspect data
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-01-inspect-data}
+: Inspect cantril ladder data 2011-2024
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Glimpse
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-01-glimpse-data}
+: Glimpse cantril ladder data 2011-2024
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: glimpse-data
+
+whr_2011_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024.rds") |> 
+  dplyr::glimpse()
+
+```
+
+::::
+:::::
+
+
+###### Skim
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-01-skim-data}
+: Skim cantril ladder data 2011-2024
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: skim-data
+
+skimr::skim(whr_2011_2024)
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+
+After inspection of the data we can summarize:
+
+- There are data for 169 countries. So we don't have data for all countries and territories by the [United Nations geoscheme](https://unstats.un.org/unsd/methodology/m49/) because this includes 193 UN member states, two UN observer states (the Holy See and the State of Palestine), two states in free association with New Zealand (the Cook Islands and Niue), and 49 non-sovereign dependencies or territories, as well as Western Sahara (a disputed territory whose sovereignty is contested) and Antarctica.
+- Furthermore the country names do not confirm in all instances to the official names of the M49 geoscheme. For instance we have Cyprus and North Cyprus or Somalia and Somaliland Region.
+- Not all of these countries have covered all years (2011-2024). For instance Cuba has covered only one year (2011).
+- For the years 2011 to 2018, only the `r glossary("Cantril ladder")` data along with country rankings are available. Beginning with 2019 (in the report published in 2020), the complete dataset is included.
+
+
+## Glossary
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info
+
+::::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::::
+
+

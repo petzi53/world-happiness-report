@@ -1,0 +1,224 @@
+---
+execute:
+  cache: true
+---
+
+# Ranking 2024 {#sec-ranking-2024}
+
+
+```{r}
+#| label: setup
+#| results: hold
+#| include: false
+
+base::source(file = paste0(here::here(), "/R/helper.R"))
+```
+
+::::: {#obj-chapter-template}
+:::: {.my-objectives}
+::: {.my-objectives-header}
+Objective of this chapter
+:::
+
+::: {.my-objectives-container}
+I will display the ranking data for the `r glossary("cantril ladder")` question of `r glossary("WHR")`data 2024. In contrast to figure 2.1 of the World Happiness Report 2025 I will use a `r glossary("lollipop plot")` instead a bar plot. Additionally I will only show the value for the cantril ladder without the breakdown into its causal components.
+
+:::
+::::
+:::::
+
+
+## Prepare data
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-prepare-data}
+: Prepare 2024 ranking data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: prepare-data
+
+ranking_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024.rds") |> 
+    dplyr::filter(Year == 2024) |> 
+    dplyr::arrange(Rank) |> 
+    dplyr::mutate(`Country label` = 
+        base::paste0(Rank, ". ", `Country name`, " (", `Ladder score`, ")")
+        )
+```
+
+<center>(*For this R code chunk is no output available*)</center>
+::::
+:::::
+
+## Cantril ladder ranking
+
+```{r}
+#| label: cantril-ranking
+#| results: hold
+#| include: false
+
+cantril_ranking <-  function(df) {
+    ggplot2::ggplot(df,
+                ggplot2::aes(
+                    x = forcats::fct_reorder(`Country label`, `Ladder score`) ,
+                    y = `Ladder score`
+                )) +
+    ggplot2::geom_segment(ggplot2::aes(
+        x = `Country label`,
+        xend = `Country label`,
+        y = 1,
+        yend = `Ladder score`
+    ), color = "blue") +
+    ggplot2::geom_point(color = "darkblue", size = 4) +
+    ggplot2::theme_light() +
+    ggplot2::theme(
+        panel.grid.major.x = ggplot2::element_blank(),
+        panel.border = ggplot2::element_blank(),
+        axis.ticks.x = ggplot2::element_blank(),
+        axis.text.y = ggplot2::element_text(size = 20, hjust = 0),
+        axis.text.x = ggplot2::element_text(size = 20),
+        axis.title.x = ggplot2::element_text(size = 20, face = 'bold')
+    ) +
+    ggplot2::coord_flip() +
+    ggplot2::xlab("") +
+    ggplot2::ylab("Value of life evaluation (3 year average)")
+}
+```
+
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-show-ranking-2024}
+: Show value of Cantril ladder by rank
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### First part
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-show-ranking-2024-first-part}
+: Show value of Cantril ladder by rank (first part)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-ranking-2024-first-part
+#| fig-height: 20
+#| fig-width: 12
+
+cantril_ranking(dplyr::slice(ranking_2024, 1:50))
+```
+
+::::
+:::::
+
+
+###### Middle part
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-show-ranking-2024-middle-part}
+: Show value of Cantril ladder by rank (middle part)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-ranking-2024-middle-part
+#| fig-height: 20
+#| fig-width: 12
+
+cantril_ranking(dplyr::slice(ranking_2024, 51:100))
+
+```
+
+::::
+:::::
+
+
+###### Last part
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-show-ranking-2024-middle-part}
+: Show value of Cantril ladder by rank (last part)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-ranking-2024-last-part
+#| fig-height: 20
+#| fig-width: 12
+
+cantril_ranking(dplyr::slice(ranking_2024, 101:147))
+```
+
+::::
+:::::
+
+###### All together
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-show-ranking-2024-all-together}
+: Show value of Cantril ladder by rank
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-ranking-2024-all-together
+#| fig-height: 60
+#| fig-width: 12
+
+
+cantril_ranking(ranking_2024)
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+
+
+
+## Glossary
+
+```{r}
+#| label: glossary-table
+#| echo: false
+
+glossary_table()
+```
+
+------------------------------------------------------------------------
+
+## Session Info
+
+::::: my-r-code
+::: my-r-code-header
+Session Info
+:::
+
+::: my-r-code-container
+```{r}
+#| label: session-info
+
+sessioninfo::session_info()
+```
+:::
+:::::
+
+
