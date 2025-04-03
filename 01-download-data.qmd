@@ -91,36 +91,13 @@ pb_create_folder(base::paste0(here::here(), "/data/whr-cantril/rds"))
 WATCH OUT! Excel file contains many hidden rows
 :::
 ::::{.my-watch-out-container}
-A manual inspection of the Excel data file revealed that only the last year 2024 are shown. All the other years are hidden. I had therefore to download and save the file in "/data/whr-cantril/excel" manually. Then I had to 
+A manual inspection of the Excel data file revealed that only the last year 2024 are shown. All the other years are hidden. But the `download.file()` functions saves all data, visible and hidden rows alike.
 ::::
 :::::
 
-:::::{.my-procedure}
-:::{.my-procedure-header}
-Actions manually done
-:::
-::::{.my-procedure-container}
-The prepare for the next code chunks I need to run the following actions unfortunately manually:
-
-1. At first I had to get the URL manually. Starting from the last year of the WHR reports (currently on 2025-03-30 it is the WHR 2025) I had to look for the data file. (It is the Excel file behind the link [Data for Figure 2.1](https://happiness-report.s3.us-east-1.amazonaws.com/2025/Data+for+Figure+2.1+(2011%E2%80%932024).xlsx).
-2. A manual inspection of the Excel data file revealed that only the last year 2024 are shown. All the other years are hidden. Therefore I had to download and save this Excel file into the folder "/data/whr-cantril/excel" with the name "Data+for+Figure+2.1+(2011–2024).xlsx" manually. 
-3. Then I had to open and save the file manually with another name with all rows showing:
-  - Open the file manually.
-  - Select all content from first cell of first row to last cell of last row.
-  - Go to the "File" menu and select "Format -> Rows -> Show".
-  - Go to the "File" menu and select "Save As" and save the file as "whr_cantril_ladder_2011_2024_all_years.xlsx".
-4. Open the new file manually and 
-  - Check if all the years 2011-2024 are visible. 
-  - Find the sheet with the Cantril ladder data. (There is only one sheet.) 
-  - Note the file format to call the correct function `readxl::read_xls` or `readxl::read_xlsx`. I refrained from the format guessing with the more general `readxl::read_exel()` function. (It is a `.xlsx`-file.) 
-  - Inspect if there are comment line to skip. (There are no comment lines in the 2025 report dataset.)
-
-::::
-:::::
 
 ## Save data as ".rds" object
 
-Finally I can convert the new and renamed Excel file to an R data object `.rds` programmatically. I will store it into the folder "data/whr-cantril/raw" as "whr_cantril_ladder_2011_2024_all_years.rds". Additionally I will sort it by country name and year.
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -140,12 +117,17 @@ Finally I can convert the new and renamed Excel file to an R data object `.rds` 
 
 
 ## WHR 2025 #########################################
+url1 <- "https://happiness-report.s3.us-east-1.amazonaws.com/2025/Data+for+Figure+2.1+(2011%E2%80%932024).xlsx"
 
-my_path <- "/data/whr-cantril/excel/whr_cantril_ladder_2011_2024_all_years.xlsx"
-pb_save_data_file("whr-cantril/rds", whr_2011_2024, "whr_2011_2024.rds")
+# download original file as Excel and .rds file
+utils::download.file(url1, destfile = "tmp") 
+whr_2011_2024 <- readxl::read_excel("tmp")
+pb_save_data_file("whr-cantril/excel", whr_2011_2024, "Data+for+Figure+2.1+(2011%E2%80%932024).xlsx")
+pb_save_data_file("whr-cantril/rds", whr_2011_2024, "whr_2011_2024_orig.rds")
 
-whr_2011_2024 <- dplyr::arrange(whr_2011_2024, `Country name`, Year)
-pb_save_data_file("whr-cantril/rds", whr_2011_2024, "whr_2011_2024.rds")
+# download as .rds object, sorted by country name and year
+whr_2011_2024_arrange <- dplyr::arrange(whr_2011_2024, `Country name`, Year)
+pb_save_data_file("whr-cantril/rds", whr_2011_2024_arrange, "whr_2011_2024_arrange.rds")
 
 
 
@@ -165,7 +147,7 @@ pb_save_data_file("whr-cantril/rds", whr_2011_2024, "whr_2011_2024.rds")
 ::::: {.my-code-collection-icon}
 :::::
 :::::: {#exm-01-inspect-data}
-: Inspect cantril ladder data 2011-2024
+: Inspect Cantril Ladder data 2011-2024
 ::::::
 
 ::::
@@ -173,6 +155,26 @@ pb_save_data_file("whr-cantril/rds", whr_2011_2024, "whr_2011_2024.rds")
 ::::{.my-code-collection-container}
 
 ::: {.panel-tabset}
+
+###### Show random data
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-01-show-random-cantril-ladder-data}
+: Show random Cantril Ladder data 2011-2024
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-random-cantril-ladder-data
+
+whr_2011_2024_arrange <- base::readRDS("data/whr-cantril/rds/whr_2011_2024_arrange.rds")
+my_glance_data(whr_2011_2024_arrange)
+```
+
+::::
+:::::
+
 
 ###### Glimpse
 
@@ -186,7 +188,7 @@ pb_save_data_file("whr-cantril/rds", whr_2011_2024, "whr_2011_2024.rds")
 ```{r}
 #| label: glimpse-data
 
-whr_2011_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024.rds") |> 
+whr_2011_2024_arrange <- base::readRDS("data/whr-cantril/rds/whr_2011_2024_arrange.rds") |> 
   dplyr::glimpse()
 
 ```
@@ -207,7 +209,8 @@ whr_2011_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024.rds") |>
 ```{r}
 #| label: skim-data
 
-skimr::skim(whr_2011_2024)
+whr_2011_2024_arrange <- base::readRDS("data/whr-cantril/rds/whr_2011_2024_arrange.rds") |> 
+  skimr::skim()
 ```
 
 ::::

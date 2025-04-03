@@ -17,8 +17,9 @@ book:
   chapters:
     - index.qmd
     - 01-download-data.qmd
-    - 02-ranking-2024.qmd
-    - 03-country-charts.qmd
+    - 02-countries-in-regions.qmd
+    - 03-ranking-2024.qmd
+    - 04-country-charts.qmd
 
   # appendices:
   #   - 80-countries-in-regions.qmd

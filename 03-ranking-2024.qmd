@@ -1,9 +1,9 @@
 ---
 execute:
-  cache: true
+  cache: false
 ---
 
-# Ranking 2024 {#sec-ranking-2024}
+# Ranking 2024 {#sec-03-ranking-2024}
 
 
 ```{r}
@@ -32,7 +32,7 @@ I will display the ranking data for the `r glossary("cantril ladder")` question 
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-02-prepare-data}
+:::::: {#cnj-03-prepare-data}
 : Prepare 2024 ranking data
 ::::::
 :::
@@ -40,7 +40,7 @@ I will display the ranking data for the `r glossary("cantril ladder")` question 
 ```{r}
 #| label: prepare-data
 
-ranking_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024.rds") |> 
+ranking_2024_arrange <- base::readRDS("data/whr-cantril/rds/whr_2011_2024_arrange.rds") |> 
     dplyr::filter(Year == 2024) |> 
     dplyr::arrange(Rank) |> 
     dplyr::mutate(`Country label` = 
@@ -92,7 +92,7 @@ cantril_ranking <-  function(df) {
 :::: {.my-code-collection-header}
 ::::: {.my-code-collection-icon}
 :::::
-:::::: {#exm-show-ranking-2024}
+:::::: {#exm-03-show-ranking-2024}
 : Show value of Cantril ladder by rank
 ::::::
 
@@ -106,7 +106,7 @@ cantril_ranking <-  function(df) {
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-show-ranking-2024-first-part}
+:::::: {#cnj-03-show-ranking-2024-first-part}
 : Show value of Cantril ladder by rank (first part)
 ::::::
 :::
@@ -116,7 +116,7 @@ cantril_ranking <-  function(df) {
 #| fig-height: 20
 #| fig-width: 12
 
-cantril_ranking(dplyr::slice(ranking_2024, 1:50))
+cantril_ranking(dplyr::slice(ranking_2024_arrange, 1:50))
 ```
 
 ::::
@@ -137,7 +137,7 @@ cantril_ranking(dplyr::slice(ranking_2024, 1:50))
 #| fig-height: 20
 #| fig-width: 12
 
-cantril_ranking(dplyr::slice(ranking_2024, 51:100))
+cantril_ranking(dplyr::slice(ranking_2024_arrange, 51:100))
 
 ```
 
@@ -159,7 +159,7 @@ cantril_ranking(dplyr::slice(ranking_2024, 51:100))
 #| fig-height: 20
 #| fig-width: 12
 
-cantril_ranking(dplyr::slice(ranking_2024, 101:147))
+cantril_ranking(dplyr::slice(ranking_2024_arrange, 101:147))
 ```
 
 ::::
@@ -169,7 +169,7 @@ cantril_ranking(dplyr::slice(ranking_2024, 101:147))
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-02-show-ranking-2024-all-together}
+:::::: {#cnj-03-show-ranking-2024-all-together}
 : Show value of Cantril ladder by rank
 ::::::
 :::
@@ -180,7 +180,7 @@ cantril_ranking(dplyr::slice(ranking_2024, 101:147))
 #| fig-width: 12
 
 
-cantril_ranking(ranking_2024)
+cantril_ranking(ranking_2024_arrange)
 ```
 
 ::::

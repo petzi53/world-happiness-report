@@ -3,7 +3,7 @@ execute:
   cache: false
 ---
 
-# Country Charts {#sec-country-charts}
+# Country Charts {#sec-04-country-charts}
 
 
 ```{r}
@@ -61,7 +61,7 @@ country_selection_line_graph <-  function(df) {
 ```{r}
 #| label: show-eval-DACH
 
-ranking_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024.rds")
+ranking_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024_arrange.rds")
 
 ranking_2024 |> 
     dplyr::filter(
@@ -85,7 +85,7 @@ ranking_2024 |>
 ```{r}
 #| label: show-eval-european-countries
 
-ranking_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024.rds")
+ranking_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024_arrange.rds")
 
 ranking_2024 |> 
     dplyr::filter(
