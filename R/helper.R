@@ -7,7 +7,11 @@
 ## - my_qq_plot: create histogram with overlaid dnorm curve
 ## - my_scatter: create scatterplot with lm and loess curve
 ## - list_plotter: plot color list as a palette
-## - save_data_file: save data file
+## - my_create_folder: create folder at path if it not already exists
+## - my_save_data_file: save data file
+## - my_excel_as_csv_and_rds:
+##            save content of stored Excel file with all sheets
+##            as CSV snapshots and RDS objects
 ## - pkgs_dl: package downloads
 ## - t_col: transparent colors
 ##########################################################
@@ -290,7 +294,7 @@ list_plotter <- function(color_list, names, package_name) {
 }
 
 ################################################################
-# pb_create_folder:
+# my_create_folder:
 # Purpose:
 # check if folder already exists at parameter "path"
 # if not, then create folder
@@ -298,7 +302,8 @@ list_plotter <- function(color_list, names, package_name) {
 # path = character string:
 #                example: "/Users/xxyyzz/Documents/my-data/"
 ################################################################
-pb_create_folder <- function(path){
+
+my_create_folder <- function(path){
 
   if (!base::file.exists(path))
     {base::dir.create(path)}
@@ -306,7 +311,7 @@ pb_create_folder <- function(path){
 
 
 ################################################################
-# save_data_file: Save data file for the specified chapter
+# my_save_data_file: Save data file for the specified chapter
 # Purpose:
 # If folder not exists, create it and save object as .rds file
 # Author: Peter Baumgartner
@@ -318,7 +323,7 @@ pb_create_folder <- function(path){
 # # See: https://bookdown.org/pbaumgartner/swr-harris/
 ################################################################
 
-pb_save_data_file <- function(chapter_folder, object, file_name){
+my_save_data_file <- function(chapter_folder, object, file_name){
     data_folder <- base::paste0(here::here(), "/data/")
     if (!base::file.exists(data_folder))
     {base::dir.create(data_folder)}
@@ -333,6 +338,30 @@ pb_save_data_file <- function(chapter_folder, object, file_name){
 
     base::saveRDS(object = object,
                   file = paste0(chap_folder, "/", file_name))
+}
+
+
+
+################################################################
+# my_excel_as_csv_and_rds:
+# Purpose:
+#            save content of stored Excel file with all sheets
+#            as CSV snapshots and RDS objects
+# Author: Peter Baumgartner
+# sheet: vector of sheet names
+# path_excel: path to the already saved excel file
+# path_csv: folder path where to store all Excel sheets as .csv files
+# path_rds: folder path where to store all Excel sheets as .rds objects
+
+my_excel_as_csv_and_rds <- function(
+    sheet, path_excel, path_csv, path_rds) {
+  path_base <- path_excel |>
+    base::basename()  |>
+    tools::file_path_sans_ext()
+  path_excel  |>
+    readxl::read_excel(sheet = sheet) |>
+    readr::write_csv(base::paste0(path_csv, path_base, "-", sheet, ".csv")) |>
+    readr::write_rds(base::paste0(path_rds, path_base, "-", sheet, ".rds"))
 }
 
 

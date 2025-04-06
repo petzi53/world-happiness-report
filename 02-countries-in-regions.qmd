@@ -23,47 +23,91 @@ Country and Regions: Classifications for countries
 :::
 
 ::: my-objectives-container
-1.  Inspecting different approaches to classify countries by
-    international organizations (World Bank and United Nations
-    Statistics Division)
-2.  Understanding the country classification used by my `r glossary("WHR")` data sources.
-3.  Deciding which classification system I am going to use.
-4.  Modifying the country classification of WHR where necessary
-    so that the country classification conforms to the internationally
+1.  Understanding the country classification used by my `r glossary("WHR")` data sources (@sec-02-whr-classification).
+2.  Inspecting different approaches to classify countries by
+    international organizations:
+    - World Bank and 
+    - United Nations Statistics Division
+3.  Modifying resp. adding country classifications to the WHR data where necessary
+    so that it conforms to the internationally
     recognized and approved systems.
 
 I aim to compare different aspects of 
 countries. I want, for instance, to know how well Austria is doing
 compared to other European countries, the other member states of the
 European Union, or other OECD countries. It is, therefore, vital to have
-different categorization systems.
+a consistent categorization system with different grouping schemes.
 :::
 :::::
 
-## Country groupings in WHR
+## Country groupings in WHR {#sec-02-whr-classification}
 
-There are already different classification systems in place:
-International organizations (e.g., [World
-Bank](https://datahelpdesk.worldbank.org/knowledgebase/articles/906519),
-[United Nations](https://unstats.un.org/unsd/methodology/m49/)) have
-developed them with several grouping variants.
+Some of the WHR years (WHR reports 2013, 2015, 2020, and 2021) have a regional
+grouping incorporated. But this grouping is not included in the (new) dataset 2024 from the WHR report 2025.
 
-On the other hand some of the WHR years have also incorporated regional
-groupings (WHR reports 2013, 2015, 2020, and 2021). But these groupings are not incorporated in the new dataset 2024 from the WHR report 2025. 
+### Classification of WHR 2020
 
-As I am listing several classification variants in another article about the `r glossary("WIDx", "WID")` it pays the effort to develop a function for the repetitive task. (There are several classification schemes in the WID database.)
+I will display the regional grouping of the WHR data with the example from the year 2020 (WHR report 2021).
 
-### Function `class_scheme()`
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-whr-classification-2020}
+: WHR data 2020 classification
+::::::
+:::
+::::{.my-r-code-container}
+::: {#lst-whr-classification-2020}
+```{r}
+#| label: whr-classification-2020
+
+
+(
+  df_dt_whr_2020 <-  base::readRDS("data/whr/raw/whr_raw_2021.rds") |> 
+      dplyr::select(`Country name`, `Regional indicator`) |> 
+      dplyr::nest_by(`Regional indicator`) |> 
+      dplyr::mutate(data = as.vector(data)) |>
+      dplyr::mutate(data = stringr::str_c(data, collapse = "; ")) |>
+      dplyr::mutate(data = paste(data, ";")) |> 
+      dplyr::mutate(N = lengths(gregexpr(";", data))) |> 
+      dplyr::rename(Country = data) |> 
+      DT::datatable(class = 'cell-border compact stripe', 
+                options = list(
+                  pageLength = 25,
+                  lengthMenu = c(5, 10, 15, 20, 25, 50)
+                  )
+            )
+)
+```
+Result of the WHR classification system for WHR data 2020 used in the WHR report 2021.
+:::
+
+
+
+
+------------------------------------------------------------------------
+
+There are `r base::length(df_dt_whr_2020$x$data$N)` different regional indicators. The datasets for 2013, 2015, 2020 and 2021 use all the same
+classification scheme with **`r base::sum(df_dt_whr_2020$x$data$N)` countries in
+`r base::length(df_dt_whr_2020$x$data$N)` regions**.
+
+`r sum(df_dt_whr_2020$x$data$N)` are by far not all countries of the world. Their complete number is about 195 with some insecurities about Holy See (Vatican), the State of Palestine, Taiwan and Kosovo. (Compare: [How Many Countries Are There In The World?](https://www.worldatlas.com/geography/how-many-countries-are-there-in-the-world.html)) The reason for this lower number is simple: For only those `r sum(df_dt_whr_2020$x$data$N)` countries are subjective well-being data in the study year 2020 available.
+
+::::
+:::::
+
+### `class_scheme()` function
+
+As I am going to list several classification variants it pays the effort to develop a function for the repetitive task.
 
 ::::::: my-r-code
 :::: my-r-code-header
 ::: {#cnj-show-class-scheme}
-: Function `class_scheme()` for showing classification scheme
+: Function `class_scheme()` for showing classification schemes
 :::
 ::::
 
 :::: my-r-code-container
-::: {#lst-chaplisting-ID}
+::: {#lst-show-class-scheme}
 ```{r}
 #| label: function-class-scheme
 #| code-fold: show
@@ -96,16 +140,16 @@ class_scheme <- function(df, sel1, sel2) {
 Function `class_scheme()` for showing results of a classification system
 :::
 
-Using {**dplyr**} programming code in functions needs some special
+Here I am using complex code lines. Using {**dplyr**} programming code in functions needs some special
 consideration. I have learned the details from "Bang Bang – How to
 program with dplyr" [@berroth-2019].
 ::::
 :::::::
 
-### WHR Grouping Schemata
+### WHR 2020 with `class_scheme()` function
 
-As the `class_scheme()` function is now in place, I can display the different grouping
-schemes.
+As the `class_scheme()` function is now in place, I can display with this function the different grouping
+schemes. At first I will try it out with the WHR data from the 2021 report:
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -117,7 +161,8 @@ schemes.
 ```{r}
 #| label: whr-grouping-schema
 
-df_whr <-  base::readRDS("data/whr/raw/whr_raw_2021.rds")
+df_whr <-  base::readRDS(
+    paste0(here::here(), "/data/whr/raw/whr_raw_2021.rds"))
 (
     whr_class <- class_scheme(
             df = df_whr,
@@ -127,23 +172,22 @@ df_whr <-  base::readRDS("data/whr/raw/whr_raw_2021.rds")
 )
 ```
 
-------------------------------------------------------------------------
-
-The datasets for 2013, 2015, 2020 and 2021 use all the same
-classification scheme with **`r sum(whr_class$x$data$N)` countries in
-`r length(whr_class$x$data$N)` regions**.
-
-`r sum(whr_class$x$data$N)` are by far not all countries of the world. Their number is about 195 with some insecurities about Holy See (Vatican), the State of Palestine, Taiwan and Kosovo. (Compare: [How Many Countries Are There In The World?](https://www.worldatlas.com/geography/how-many-countries-are-there-in-the-world.html)) The reason for this lower number is simple: For only those `r sum(whr_class$x$data$N)` countries are subjective well-being data in one of the study years available.
-
 ::::
 :::::
 
 
+It worked! I got the same result as in @lst-whr-classification-2020.
+
 
 ## Official classifications
 
-In a first step I want to find out  where these classifications systems come from and compare
-them to the country groupings in the WHR data. I will look into the two official classifications schemes of World Bank and United Nations and apply the following procedure:
+There are already different classification systems in place:
+International organizations (e.g., [World
+Bank](https://datahelpdesk.worldbank.org/knowledgebase/articles/906519),
+[United Nations](https://unstats.un.org/unsd/methodology/m49/)) have
+developed them with several grouping variants.
+
+I will look into these two official classifications schemes of World Bank and United Nations and apply the following procedure:
 
 :::::{.my-procedure}
 :::{.my-procedure-header}
@@ -175,8 +219,16 @@ them to the country groupings in the WHR data. I will look into the two official
 #| label: create-class-dirs
 #| code-fold: show
 
-pb_create_folder(base::paste0(here::here(), "/data/"))
-pb_create_folder(base::paste0(here::here(), "/data/country-class"))
+my_create_folder(base::paste0(here::here(), "/data/"))
+my_create_folder(base::paste0(here::here(), "/data/country-class"))
+my_create_folder(base::paste0(here::here(), "/data/country-class/wb"))
+my_create_folder(base::paste0(here::here(), "/data/country-class/unsd"))
+my_create_folder(base::paste0(here::here(), "/data/country-class/wb/excel"))
+my_create_folder(base::paste0(here::here(), "/data/country-class/wb/csv"))
+my_create_folder(base::paste0(here::here(), "/data/country-class/wb/rds"))
+my_create_folder(base::paste0(here::here(), "/data/country-class/unsd/excel"))
+my_create_folder(base::paste0(here::here(), "/data/country-class/unsd/csv"))
+my_create_folder(base::paste0(here::here(), "/data/country-class/unsd/rds"))
 ```
 
 <center>(*For this R code chunk is no output available*)</center>
@@ -195,13 +247,20 @@ Yes, there is another Excel file `OGHIST.xslx` with the historical cutoffs
 for incomes and lending categories, dating from 1987 to 2023. But the download link for this file is located at another web page: [World Bank Country and Lending Groups](https://datahelpdesk.worldbank.org/knowledgebase/articles/906519). On this page you will also find the updates for the cutoffs for countries `r glossary("GNIx", "GNI")` income per capita which is important for the lending eligibility of countries. [World Bank country classifications by income level for
 2024-2025](https://blogs.worldbank.org/en/opendata/world-bank-country-classifications-by-income-level-for-2024-2025) has the current updated values and changes over the last year.
 
-The file `CLASS.xlsx` I am interested here consists of three sheets:
+The file `CLASS.xlsx` I am interested here consists of three sheets. 
 
-1. "List of Economoies"
-2. "compositions" and
-3. "Notes"
+  - 1. "List of Economies"
+  - 2. "compositions" and
+  - 3. "Notes"
 
-I am going to download the first two Excel sheets.
+I will download the original Excel file with all it sheets and save programmatically
+  
+  - the Excel file with all its sheet
+  - CSV snapshots of all sheets (file extension = `.csv`) and
+  - R objects of all sheets (file extension = `.rds`)
+  
+The CSV snapshots support reproducibility because it stores the proprietary Excel file in in a tool-agnostic, future-proof format. I am using code inspired by the vignette/article [readxl Workflows](https://readxl.tidyverse.org/articles/readxl-workflows.html) 
+
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -213,55 +272,40 @@ I am going to download the first two Excel sheets.
 
 <center>**Run this code chunk manually if the file still needs to be downloaded.**</center>
 
+
 ```{r}
 #| label: wb-class
 #| code-fold: show
 #| eval: false
 
+url_excel = "https://datacatalogfiles.worldbank.org/ddh-published/0037712/DR0090755/CLASS.xlsx"
+path_wb_excel <- base::paste0(here::here(), 
+            "/data/country-class/wb/excel/wb-class.xlsx")
+path_wb_csv <- base::paste0(here::here(), 
+            "/data/country-class/wb/csv/")
+path_wb_rds <- base::paste0(here::here(), 
+            "/data/country-class/wb/rds/")
 
 ## download wb-class file ##############
 downloader::download(
-    url = "https://datacatalogfiles.worldbank.org/ddh-published/0037712/DR0090755/CLASS.xlsx",
-    destfile = base::paste0(here::here(), 
-            "/data/country-class/wb-class.xlsx")
+    url = url_excel,
+    destfile = path_wb_excel
 )
 
-## create R object ############
-wb_class_economies <- 
-  readxl::read_xlsx(
-    base::paste0(here::here(), 
-    "/data/country-class/wb-class.xlsx"),
-           sheet = "List of economies") 
-
-
-wb_class_compositions <- 
-  readxl::read_xlsx(
-    base::paste0(here::here(), 
-    "/data/country-class/wb-class.xlsx"),
-           sheet = "compositions")
-
-## save as .rds files ###############
-pb_save_data_file(
-  "country-class", 
-  wb_class_economies, 
-  "wb_class_economies.rds"
-)
-
-
-pb_save_data_file(
-  "country-class", 
-  wb_class_compositions, 
-  "wb_class_compositions.rds"
-)
-
+## from readxl workflow article ##############
+## includes also my_excel_as_csv_and_rds() function 
+path_wb_excel |> 
+  readxl::excel_sheets()  |> 
+  rlang::set_names()  |>  
+  purrr::map(my_excel_as_csv_and_rds, 
+             path_excel = path_wb_excel, 
+             path_csv = path_wb_csv,
+             path_rds = path_wb_rds
+             ) 
 ```
-
-<center>(*For this R code chunk is no output available*)</center>
-
 
 ::::
 :::::
-
 
 #### UNSD-M49 {#sec-02-unsd-download}
 
@@ -273,16 +317,18 @@ The result is called [Standard country or area codes for statistical use
 (M49)](https://unstats.un.org/unsd/methodology/m49/) and can be
 downloaded manually in different languages and formats (Copy into the
 clipboard, Excel or `r glossary("CSV")` from the [Overview
-page](https://unstats.un.org/unsd/methodology/m49/overview/). On this page is
+page](https://unstats.un.org/unsd/methodology/m49/overview/). On the page "Overview" is
 no URL for an R script available, because triggering one of the buttons
-copies or downloads the data with the help of Javascript. So I had to download the file manually or to find another location where I could download it programmatically. I stored it as `unsd-class.csv` under the "data/country-class" folder. 
+copies or downloads the data with the help of Javascript. So I had to download the file manually or to find another location where I could download it programmatically. 
 
-I found with the OMNIKA DataStore an [external source for the UNSD-M49 country classification](https://github.com/omnika-datastore/unsd-m49-standard-area-codes). The OMNIKA DataStore is an open-access data science resource for researchers, authors, and technologists. OMNIKA Foundation is a 501c3 nonprofit whose mission is to digitize, organize, and make freely available important contents. For security reason I checked the two files with `base::all.equal()` to determine if those two files are identical. Yes, they are!
+I found with the `r glossary("OMNIKA")` DataStore an [external source for the UNSD-M49 country classification](https://github.com/omnika-datastore/unsd-m49-standard-area-codes). For security reason I checked the two files with `base::all.equal()` to determine if those two files are identical. Yes, they are!
+
+The UNSD M40 standard area codes are stored as Excel and CSV files. I download for reproducibility reason the CSV file.
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-02-UNSD-M49}
-: Download the UNSD-M49 CSV file
+: Download the UNSD-M49 CSV file and create an R object (".rds")
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -295,27 +341,27 @@ I found with the OMNIKA DataStore an [external source for the UNSD-M49 country c
 #| eval: false
 
 ## download unsd-m49 file ############
-url <- "https://github.com/omnika-datastore/unsd-m49-standard-area-codes/raw/refs/heads/main/2022-09-24__CSV_UNSD_M49.csv"
+url_unsd_csv <- "https://github.com/omnika-datastore/unsd-m49-standard-area-codes/raw/refs/heads/main/2022-09-24__CSV_UNSD_M49.csv"
+path_unsd_csv <- base::paste0(here::here(), 
+     "/data/country-class/unsd/csv/2022-09-24__CSV_UNSD_M49.csv")
 
 downloader::download(
-    url = url,
-    destfile = base::paste0(here::here(), 
-            "/data/country-class/unsd-class.csv")
+    url = url_unsd_csv,
+    destfile = path_unsd_csv
 )
 
 
 ## create R object ###############
 unsd_class <- 
   readr::read_delim(
-    file = base::paste0(here::here(), 
-    "/data/country-class/unsd-class.csv"),
+    file = path_unsd_csv,
     delim = ";"
   )
 
 
 ## save as .rds file ################
-pb_save_data_file(
-  "country-class", 
+my_save_data_file(
+  "country-class/unsd/rds", 
   unsd_class, 
   "unsd_class.rds")
 
@@ -368,7 +414,8 @@ To get an detailed understanding of the data structures I will provide the follo
 #| label: inspect-wb-sheet1
 #| results: hold
 
-wb_class_economies <- base::readRDS("data/country-class/wb_class_economies.rds")
+wb_class_economies <- base::readRDS(
+  "data/country-class/wb/rds/wb-class-List of economies.rds")
 glue::glue("******************* Using skimr::skim() ***************************")
 skimr::skim(wb_class_economies)
 glue::glue("")
@@ -395,7 +442,8 @@ dplyr::glimpse(wb_class_economies)
 #| label: inspect-wb-sheet2
 #| results: hold
 
-wb_class_compositions <- base::readRDS("data/country-class/wb_class_compositions.rds")
+wb_class_compositions <- base::readRDS(
+  "data/country-class/wb/rds/wb-class-compositions.rds")
 glue::glue("******************* Using skimr::skim() ***************************")
 skimr::skim(wb_class_compositions)
 glue::glue("")
@@ -423,7 +471,8 @@ dplyr::glimpse(wb_class_compositions)
 #| label: wb-class-standard
 
 
-df_wb_standard <-  base::readRDS("data/country-class/wb_class_economies.rds") |> 
+df_wb_standard <-  base::readRDS(
+  "data/country-class/wb/rds/wb-class-List of economies.rds") |> 
     dplyr::slice(1:218)
 
 
@@ -456,7 +505,8 @@ df_wb_standard <-  base::readRDS("data/country-class/wb_class_economies.rds") |>
 ```{r}
 #| label: wb-class-all
 
-df_wb_all <-  base::readRDS("data/country-class/wb_class_compositions.rds")
+df_wb_all <-  base::readRDS(
+  "data/country-class/wb/rds/wb-class-compositions.rds")
 
 
 (
@@ -491,7 +541,8 @@ str_reg <- c("AFE", "AFW", "ARB", "CSS", "CEB",
              "EAS", "ECS", "LCN", "MEA", "NAC",
              "OSS", "PSS", "SST", "SAS", "SSF")
 
-df_wb_reg <-  base::readRDS("data/country-class/wb_class_compositions.rds") |> 
+df_wb_reg <-  base::readRDS(
+  "data/country-class/wb/rds/wb-class-compositions.rds") |> 
   dplyr::filter(WB_Group_Code %in% str_reg)
 
 (
@@ -527,7 +578,8 @@ str_reg2 <- c("AFE", "AFW", "ARB", "CEB",
              "EAS", "ECS", "LCN", "MEA", "NAC",
              "SAS", "SSF")
 
-df_wb_reg2 <-  base::readRDS("data/country-class/wb_class_compositions.rds") |> 
+df_wb_reg2 <-  base::readRDS(
+  "data/country-class/wb/rds/wb-class-compositions.rds") |> 
   dplyr::filter(WB_Group_Code %in% str_reg2)
 
 (
@@ -578,7 +630,7 @@ Browsing through the `composition` data I have declassified all small states for
     of the regional and income group with their ISO alpha 3 codes and
     country names.
 3. **WB Standard** shows the World Bank seven standard regional groups with their countries. The 218 countries  involved in the taxonomy of the World Bank consists of all member countries of the World Bank (189) and other economies with populations of more than 30,000 (29).
-4. **WB All** includes the seven regions from the "WB Standard" tab but much more. But it is important to note that there is no alternative *regional* structure comprises systematically all countries of the world --- the overall category "World" obviously excluded. 
+4. **WB All** includes the seven regions from the "WB Standard" tab but much more. But it is important to note that there is no alternative *regional* structure that comprises systematically all countries of the world --- the overall category "World" obviously excluded. 
     - Five of the seven regional groups of "WB Standard" are also clustered without high income countries. 
     - There are six other regional subcategories: "Arab World", "Caribbean small states", "Central Europe and Baltics", "Other small states", "Pacific island small states", "Small states". 
     - Additionally there are some political groups like European Union, OECD and 
@@ -613,11 +665,11 @@ Three additional remark relating to the `Notes` sheet:
 
 The only missing data in the columns `Economy` and `Code` corresponds to the empty line #220 that separates the country codes from the regional codes. The missing data in the other columns stem from the different structure of the second part (starting with row #221) of the data, which consists only of the two columns 'Economy' and 'Code'. 
 
-Essentially this means that we have in the `CLASS.xslx` file two different data sets: One for economies and the other one to explicate regional, economical and political grouping codes. In the Excel sheet `compositions` you will find an extended list of all available group names and their three letter codes combined with the country names and their three letter codes. These group names comprise different kinds of regional groups but also names and codes for different combination of country incomes and lending categories.
+Essentially this means that we have in the `wb-class.xlsx` file two different data sets: One for economies and the other one to explicate regional, economical and political grouping codes. In the Excel sheet `compositions` you will find an extended list of all available group names and their three letter codes combined with the country names and their three letter codes. These group names comprise different kinds of regional groups but also names and codes for different combination of country incomes and lending categories.
 
 All these groups may be of interests for analysis of different trends. But the regional (sub)groups of the `compositions` sheet do not add up to the complete number of countries (218). This is in contrast to the different regional groups of the WID database because all their regional groups (region1 = 5, region2 = 18, region4 = 10, and region5 = 8 groups) includes all countries (in this case: 216).
 
-The World Bank file `CLASS.xslx` classifies all World Bank member countries (189), and all other economies with populations of more than 30,000 (29) in a coarse grid of only seven regions. For operational and analytical purposes, these economies are divided among income groups according to their [gross national income (GNI) per capita](https://datahelpdesk.worldbank.org/knowledgebase/articles/378831-why-use-gni-per-capita-to-classify-economies-into) in 2023, calculated using the [World Bank Atlas method](https://datahelpdesk.worldbank.org/knowledgebase/articles/378832-what-is-the-world-bank-atlas-method). 
+The World Bank file `wb-class.xlsx` classifies all World Bank member countries (189), and all other economies with populations of more than 30,000 (29) in a coarse grid of only seven regions. For operational and analytical purposes, these economies are divided among income groups according to their [gross national income (GNI) per capita](https://datahelpdesk.worldbank.org/knowledgebase/articles/378831-why-use-gni-per-capita-to-classify-economies-into) in 2023, calculated using the [World Bank Atlas method](https://datahelpdesk.worldbank.org/knowledgebase/articles/378832-what-is-the-world-bank-atlas-method). 
 
 
 #### United Nations {#sec-02-inspect-unsd}
@@ -651,7 +703,8 @@ The World Bank file `CLASS.xslx` classifies all World Bank member countries (189
 #| label: inspect-unsd-m49
 #| results: hold
 
-unsd_class <- base::readRDS("data/country-class/unsd_class.rds")
+unsd_class <- base::readRDS(
+  "data/country-class/unsd/rds/unsd_class.rds")
 glue::glue("******************* Using skimr::skim() ***************************")
 skimr::skim(unsd_class)
 glue::glue("")
@@ -668,11 +721,12 @@ dplyr::glimpse(unsd_class)
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-02-clean-unsc-m49}
+:::::: {#cnj-02-clean-unsd-m49}
 : Clean UNSD M49 geoscheme classification
 ::::::
 :::
 ::::{.my-r-code-container}
+:::::{#lst-02-clean-unsd-m49}
 ```{r}
 #| label: clean-unsd-49
 #| results: hold
@@ -690,7 +744,8 @@ m49_cols = c(
   )
   
 ## clean data ###############################
-unsd_class <- base::readRDS("data/country-class/unsd_class.rds")
+unsd_class <- base::readRDS(
+  "data/country-class/unsd/rds/unsd_class.rds")
 unsd_class_clean <- unsd_class |> 
   dplyr::select(-(1:2)) |> 
   dplyr::rename(tidyselect::all_of(m49_cols)) |> 
@@ -704,8 +759,8 @@ unsd_class_clean <- unsd_class |>
   dplyr::arrange(country)
 
 ## save new tibble ##########
-pb_save_data_file(
-  "country-class",
+my_save_data_file(
+  "country-class/unsd/rds",
   unsd_class_clean,
   "unsd_class_clean.rds"
 )
@@ -723,7 +778,8 @@ my_skim <- skimr::skim_with(
 
 
 ## display results ##########
-unsd_class <- base::readRDS("data/country-class/unsd_class.rds")
+unsd_class <- base::readRDS(
+  "data/country-class/unsd/rds/unsd_class.rds")
 glue::glue("******************* Using skimr::skim() ***************************")
 my_skim(unsd_class_clean) |> dplyr::select(-complete_rate)
 glue::glue("")
@@ -732,8 +788,8 @@ dplyr::glimpse(unsd_class_clean)
 
 ```
 
-
-
+Script for data cleaning of the `unsd_class.rds` file as explained in @prp-02-clean-unsd-m49-data
+:::::
 
 ::::
 :::::
@@ -750,7 +806,8 @@ dplyr::glimpse(unsd_class_clean)
 ```{r}
 #| label: unsd-class1
 
-df_unsd <-  base::readRDS("data/country-class/unsd_class_clean.rds")
+df_unsd <-  base::readRDS(
+  "data/country-class/unsd/rds/unsd_class_clean.rds")
 
 (
     unsd_class1 <- class_scheme(
@@ -776,7 +833,8 @@ df_unsd <-  base::readRDS("data/country-class/unsd_class_clean.rds")
 ```{r}
 #| label: unsd-class2
 
-df_unsd <-  base::readRDS("data/country-class/unsd_class_clean.rds")
+df_unsd <-  base::readRDS(
+  "data/country-class/unsd/rds/unsd_class_clean.rds")
 
 (
     unsd_class2 <- class_scheme(
@@ -802,7 +860,8 @@ df_unsd <-  base::readRDS("data/country-class/unsd_class_clean.rds")
 ```{r}
 #| label: unsd-class3
 
-df_unsd <-  base::readRDS("data/country-class/unsd_class_clean.rds")
+df_unsd <-  base::readRDS(
+  "data/country-class/unsd/rds/unsd_class_clean.rds")
 
 (
     unsd_class3 <- class_scheme(
@@ -828,7 +887,8 @@ df_unsd <-  base::readRDS("data/country-class/unsd_class_clean.rds")
 ```{r}
 #| label: unsd-class4
 
-unsd_class4 <-  base::readRDS("data/country-class/unsd_class_clean.rds")
+unsd_class4 <-  base::readRDS(
+  "data/country-class/unsd/rds/unsd_class_clean.rds")
 
 unsd_class4 <- unsd_class4 |> 
   dplyr::mutate(midr_n2 = 
@@ -859,20 +919,31 @@ countries in `r length(unsd_class4$x$data$N)` regions**.
 :::::
 
 
-##### Descriptions of the XY tabs
+##### Descriptions of the UNSD-M49 geoscheme classification
 
-The file has 15 columns as you can also see online from the [Overview
-page](https://unstats.un.org/unsd/methodology/m49/overview/). 
+What follows is a description if the tabs in @exm-02-inspect-unsd.
 
-The many missing values (`NAs`) for the categories LDC, LLDC and SIDS are easy explained: These three columns are coded with an 'x' if the country of this row belong to this category. Recoding these three columns with 1 and 0 (1 = yes, belongs to this category, 0 = no, does not belong to this category) will reduce most of their missing values.
+**Tab "raw"**: The raw file `unsd_class` has 15 columns as you can also see online from the [Overview
+page](https://unstats.un.org/unsd/methodology/m49/overview/). The many missing values (`NAs`) for the categories `r glossary("LDCx", "LDC")`, `r glossary("LLDC")` and `r glossary("SIDS")` are easy explained: These three columns are coded with an 'x' if the country of this row belong to this category. 
 
-One missing value in the regional categories (Region, Sub-Region and Intermediate Region) is related to Antarctica which is not seen by the M49 scheme as a separated region. It has therefore no regional codes and names with the exception of the overall comprising global region. But it has M49 as well ISO-alpha codes.
+One of the missing value for ISO-alpha2 codes belongs to Namibia because its abbreviation `NA` is interpreted by R as a missing value!
 
-One of the missing values for ISO-alpha2 and ISO-alpha3 is related to Sark, which is "recognized by the United Nations Statistics Division (UNSD) as a separate territory" but was not accepted by ISO now for more than 20 years [@mccarthy-2020]. Recently a new application (see [PDF](https://www.sarkid.org/assets/pdf/SarkID%20Identity%20info%20v1_2.pdf)) will change that but currently Sark is still waiting for [ISO 3166 codes](https://www.iso.org/iso-3166-country-codes.html).
+The other missing values for ISO-alpha2 and ISO-alpha3 is related to [Sark](https://www.sark.co.uk/), which is "recognized by the United Nations Statistics Division (UNSD) as a separate territory" but was not accepted by ISO now for more than 20 years [@mccarthy-2020]. Recently a new application (see [PDF](https://www.sarkid.org/assets/pdf/SarkID%20Identity%20info%20v1_2.pdf)) will change that but currently Sark is still waiting for [ISO 3166 codes](https://www.iso.org/iso-3166-country-codes.html).
 
-The other missing value for ISO-alpha2 codes belongs to Namibia because its abbreviation `NA` is interpreted by R as a missing value!
 
-To clean the data I will
+**Tab "clean"**: Recoding columns "LDC", "LLDC" and "SIDS" with 1 and 0 (1 = yes, belongs to this category, 0 = no, does not belong to this category) reduce most of their missing values. I have also recoded "Namibia" to repair their "NA" value.
+
+**Tab "Region", "Sub-Region" and "Intermediate Region"**: One missing value in these regional categories is related to Antarctica which is not seen by the M49 scheme as a separated region. It has therefore no regional codes and names with the exception of the overall comprising global region. But it has M49 as well ISO-alpha codes.
+
+
+:::::{.my-procedure}
+:::{.my-procedure-header}
+:::::: {#prp-02-clean-unsd-m49-data}
+: Cleaning the UNSD M49 data file
+::::::
+:::
+::::{.my-procedure-container}
+To clean the data I have taken the following recoding actions in the script for the "clean" tab in
 
 - Remove the global codes and names because they a redundant: All rows have global code "001" ("World").
 - Rename the columns to get shorter names.
@@ -881,6 +952,9 @@ To clean the data I will
 - Recode the columns LDC, LLDC and SIDS with 0 and 1.
 - Relocate the column "country" (previously "Country or Area") to the first column because than it easier to find some relevant content
 - Sort the data alphabetically by "country".
+::::
+:::::
+
 
 
 
@@ -893,554 +967,12 @@ To clean the data I will
 
 
 
-## XY STOPPED HERE - WHAT FOLLOW ARE SOME (OLDER) TEXT MODULES
-
-
-### Modul: Why looking at classification systems?
-
-Only sometimes are they used identically in the data I will look at. So
-I also have to understand these data-driven differences (e.g., in the
-`r glossary("WIDx", "WID")` database or the `r glossary("WHR")` data) with the
-official country nomenclatures.
-
-I could have used just the approach used in my data set. But that
-approach poses two problems:
-
-1.  Not always are the classification used coherently in my available
-    datasets. So uses WHR (slightly) different country names in their
-    yearly reports. For instance "Turkiye" in 2024 and "Turkey" in 2012,
-    but the official name is "Türkiye". Instead of the current 27 member
-    states of the European Union the WID assigns the label "European
-    Union" to 32 countries, including still United Kingdom but also
-    British Overseas Territory (Gibraltar, Montserrat),and
-    self-governing British Crown dependencies (Isle of Man, Jersey) that
-    never had been member status in the `r glossary("EUx", "EU")`.
-2.  Sometimes the available data use their own categorization schema.
-    Most of the data analysis in the World Inequality Report 2022
-    (WIR2022) condense data into eight different regions: Europe, South
-    & South-East Asia, East Asia, North America, Sub-Saharan Africa,
-    Russia & Central Asia, `r glossary("MENA")`, Latin America. I
-    couldn't find exact this classification schema in one of the
-    internationally approved taxonomies.
-3.  Some of the groupings I am interested in (e.g.,
-    `r glossary("OECD")`, or countries that applied for
-    `r glossary("EU membership applications", "EU membership status")`
-    are not part of the international standardized statistical
-    groupings.
-
-
-### Modul: UNSD M49 geoscheme preliminiary rsults
-
-After some research I found out that the most detailed and for
-statistical purposes most relevant classification system is
-`r glossary("M49")` standard, developed and maintained by the United
-Nations Statistics Division (`r glossary("UNSD")`). Guided by the
-`r glossary("United Nations Geoscheme")` it divides all countries of the
-world into different types of regions:
-
-Reference is: [Wikipedia
-map](https://en.wikipedia.org/wiki/United_Nations_geoscheme#/media/File:United_Nations_geographical_subregions.png)
-
--   **6 Regions**: 6 continents:
-    -   Africa,
-    -   Americas,
-    -   Antarctica,
-    -   Asia,
-    -   Europe and
-    -   Oceania.
--   **22 Sub-regions**: (Missing three in [Appendix 1. United Nations
-    Geoscheme](https://www.emiw.org/fileadmin/emiw/UserActivityDocs/Geograph.Representation/Geographic-Representation-Appendix_1.pdf):
-    Polynesia, and other differentiation of the Americas: North America,
-    Central America, Caribbean, South America )
-    -   Africa:
-        -   Northern Africa,
-        -   Eastern Africa,
-        -   Middle Africa,
-        -   Southern Africa,
-        -   Western Africa
-    -   Americas:
-        -   Latin America and the Caribbean,
-        -   Northern America
-    -   Asia:
-        -   Central Asia,
-        -   Eastern Asia,
-        -   Southeastern Asia,
-        -   Southern Asia,
-        -   Western Asia
-    -   Europe:
-        -   Eastern Europe,
-        -   Northern Europe,
-        -   Southern Europe,
-        -   Western Europe
-    -   Oceania:
-        -   Australia and New Zealand,
-        -   Melanesia,
-        -   Micronesia
-
-------------------------------------------------------------------------
-
--   Sub-regions (18 in M49, missing 4: Sub-Saharan Africa = Eastern
-    Africa, Middle Africa, Southern Africa, and Western Africa, and
-    Latin America = South America and Caribbean is separated)
-    -   "Northern Africa"\
-    -   "Sub-Saharan Africa"\
-    -   "Latin America and the Caribbean"
-    -   "Northern America"
-    -   "Central Asia"\
-    -   "Eastern Asia"\
-    -   "South-eastern Asia"\
-    -   "Southern Asia"\
-    -   "Western Asia"\
-    -   "Eastern Europe"\
-    -   "Northern Europe"\
-    -   "Southern Europe"\
-    -   "Western Europe"\
-    -   "Australia and New Zealand"\
-    -   "Melanesia"\
-    -   "Micronesia"\
-    -   "Polynesia"
--   Intermediate Regions: (2, but 7)
-    -   Sub-Saharan Africa: Eastern Africa, Middle Africa, Southern
-        Africa and Western Africa
-    -   Latin America and the Caribbean: Caribbean, Central America,
-        South America
-
-::: {#nte-qualifications .callout-note}
-1.  The UN geoscheme is a statistical classification and does not imply
-    any political or other affiliation of countries or territories.
-2.  It may differ from geographical definitions used by autonomous UN
-    specialized agencies, such as the United Nations Industrial
-    Development Organization and UNESCO, for their own organizational
-    convenience.
-3.  Other alternative groupings include the World Bank regional
-    classification and CIA World Factbook regions, and Internet
-    Corporation for Assigned Names and Numbers Geographic Regions.
-:::
-
-::: {#imp-procedure .callout-important}
-How to get the 22 sub-regions from the m49 data?
-
-1.  Take the `Intermediate Region Name` if it is not `NA`.
-2.  If the `Intermediate Region Name` is `NA` then take the
-    `Sub-region name`.
-:::
-
-::::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-download-m49-scheme}
-: Download the M49 Geoscheme of the United Nations
-:::
-::::
-
-:::: my-r-code-container
-
-**Run this code chunk only once manually:** It downloads the M49
-Geoscheme of the United Nations as a `.csv` file and saves it as an R
-`.rds` object.
-
-```{r}
-#| label: download-m49-geoscheme
-#| eval: false
-
-## run this code chunk only once (manually)
-
-## get the file from an external source, 
-## https://github.com/omnika-datastore/unsd-m49-standard-area-codes
-## OMNIKA DataStore is an open-access data science resource 
-## for researchers, authors, and technologists interested in mythology. 
-## Managed by OMNIKA Foundation which is a 501c3 nonprofit 
-## whose mission is to digitize, organize, 
-## and make freely available all the world's mythological contents.
-## at the official UN site is no URL provided
-## the file is downloaded via a javascript
-## I checked the two files with base::all.equal()`
-## they are identical 
-
-## define variables
-url <- "https://github.com/omnika-datastore/unsd-m49-standard-area-codes/raw/refs/heads/main/2022-09-24__CSV_UNSD_M49.csv"
-folder = "country-class"
-
-## create folder for chapter if not already done
-data_folder <-
-        base::paste0(
-            here::here(),
-            paste0("/data/", folder, "/")
-        )
-    if (!base::file.exists(data_folder))
-    {base::dir.create(data_folder)}
-
-## get the UNSD M49 .csv file from the OMNIKA Foundation GitHub
-destfile <- base::paste0(data_folder, "unsd_m49.csv")
-utils::download.file(url, destfile)
-tmp <- readr::read_csv2(destfile)
-
-
-## save original file without changes
-pb_save_data_file("country-class", tmp, "unsd_m49.rds")
-```
-
-
-::::
-:::::::
-
-
-### Modul: WIR2022 data inspection & exploration
-
-:::::: {#obj-chapter-template}
-::::: my-objectives
-::: my-objectives-header
-List regions of the WIR2022 and their countries
-:::
-
-::: my-objectives-container
-The World Inequality Report 2022 (WIR2022) describes global trends in
-inequality. It mostly condense data in eight different regions. See the
-following graph as an example:
-
-![A typical example for a graph in the World Inequality Report 2022
-(WIR2022), showing the division of the world into eight different world
-regions ("MENA" stands for Middle East & North
-Arfica).](img/02-WIR2022-min.png){#fig-02-wir2022-example
-fig-alt="The image shows the income shares for the bottom 50%, middle 40% and top 10% in 2021 dividing the world into eight different regions. With the exception of Europe the top 10% earn the biggest share of the income with the following order from lowest to the highest 10%: Europe, East Asia, North America, Russia & Central Asia, South & South-East Asia, Latin America, Sub-Saharan Africa, MENA (Middle East & North Africa). Example: In Latin America the top 10% captures 55% of national income compared to 36% of Europe."
-fig-align="center" width="100%"}
-
-In this appendix I want to know the countries that form each of these
-eight regions.
-:::
-:::::
-::::::
-
-## Data
-
-My first task was to look for data where I could extract the information
-I am interested in. I scanned the files of the free accessible [GitHub
-repository of the WID](https://github.com/WIDworld/wid-world). I found
-`country-codes-core.xlsx`, an Excel file with the data I am looking for.
-It is sorted by a two letter code in the first column named
-appropriately `code`. "Core" means -- in contrast to [other
-`country-codes`
-files](https://github.com/WIDworld/wid-world/tree/master/data-input/country-codes)
--- that it includes a column `corecountry` where the number `1`
-functions as a marker for a core country. The file itself has many
-hidden rows which feature either regions smaller than a country (like
-Alabama for US or Bavaria for Germany) or bigger than a country (like
-Asia or Western Europe).
-
-::: callout-important
-`country-codes-core.xlsx` contains many hidden rows. It is therefore
-necessary to filter by `corecountry == 1`.
-:::
-
-### Download data
-
-The following code chunk is only applied once. The file contains rows
-with all two letter combinations. Many of these combinations do not
-refer to an existing country. To eliminate these records one needs to
-select `corecountry == 1`.
-
-The following chunk downloads the dataset from the internet and saves
-this Excel file untouched. I selected only rows for core-countries and
-converted all string columns to factor variable. I stored the result as
-`country-codes.rds`.
-
-:::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-02-download-country-codes-core}
-: Download the country-codes-core file, manipulate and save it
-:::
-::::
-
-::: my-r-code-container
-```{r}
-#| label: download-country-codes-core
-#| eval: false
-
-## run this code chunk only once (manually)
-
-## define variables
-url <- "https://github.com/WIDworld/wid-world/raw/master/data-input/country-codes/country-codes-core.xlsx"
-chapter_folder = "chap80"
-
-## create folder for chapter if not already done
-chap_folder <-
-        base::paste0(
-            here::here(),
-            paste0("/data/", chapter_folder, "/")
-        )
-    if (!base::file.exists(chap_folder))
-    {base::dir.create(chap_folder)}
-
-## get country-codes-core.xlsx
-destfile <- base::paste0(chap_folder, "country-codes-core.xlsx")
-utils::download.file(url, destfile)
-tmp <- readxl::read_xlsx(destfile)
-
-
-country_codes <- tmp |> 
-    ## filter for core countries
-    dplyr::filter(corecountry == 1) |> 
-    ## convert all region columns to factor variables
-    dplyr::mutate(dplyr::across(
-        tidyselect::starts_with("region"), forcats::as_factor)
-        )
-
-## save cleaned data
-pb_save_data_file("chap80", country_codes, "country_codes.rds")
-
-```
-
-(*For this R code chunk is no output available*)
-:::
-::::::
-
-### Eplore Data
-
-An inspection of the data file shows that column `region5` contains the
-regions used in WIR2022.
-
-:::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-02-explore-data}
-: Explore Data
-:::
-::::
-
-::: my-r-code-container
-```{r}
-#| label: explore-data
-#| results: hold
-
-country_codes <- base::readRDS("data/chap80/country_codes.rds")
-
-skimr::skim(country_codes)
-
-glue::glue(" ")
-glue::glue("############################################################")
-glue::glue("Display number of countries for each region")
-glue::glue("############################################################")
-glue::glue(" ")
-country_codes |> 
-    dplyr::pull(region5) |> 
-    forcats::fct_count()
-```
-:::
-::::::
-
-## List countries
-
-::::::::::::::::::::::::::::::::::::::::::: my-example
-:::: my-example-header
-::: {#exm-02-list-countries}
-: List countries for each regions used in WIR2022
-:::
-::::
-
-:::::::::::::::::::::::::::::::::::::::: my-example-container
-::::::::::::::::::::::::::::::::::::::: panel-tabset
-###### Europe
-
-:::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-02-europe}
-: Countries of the European region used in the WIR2022
-:::
-::::
-
-::: my-r-code-container
-```{r}
-#| label: europe
-#| results: hold
-
-wir2022_country_codes <- country_codes |> 
-    dplyr::select(code, shortname, tidyselect::starts_with("region"))
-
-wir2022_country_codes |> 
-    dplyr::filter(region5 == "Europe") |> 
-    dplyr::select(-region5, -region3) |> 
-    print(n = 50)
-```
-:::
-::::::
-
-###### European Union
-
-:::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-02-eu}
-: Countries of the European Union
-:::
-::::
-
-::: my-r-code-container
-```{r}
-#| label: eu
-#| results: hold
-
-wir2022_country_codes <- country_codes |> 
-    dplyr::select(code, shortname, tidyselect::starts_with("region"))
-
-wir2022_country_codes |> 
-    dplyr::filter(region3 == "European Union") |> 
-    dplyr::select(-region5, -region3) |> 
-    dplyr::arrange(shortname) |> 
-    print(n = 50)
-```
-:::
-::::::
-
-###### MENA
-
-:::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-02-mena}
-: Countries of the MENA region (Middle East & North Afrika)
-:::
-::::
-
-::: my-r-code-container
-```{r}
-#| label: mena
-
-wir2022_country_codes |> 
-    dplyr::filter(region5 == "MENA") |> 
-    dplyr::select(-region5, -region3) |> 
-    print(n = 50)
-```
-:::
-::::::
-
-###### South & South-East Asia
-
-:::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-02-ssea}
-: Countries of the South & South-East Asia region used in the WIR2022
-:::
-::::
-
-::: my-r-code-container
-```{r}
-#| label: ssea
-
-wir2022_country_codes |> 
-    dplyr::filter(region5 == "South & South-East Asia") |> 
-    dplyr::select(-region5, -region3) |> 
-    print(n = 50)
-```
-:::
-::::::
-
-###### Latin America
-
-:::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-02-latin-america}
-: Countries of the Latin America region used in the WIR2022
-:::
-::::
-
-::: my-r-code-container
-```{r}
-#| label: latin-america
-
-wir2022_country_codes |> 
-    dplyr::filter(region5 == "Latin America") |> 
-    dplyr::select(-region5, -region3) |> 
-    print(n = 50)
-```
-:::
-::::::
-
-###### Russia & Central Asia
-
-:::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-02-ruca}
-: Countries of the Russia & Central Asia region used in the WIR2022
-:::
-::::
-
-::: my-r-code-container
-```{r}
-#| label: ruca
-
-wir2022_country_codes |> 
-    dplyr::filter(region5 == "Russia & Central Asia") |> 
-    dplyr::select(-region5, -region3) |> 
-    print(n = 50)
-```
-:::
-::::::
-
-###### Sub-Saharan Africa
-
-:::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-02-susa}
-: Countries of the Sub-Saharan African region used in the WIR2022
-:::
-::::
-
-::: my-r-code-container
-```{r}
-#| label: susa
-
-wir2022_country_codes |> 
-    dplyr::filter(region5 == "Sub-Saharan Africa") |> 
-    dplyr::select(-region5, -region3) |> 
-    print(n = 50)
-```
-:::
-::::::
-
-###### North America & Oceania
-
-:::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-02-noac}
-: Countries of the North America & Oceania region used in the WIR2022
-:::
-::::
-
-::: my-r-code-container
-```{r}
-#| label: noac
-
-wir2022_country_codes |> 
-    dplyr::filter(region5 == "North America & Oceania") |> 
-    dplyr::select(-region5, -region3) |> 
-    print(n = 50)
-```
-:::
-::::::
-
-###### East Asia
-
-:::::: my-r-code
-:::: my-r-code-header
-::: {#cnj-02-east-asia}
-: Countries of the East Asia region used in the WIR2022
-:::
-::::
-
-::: my-r-code-container
-```{r}
-#| label: east-asia
-
-wir2022_country_codes |> 
-    dplyr::filter(region5 == "East Asia") |> 
-    dplyr::select(-region5, -region3) |> 
-    print(n = 50)
-```
-:::
-::::::
-:::::::::::::::::::::::::::::::::::::::
-::::::::::::::::::::::::::::::::::::::::
-:::::::::::::::::::::::::::::::::::::::::::
 
 ------------------------------------------------------------------------
 
 ## Glossary
+
+(Some of the abbreviation have at their end an additional "x" that is not part of the abbreviation. I chose this work around to distinguish these abbreviations from the same text chunks in one of the glossary entries. This is a bug in the {**glossary**} package.)
 
 ```{r}
 #| label: glossary-table

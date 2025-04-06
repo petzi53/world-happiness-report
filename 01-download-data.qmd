@@ -1,6 +1,6 @@
 ---
 execute:
-  cache: true
+  cache: false
 ---
 # Download Data {#sec-download-data}
 
@@ -40,7 +40,7 @@ For the years 2011 to 2018, only the `r glossary("Cantril ladder")` data along w
 
 The first step is to find the life-evaluation data for each year and to store the files for further R processing. I will store the files in the "whr-cantril" folder inside my "data" folder.
 
-The `pb_create_folder()` function in the following code chunk checks if the folder already exists. If this is the case it leaves it untouched, otherwise it creates the folder at the desired path. The code for this private function is in the file `helper.R` inside the `R` folder at root level of this working directory.
+The `my_create_folder()` function in the following code chunk checks if the folder already exists. If this is the case it leaves it untouched, otherwise it creates the folder at the desired path. The code for this private function is in the file `helper.R` inside the `R` folder at root level of this working directory.
 
 :::::{.my-resource}
 :::{.my-resource-header}
@@ -71,10 +71,11 @@ I will organize files into several sub folders:
 #| label: create-whr-folders
 #| code-fold: show
 
-pb_create_folder(base::paste0(here::here(), "/data/"))
-pb_create_folder(base::paste0(here::here(), "/data/whr-cantril/"))
-pb_create_folder(base::paste0(here::here(), "/data/whr-cantril/excel"))
-pb_create_folder(base::paste0(here::here(), "/data/whr-cantril/rds"))
+my_create_folder(base::paste0(here::here(), "/data/"))
+my_create_folder(base::paste0(here::here(), "/data/whr-cantril/"))
+my_create_folder(base::paste0(here::here(), "/data/whr-cantril/excel"))
+my_create_folder(base::paste0(here::here(), "/data/whr-cantril/csv"))
+my_create_folder(base::paste0(here::here(), "/data/whr-cantril/rds"))
 ```
 <center>(*For this R code chunk is no output available*)</center>
 
@@ -92,17 +93,21 @@ WATCH OUT! Excel file contains many hidden rows
 :::
 ::::{.my-watch-out-container}
 A manual inspection of the Excel data file revealed that only the last year 2024 are shown. All the other years are hidden. But the `download.file()` functions saves all data, visible and hidden rows alike.
+
+Here I can't use the `downloader::download()` function because it does not save the hidden data.
+
+At the same code chunk where I download the Excel file I will also [cache a CSV snapshot](https://readxl.tidyverse.org/articles/readxl-workflows.html#cache-a-csv-snapshot) for reproducibility reasons. 
 ::::
 :::::
 
 
-## Save data as ".rds" object
+## Save data as Excel as ".csv" files and as ".rds" object
 
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-download-whr-data}
-: Save data for the World Happiness Reports 2011-2024 as ".rds" object
+: Save data for the World Happiness Reports 2011-2024 in different formats
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -117,17 +122,32 @@ A manual inspection of the Excel data file revealed that only the last year 2024
 
 
 ## WHR 2025 #########################################
-url1 <- "https://happiness-report.s3.us-east-1.amazonaws.com/2025/Data+for+Figure+2.1+(2011%E2%80%932024).xlsx"
+url_excel <- base::paste0("https://happiness-report.s3.us-east-1.amazonaws.com/2025/",
+    "Data+for+Figure+2.1+(2011%E2%80%932024).xlsx")
+path_excel <- base::paste0(here::here(), 
+            "/data/whr-cantril/excel/Data+for+Figure+2.1+(2011–2024).xlsx")
+path_csv <- base::paste0(here::here(), 
+            "/data/whr-cantril/csv/Data+for+Figure+2.1+(2011–2024).csv")
 
-# download original file as Excel and .rds file
-utils::download.file(url1, destfile = "tmp") 
-whr_2011_2024 <- readxl::read_excel("tmp")
-pb_save_data_file("whr-cantril/excel", whr_2011_2024, "Data+for+Figure+2.1+(2011%E2%80%932024).xlsx")
-pb_save_data_file("whr-cantril/rds", whr_2011_2024, "whr_2011_2024_orig.rds")
+
+# download Excel file
+utils::download.file(
+    url_excel, 
+    destfile = path_excel
+    )
+
+# cache a CSV snapshot
+whr_2011_2024 <- path_excel  |>  
+  readxl::read_excel() |>  
+  readr::write_csv(path_csv)
+
+# save a RDS R object
+my_save_data_file("whr-cantril/rds", whr_2011_2024, "whr_2011_2024_orig.rds")
+
 
 # download as .rds object, sorted by country name and year
 whr_2011_2024_arrange <- dplyr::arrange(whr_2011_2024, `Country name`, Year)
-pb_save_data_file("whr-cantril/rds", whr_2011_2024_arrange, "whr_2011_2024_arrange.rds")
+my_save_data_file("whr-cantril/rds", whr_2011_2024_arrange, "whr_2011_2024_arrange.rds")
 
 
 
