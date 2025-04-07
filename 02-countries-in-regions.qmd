@@ -140,8 +140,7 @@ class_scheme <- function(df, sel1, sel2) {
 Function `class_scheme()` for showing results of a classification system
 :::
 
-Here I am using complex code lines. Using {**dplyr**} programming code in functions needs some special
-consideration. I have learned the details from "Bang Bang – How to
+Here I am using complex code lines. Using {**dplyr**} programming code in functions needs some special consideration. I have learned the details from "Bang Bang – How to
 program with dplyr" [@berroth-2019].
 ::::
 :::::::
@@ -321,7 +320,7 @@ page](https://unstats.un.org/unsd/methodology/m49/overview/). On the page "Overv
 no URL for an R script available, because triggering one of the buttons
 copies or downloads the data with the help of Javascript. So I had to download the file manually or to find another location where I could download it programmatically. 
 
-I found with the `r glossary("OMNIKA")` DataStore an [external source for the UNSD-M49 country classification](https://github.com/omnika-datastore/unsd-m49-standard-area-codes). For security reason I checked the two files with `base::all.equal()` to determine if those two files are identical. Yes, they are!
+I found with the `r glossary("OMNIKA")` DataStore [United Nations M49 Region Codes](https://omnika.org/datastore/datasets/un-m49-region-codes) an [external source for the UNSD-M49 country classification](https://github.com/omnika-datastore/unsd-m49-standard-area-codes). For security reason I checked the two files with `base::all.equal()` to determine if those two files are identical. Yes, they are!
 
 The UNSD M40 standard area codes are stored as Excel and CSV files. I download for reproducibility reason the CSV file.
 
@@ -594,7 +593,7 @@ df_wb_reg2 <-  base::readRDS(
 
 ***
 
-Browsing through the `composition` data I have declassified all small states for an alternative regional group. These regional classification criteria are smaller and results to **`r length(wb_class_reg2$x$data$N)` regions containing `r sum(wb_class_reg2$x$data$N)` countries**.
+Browsing through the `composition` data I have declassified all small states for an alternative regional group. These regional classification criteria results to **`r length(wb_class_reg2$x$data$N)` regions containing `r sum(wb_class_reg2$x$data$N)` countries**.
 
 ::::
 :::::
@@ -606,7 +605,7 @@ Browsing through the `composition` data I have declassified all small states for
 ::::
 :::::
 
-##### Description of the four tabs
+##### Description of the World Bank tabs
 
 1. **WB economies** displays the "List of Economies" and has five columns:
     -   `Economy` with the country names (2-219) and regional names
@@ -637,6 +636,8 @@ Browsing through the `composition` data I have declassified all small states for
     - several economical classification like "Euro area", 
     - different combinations of the four income groups and 
     different combinations of the three lending statuses.
+5. **Region 1** includes `WB_Group_Code` from the `composition` data and results into 15 regions containing 379 countries.
+6. **Region 2** includes again the `WB_Group_Code` from the `composition` data but has excluded all small states for an alternative regional group. These regional classification criteria results to 11 regions containing 299 countries.
     
 **More details**
 
@@ -818,14 +819,19 @@ df_unsd <-  base::readRDS(
 )
 ```
 
+
+
 ::::
 :::::
+
+`region_n` is a classification scheme for continents with **`r sum(unsd_class1$x$data$N)`
+countries in `r length(unsd_class1$x$data$N)` regions**.
 
 ###### Sub-region
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-02-ID-text}
+:::::: {#cnj-02-sub-region}
 : Display sub-regions of UNSD class scheme
 ::::::
 :::
@@ -848,6 +854,9 @@ df_unsd <-  base::readRDS(
 ::::
 :::::
 
+`subr_n` is a classification scheme with **`r sum(unsd_class2$x$data$N)`
+countries in `r length(unsd_class2$x$data$N)` regions**.
+
 ###### Intermediate
 
 :::::{.my-r-code}
@@ -864,7 +873,7 @@ df_unsd <-  base::readRDS(
   "data/country-class/unsd/rds/unsd_class_clean.rds")
 
 (
-    unsd_class3 <- class_scheme(
+    dt_unsd_class3 <- class_scheme(
             df = df_unsd,
             sel1 = rlang::quo(`country`),
             sel2 = rlang::quo(`midr_n`)
@@ -872,8 +881,12 @@ df_unsd <-  base::readRDS(
 )
 ```
 
+
 ::::
 :::::
+
+`midr_n` is an inconsistent classification scheme with **`r sum(dt_unsd_class3$x$data$N)`
+countries in `r length(dt_unsd_class3$x$data$N)` regions**. It has a focus on South- / Central America and Africa. All the other countries are together in a big mixed groups with 140 countries.
 
 ###### Intermediate2
 
@@ -886,17 +899,29 @@ df_unsd <-  base::readRDS(
 ::::{.my-r-code-container}
 ```{r}
 #| label: unsd-class4
+#| results: hold
 
-unsd_class4 <-  base::readRDS(
+unsd_class_clean <-  base::readRDS(
   "data/country-class/unsd/rds/unsd_class_clean.rds")
 
-unsd_class4 <- unsd_class4 |> 
+unsd_class4 <- unsd_class_clean |> 
   dplyr::mutate(midr_n2 = 
          base::ifelse(is.na(midr_n), subr_n, midr_n)
+         ) |> 
+  dplyr::mutate(midr_c2 = 
+         base::ifelse(is.na(midr_c), subr_c, midr_c)
          )
 
+
+## save intermediate2 data as .rds file ################
+my_save_data_file(
+  "country-class/unsd/rds", 
+  unsd_class4, 
+  "unsd_class_finale.rds")
+
+
 (
-    unsd_class4 <- class_scheme(
+    dt_unsd_class4 <- class_scheme(
             df = unsd_class4,
             sel1 = rlang::quo(`country`),
             sel2 = rlang::quo(`midr_n2`)
@@ -905,11 +930,12 @@ unsd_class4 <- unsd_class4 |>
   
 ```
 
-`midr_n2` is a classification scheme with **`r sum(unsd_class4$x$data$N)`
-countries in `r length(unsd_class4$x$data$N)` regions**.
+
 ::::
 :::::
 
+`midr_n2` is a classification scheme with **`r sum(dt_unsd_class4$x$data$N)`
+countries in `r length(dt_unsd_class4$x$data$N)` regions**. This grouping divides each continent into different regions and has more plausibility than the `midr_n` classification in tab "Intermediate".
 
 
 
@@ -962,13 +988,267 @@ To clean the data I have taken the following recoding actions in the script for 
 
 ##### Summary
 
+The UN geoscheme classification knows 248 countries divided the world into 
+
+-  5 continents (Africa, Americas, Asia, Europe and Oceania): **Tab Region** 
+- 17 sub-regions **Tab Sub-region**
+-  9 intermediate regions focussing on South/Central America and Africa, otherwise not consistent **Tab Intermediate**
+- 23 areas divides the continents into different parts **Tab Intermediate2**
+
+
+## Combining M49 and WHR
+
+To use the different region with the WHR data I will combine the M49 classification data scheme with the WHR data. Ideally I would combine the two datasets with their unique ISO3 code, but unfortunately the WHR data are lacking these data. Thew next best approach is to link the two datasets via the country names. But here I have to take into account that the authoritative country names are provided by M49 and not by the WHR data.
+
+### Combine with country names
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-02-combine-whr-with-m49}
+: Combine WHR data with M49 geoscheme
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### Combine
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-combine-whr-m49}
+: Combine WHR with UNSD M49 data
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: combine-whr-m49
+
+whr_2011_2024 <-  base::readRDS(
+  "data/whr-cantril/rds/whr_2011_2024_arrange.rds")
+
+unsd_class_finale <-  base::readRDS(
+  "data/country-class/unsd/rds/unsd_class_finale.rds")
+
+## left join: WHR as priority ########
+whr_m49_first_try <- dplyr::left_join(
+  x = whr_2011_2024,
+  y = unsd_class_finale,
+  by = dplyr::join_by(`Country name` == country),
+  relationship = "many-to-many") |> 
+  dplyr::relocate(iso3, .after = `Country name`)
+
+## select columns and show distinct countries
+ whr_m49_first_try |> 
+    dplyr::select(
+      `Country name`, iso2, iso3, m49
+    ) |> 
+    dplyr::distinct() |> 
+    DT::datatable(class = 'cell-border compact stripe', 
+                  options = list(
+                    pageLength = 25,
+                    lengthMenu = c(25, 50, 100, 200)
+                    )
+              )
+```
+
+::::
+:::::
+
+
+###### Show Missing
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-show-missing-iso3-codes}
+: Show WHR countries with missing ISO3 codes
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-missing-iso3-codes
+
+whr_m49_first_try |> 
+  dplyr::select(
+      `Country name`, iso2, iso3, m49
+    ) |> 
+    dplyr::distinct() |> 
+  dplyr::filter(base::is.na(iso3)) |> 
+  DT::datatable(class = 'cell-border compact stripe', 
+                  options = list(
+                    pageLength = 25,
+                    lengthMenu = c(5, 10, 15, 25)
+                    )
+              )
+```
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+
+### Differences WHR and M49
+
+
+Combining the two datasets of M49 classification WHR leaves 16 country names in WHR empty because they do not match. The reasons are two fold:
+
+1. Many names do not match because of different names even both dataset mean the same countries.
+2. Some country names of the WHR data do not correspond to the official country classification.
+
+The following table details the differences between the country names in the WHR and UNSD M49 datasets.
+
+| WHR country name         | Official UNSD M49 country name                       | Comment                                                 |
+|:--------------------------|:------------------------------------------------------|:--------------------------------------------------------|
+| Bolivia                  | Bolivia (Plurinational State of)                     |                                                         |
+| DR Congo                 | Democratic Republic of the Congo                     |                                                         |
+| Hong Kong SAR of China   | China, Hong Kong Special Administrative Region       |                                                         |
+| Iran                     | Iran (Islamic Republic of)                           |                                                         |
+| Kosovo                   |                                                      | Not every country recognizes Kosovo (prov. code XKX)    |
+| Lao PDR                  | Lao People's Democratic Republic                     |                                                         |
+| Macedonia                | North Macedonia                                      | Renamed 2019, only wrong for the year 2019                                           |
+| North Cyprus             |                                                      | Recognized only by Türkiye                              |
+| Somaliland               |                                                      | Not recognized, self-declared independence from Somalia |
+| Swaziland                | Eswatini                                             | Renamed 2018                                           |
+| Syria                    | Syrian Arab Republic                                 |                                                         |
+| Taiwan Province of China |                                                      | China -- as one of the world's largest and most influential countries -- considers Taiwan as part of its territory         |
+| Tanzania                 | United Republic of Tanzania                          |                                                         |
+| United Kingdom           | United Kingdom of Great Britain and Northern Ireland |                                                         |
+| United States            | United States of America                             |                                                         |
+| Venezuela                | Venezuela (Bolivian Republic of)                     |                                                         |
+
+: Differences between WHR and UNSD M49 {#tbl-02-differences-whr-m49} {.striped .hover}
+
+### WHR with revised country name
+
+I change the WHR country designations to their official m49 country names. The exception are Kosovo, North Cyprus, Somaliland and Taiwan where no ISO codes exist.  These four names are set in angle brackets "[]" and remain without ISO and M49 codes.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-revise-country-names}
+: WHR data with official country names
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: revise-country-names
+#| results: hold
+
+
+whr_2011_2024 <-  base::readRDS(
+  "data/whr-cantril/rds/whr_2011_2024_arrange.rds")
+
+## revise whr data with m49 names ################
+whr_2011_2024_revised <-  whr_2011_2024 |> 
+  dplyr::mutate(`Official country name (M49)` =
+    dplyr::case_when(
+      `Country name` == "Bolivia" ~ "Bolivia (Plurinational State of)",
+      `Country name` == "DR Congo" ~ "Democratic Republic of the Congo",
+      `Country name` == "Hong Kong SAR of China" ~ "China, Hong Kong Special Administrative Region",
+      `Country name` == "Iran" ~ "Iran (Islamic Republic of)",
+      `Country name` == "Kosovo" ~ "[Kosovo]",
+      `Country name` == "Lao PDR" ~ "Lao People's Democratic Republic",
+      `Country name` == "Macedonia" ~ "North Macedonia",
+      `Country name` == "North Cyprus" ~ "[North Cyprus]",
+      `Country name` == "Somaliland" ~ "[Somaliland]",
+      `Country name` == "Swaziland" ~ "Eswatini",
+      `Country name` == "Syria" ~ "Syrian Arab Republic",
+      `Country name` == "Taiwan Province of China" ~ "[Taiwan Province of China]",
+      `Country name` == "Tanzania" ~ "United Republic of Tanzania",
+      `Country name` == "United Kingdom" ~ "United Kingdom of Great Britain and Northern Ireland",
+      `Country name` == "United States" ~ "United States of America",
+      `Country name` == "Venezuela" ~ "Venezuela (Bolivian Republic of)",
+      TRUE ~ `Country name`
+    )
+  ) |> 
+  dplyr::rename(`Country name (WHR)` = `Country name`) |> 
+  dplyr::relocate(`Official country name (M49)`, .after = `Country name (WHR)`)
+
+## select unique country rows  ################
+whr_2011_2024_revised |> 
+  dplyr::select(`Country name (WHR)`, `Official country name (M49)`) |> 
+  dplyr::distinct() |> 
+  DT::datatable(class = 'cell-border compact stripe', 
+                  options = list(
+                    pageLength = 25,
+                    lengthMenu = c(25, 50, 100, 200)
+                    )
+              )
+
+## save revised data as .rds file ################
+my_save_data_file(
+  "whr-cantril/rds", 
+  whr_2011_2024_revised, 
+  "whr_2011_2024_revised.rds")
+```
+
+::::
+:::::
+
+I have saved the WHR data file as `whr_2011_2024_revised.rds` under "data/whr_cantril/rds" with the new column `Official country name (M49)` and have changed the old WHR column `Country name` to `Country name (WHR)`.
+
+
+### Combine WHR and M49 revised 
+
+I am now in the position to combine the revised WHR file with the UNSD M49 classification file. I will show only the interesting columns but save the full new dataframe as `whr_m49` under the folder "data/whr_cantril/rds".
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-combine-whr-m49-revised}
+: Combine WHR and M49 with revised country column
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: combine-whr-m49-revised
+#| results: hold
+
+whr_2011_2024_revised <-  base::readRDS(
+  "data/whr-cantril/rds/whr_2011_2024_revised.rds")
+
+unsd_class_finale <-  base::readRDS(
+  "data/country-class/unsd/rds/unsd_class_finale.rds")
+
+## left join: WHR as priority ########
+whr_m49 <- dplyr::left_join(
+  x = whr_2011_2024_revised,
+  y = unsd_class_finale,
+  by = dplyr::join_by(`Official country name (M49)` == country),
+      relationship = "many-to-many") 
+
+whr_m49 |> 
+  dplyr::select(
+    `Country name (WHR)`, 
+    `Official country name (M49)`,
+    m49, iso2, iso3
+    ) |> 
+  dplyr::distinct() |> 
+  DT::datatable(class = 'cell-border compact stripe', 
+                  options = list(
+                    pageLength = 25,
+                    lengthMenu = c(25, 50, 100, 200)
+                    )
+              )
+
+## save revised data as .rds file ################
+my_save_data_file(
+  "whr-cantril/rds", 
+  whr_m49, 
+  "whr_m49.rds")
+```
+
+::::
+:::::
 
 
 
-
-
-
-------------------------------------------------------------------------
 
 ## Glossary
 
