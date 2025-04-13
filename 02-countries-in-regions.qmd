@@ -133,6 +133,20 @@ class_scheme <- function(df, sel1, sel2) {
         )
 }
 
+class_scheme2 <- function(df, sel1, sel2) {
+    ## df = dataframe to show
+    ## sel1 = name of the first column (country names) to select
+    ## sel2 = name of the column with the regional indicator
+  df |> 
+        dplyr::select(!!sel1, !!sel2) |> 
+        dplyr::nest_by(!!sel2) |> 
+        dplyr::mutate(data = as.vector(data)) |>
+        dplyr::mutate(data = stringr::str_c(data, collapse = "; ")) |>
+        dplyr::mutate(data = paste(data, ";")) |> 
+        dplyr::mutate(N = lengths(gregexpr(";", data))) |> 
+        dplyr::rename(Country = data) |> 
+        dplyr::arrange(!!sel2)
+}
 
 
 ```
@@ -627,7 +641,7 @@ Browsing through the `composition` data I have declassified all small states for
 2.  **WB compositions** has four columns: `WB_Group_Code`, `WB_Group_Name`,
     `WB_Country_Code`, `WB_Country_Name`. The 2084 rows are combinations
     of the regional and income group with their ISO alpha 3 codes and
-    country names.
+    country names. (This is a more complex arrangement that I will analyse more in detail later.)
 3. **WB Standard** shows the World Bank seven standard regional groups with their countries. The 218 countries  involved in the taxonomy of the World Bank consists of all member countries of the World Bank (189) and other economies with populations of more than 30,000 (29).
 4. **WB All** includes the seven regions from the "WB Standard" tab but much more. But it is important to note that there is no alternative *regional* structure that comprises systematically all countries of the world --- the overall category "World" obviously excluded. 
     - Five of the seven regional groups of "WB Standard" are also clustered without high income countries. 
@@ -641,14 +655,14 @@ Browsing through the `composition` data I have declassified all small states for
     
 **More details**
 
-The cut off limits for the income groups are: 
+The cut off limits for the income groups are: (see: [World Bank Country and Lending Groups](https://datahelpdesk.worldbank.org/knowledgebase/articles/906519-world-bank-country-and-lending-groups))
 
 - low income, $1,145 or less; 
 - lower middle income, $1,146  to $4,515; 
 - upper middle income, $4,516 to $14,005; and 
 - high income, more than $14,005. 
 
-The effective operational cutoff for `r glossary("IDAx", "IDA")` eligibility is $1,335 or less. The three lending categories and their relation to each other are:
+The effective operational cutoff for `r glossary("IDAx", "IDA")` eligibility is $1,335 or less. The three lending categories and their relation to each other are: (From the `Notes` sheet.)
 
 > `r glossary("IDAx", "IDA")` countries are those that lack the financial ability to borrow from `r glossary("IBRD")`. IDA credits are deeply concessional—interest-free loans and grants for programs aimed at boosting economic growth and improving living conditions. IBRD loans are non-concessional. `Blend` countries are eligible for IDA credits because of their low per capita incomes but are also eligible for IBRD because they are financially creditworthy.
 
@@ -668,7 +682,7 @@ The only missing data in the columns `Economy` and `Code` corresponds to the emp
 
 Essentially this means that we have in the `wb-class.xlsx` file two different data sets: One for economies and the other one to explicate regional, economical and political grouping codes. In the Excel sheet `compositions` you will find an extended list of all available group names and their three letter codes combined with the country names and their three letter codes. These group names comprise different kinds of regional groups but also names and codes for different combination of country incomes and lending categories.
 
-All these groups may be of interests for analysis of different trends. But the regional (sub)groups of the `compositions` sheet do not add up to the complete number of countries (218). This is in contrast to the different regional groups of the WID database because all their regional groups (region1 = 5, region2 = 18, region4 = 10, and region5 = 8 groups) includes all countries (in this case: 216).
+All these groups may be of interests for analysis of different trends. 
 
 The World Bank file `wb-class.xlsx` classifies all World Bank member countries (189), and all other economies with populations of more than 30,000 (29) in a coarse grid of only seven regions. For operational and analytical purposes, these economies are divided among income groups according to their [gross national income (GNI) per capita](https://datahelpdesk.worldbank.org/knowledgebase/articles/378831-why-use-gni-per-capita-to-classify-economies-into) in 2023, calculated using the [World Bank Atlas method](https://datahelpdesk.worldbank.org/knowledgebase/articles/378832-what-is-the-world-bank-atlas-method). 
 
@@ -753,6 +767,7 @@ unsd_class_clean <- unsd_class |>
   dplyr::filter(country != "Antarctica") |> 
   dplyr::mutate(iso2 = base::ifelse(country == "Namibia", "NA", iso2)) |> 
   dplyr::relocate(country, .before = region_c) |> 
+  # set ldc, lldc and sids to 0 and 1
   # .x = anonymous function; "x" = value in cols of unsd_class
   dplyr::mutate(dplyr::across(
     ldc:sids, ~ dplyr::if_else(.x == "x", "1", "999", "0") 
@@ -904,6 +919,7 @@ countries in `r length(dt_unsd_class3$x$data$N)` regions**. It has a focus on So
 unsd_class_clean <-  base::readRDS(
   "data/country-class/unsd/rds/unsd_class_clean.rds")
 
+# create interemdiate2 (more consistent than intermediate)
 unsd_class4 <- unsd_class_clean |> 
   dplyr::mutate(midr_n2 = 
          base::ifelse(is.na(midr_n), subr_n, midr_n)
@@ -1039,7 +1055,7 @@ whr_m49_first_try <- dplyr::left_join(
   x = whr_2011_2024,
   y = unsd_class_finale,
   by = dplyr::join_by(`Country name` == country),
-  relationship = "many-to-many") |> 
+  relationship = "many-to-one") |> 
   dplyr::relocate(iso3, .after = `Country name`)
 
 ## select columns and show distinct countries
@@ -1115,14 +1131,14 @@ The following table details the differences between the country names in the WHR
 | Lao PDR                  | Lao People's Democratic Republic                     |                                                         |
 | Macedonia                | North Macedonia                                      | Renamed 2019, only wrong for the year 2019                                           |
 | North Cyprus             |                                                      | Recognized only by Türkiye                              |
-| Somaliland               |                                                      | Not recognized, self-declared independence from Somalia |
+| Somaliland Region        |                                                      | Not recognized, self-declared independence from Somalia |
 | Swaziland                | Eswatini                                             | Renamed 2018                                           |
 | Syria                    | Syrian Arab Republic                                 |                                                         |
 | Taiwan Province of China |                                                      | China -- as one of the world's largest and most influential countries -- considers Taiwan as part of its territory         |
 | Tanzania                 | United Republic of Tanzania                          |                                                         |
 | United Kingdom           | United Kingdom of Great Britain and Northern Ireland |                                                         |
 | United States            | United States of America                             |                                                         |
-| Venezuela                | Venezuela (Bolivian Republic of)                     |                                                         |
+| Venezuela                | Venezuela (Bolivarian Republic of)                     |                                                         |
 
 : Differences between WHR and UNSD M49 {#tbl-02-differences-whr-m49} {.striped .hover}
 
@@ -1157,14 +1173,14 @@ whr_2011_2024_revised <-  whr_2011_2024 |>
       `Country name` == "Lao PDR" ~ "Lao People's Democratic Republic",
       `Country name` == "Macedonia" ~ "North Macedonia",
       `Country name` == "North Cyprus" ~ "[North Cyprus]",
-      `Country name` == "Somaliland" ~ "[Somaliland]",
+      `Country name` == "Somaliland Region" ~ "[Somaliland Region]",
       `Country name` == "Swaziland" ~ "Eswatini",
       `Country name` == "Syria" ~ "Syrian Arab Republic",
       `Country name` == "Taiwan Province of China" ~ "[Taiwan Province of China]",
       `Country name` == "Tanzania" ~ "United Republic of Tanzania",
       `Country name` == "United Kingdom" ~ "United Kingdom of Great Britain and Northern Ireland",
       `Country name` == "United States" ~ "United States of America",
-      `Country name` == "Venezuela" ~ "Venezuela (Bolivian Republic of)",
+      `Country name` == "Venezuela" ~ "Venezuela (Bolivarian Republic of)",
       TRUE ~ `Country name`
     )
   ) |> 
@@ -1221,7 +1237,7 @@ whr_m49 <- dplyr::left_join(
   x = whr_2011_2024_revised,
   y = unsd_class_finale,
   by = dplyr::join_by(`Official country name (M49)` == country),
-      relationship = "many-to-many") 
+      relationship = "many-to-one") 
 
 whr_m49 |> 
   dplyr::select(
@@ -1247,6 +1263,263 @@ my_save_data_file(
 ::::
 :::::
 
+## Combine `whr_m49` with World Bank data
+
+There are two different sheets to combine with the `whr_m49` dataset: The `wb-class-List of economies.rds` and the `wb-class-compositions.rds`. 
+
+### Combine `whr_m49` with World Bank economy regions
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-combine-whr-m49-wb-regions}
+: Combine `whr_m49` with the World Bank economy `Region`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: combine-whr-m49-wb-regions
+#| results: hold
+
+whr_m49 <-  base::readRDS(
+  "data/whr-cantril/rds/whr_m49.rds")
+
+wb_economies <-  base::readRDS(
+  "data/country-class/wb/rds/wb-class-List of economies.rds") |> 
+  dplyr::select(-1)
+
+## left join: WHR-M49 as priority ########
+whr_m49_wb_regions <- dplyr::left_join(
+  x = whr_m49,
+  y = wb_economies,
+  by = dplyr::join_by(iso3 == Code),
+      relationship = "many-to-one") 
+
+whr_m49_regions <- whr_m49_wb_regions |> 
+  dplyr::rename(Country_M49 = "Official country name (M49)") |> 
+  dplyr::select(Country_M49, Region) |> 
+  dplyr::distinct()
+
+## show whr_m49_wb_regions #########
+(
+    dt_whr_m49_wb_regions <- class_scheme(
+            df = whr_m49_regions,
+            sel1 = rlang::quo(Country_M49),
+            sel2 = rlang::quo(`Region`)
+            )
+)
+
+# whr_m49_wb_regions |> 
+#   dplyr::select(
+#     `Country name (WHR)`, 
+#     `Official country name (M49)`,
+#     `Region`,
+#     m49, iso2, iso3
+#     ) |> 
+#   dplyr::distinct() |> 
+#   DT::datatable(class = 'cell-border compact stripe', 
+#                   options = list(
+#                     pageLength = 25,
+#                     lengthMenu = c(25, 50, 100, 200)
+#                     )
+#               )
+
+## save whr_m49_wb_reegions as .rds file ################
+my_save_data_file(
+  "whr-cantril/rds", 
+  whr_m49_wb_regions, 
+  "whr_m49_wb_regions.rds")
+```
+
+The World Bank regional classification results to **`r length(dt_whr_m49_wb_regions$x$data$N)` regions containing `r sum(dt_whr_m49_wb_regions$x$data$N)` countries**. 
+
+Note the last group with names not available in the m49 classification scheme. These four regions do not belong to any regions automatically but could classified manually: 
+
+- Kosovo and North Cyprus: Europe & Central Asia
+- Somaliland Region: Sub-Saharan Africa
+- Taiwan Province of China: East Asia & Pacific
+::::
+:::::
+
+
+### Combine `whr_m49` with World Bank Group Codes
+
+The second sheet to combine is data from `wb-class-compositions.rds`. This is more complex as it contains 2085 entries divided in 48 groups. The entries are multiple country codes and country names as each country belong to several groups.
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-combine-whr-m49-wb-groups}
+: Combine `whr_m49` with the World Bank groups
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: combine-whr-m49-wb-groups
+#| results: hold
+
+whr_m49_wb_regions <-  base::readRDS(
+  "data/whr-cantril/rds/whr_m49_wb_regions.rds")
+
+wb_class_compositions_reduced <-  base::readRDS(
+  "data/country-class/wb/rds/wb-class-compositions.rds") |> 
+  dplyr::select(-4)
+
+## left join: WHR-M49 as priority ########
+  whr_m49_wb <- dplyr::left_join(
+    x = whr_m49_wb_regions,
+    y = wb_class_compositions_reduced,
+    by = dplyr::join_by(iso3 == WB_Country_Code),
+        relationship = "many-to-many") |> 
+    dplyr::rename(
+      `Country (WHR)` = `Country name (WHR)`,
+      `Country (M49)` = `Official country name (M49)`
+    )
+
+## show whr_m49_wb #########
+(
+    dt_whr_m49_wb <- class_scheme2(
+            df = whr_m49_wb,
+            sel1 = rlang::quo(`Country (M49)`),
+            sel2 = rlang::quo(`WB_Group_Name`)
+            )
+)
+
+## save whr_m49_wb as .rds file ################
+my_save_data_file(
+  "whr-cantril/rds", 
+  whr_m49_wb, 
+  "whr_m49_wb.rds")
+```
+
+::::
+:::::
+
+To receive a more concise data frame which a better overview of the available WB group codes I have to limit the WHR data to a specific year. Then I have only one country name and I can use the `one-to-many`-relationship (Country to WB_Group_Names).
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-combine-whr-country-with-wb-groups}
+: Showing the 2024 WHR data with their World Bank groups
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: combine-whr-country-with-wb-groups
+#| results: hold
+
+whr_m49_wb_2024 <- whr_m49_wb_regions |> 
+  dplyr::filter(Year == 2024)
+
+## join whr_m49_wb with WB group codes #########
+whr_m49_wb_groups_2024 <- dplyr::left_join(
+    x = whr_m49_wb_2024,
+    y = wb_class_compositions_reduced,
+    by = dplyr::join_by(iso3 == WB_Country_Code),
+        relationship = "one-to-many") |> 
+    dplyr::mutate(`WB_Group` = 
+                    paste0(WB_Group_Name, " [", WB_Group_Code, "]")
+                  ) |> 
+    dplyr::rename(
+      `Country (WHR)` = `Country name (WHR)`,
+      `Country (M49)` = `Official country name (M49)`
+    )
+      
+
+## show whr_m49_wb_2024_groups #########
+(
+    dt_whr_m49_wb_groups_2024 <- class_scheme(
+            df = whr_m49_wb_groups_2024,
+            sel1 = rlang::quo(`Country (M49)`),
+            sel2 = rlang::quo(`WB_Group`)
+            )
+)
+
+
+## save whr_m49_wb_groups_2024 as .rds file ################
+my_save_data_file(
+  "whr-cantril/rds", 
+  whr_m49_wb_groups_2024, 
+  "whr_m49_wb_groups_2024.rds")
+```
+
+::::
+:::::
+
+## Summary
+
+The `whr_m49_wb.rds` file contains all data and is the result of combining the WHR data with the M49 and WB classification systems.
+
+There are two different approaches to use this dataset: filter by `Year` or/and filter by one of the may different classification criteria. There are four complete regional groups covering all countries of the world and two groups where not all or multiple countries are covered:
+
+| Column name | Old name      | Origin / Note                                                           |
+|-------------|---------------|-------------------------------------------------------------------------|
+| region5     | region_n      | M49 / continents                                                        |
+| region7     | Region        | WB / pre-defined standard                                               |
+| region17    | subr_n        | M49 / North-West-South-East                                             |
+| region23    | midr_n2       | M49 / detailed continent parts                                          |
+| group8      | midr_n        | M49 / Africa, South-America, Caribbean, Channel Islands + 140 undefined |
+| group48     | WB_Group_Name | WB / compositions all                                                   |
+
+: Different classification criteria {#tbl-02-class-criteria} {.striped .hover}
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-whr-final}
+: Rename & reorder column to final (region / grouped) dataset
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: whr-final
+#| results: hold
+
+whr_m49_wb <-  base::readRDS(
+  "data/whr-cantril/rds/whr_m49_wb.rds")
+
+# create final whr table #########
+whr_final <- whr_m49_wb |> 
+  dplyr::rename_with(~ tolower(gsub(" ", "_", .x))) |> 
+  dplyr::rename(
+    region5 = region_n,
+    code5 = region_c,
+    region7 = region,
+    region17 = subr_n,
+    code17 = subr_c,
+    region23 = midr_n2,
+    code23 = midr_c2,
+    group8 = midr_n,
+    code8 = midr_c
+  ) |> 
+  dplyr::mutate(group48 = 
+                paste0(wb_group_name, " [", wb_group_code, "]")
+                ) |> 
+  dplyr::mutate(group48 =
+                  dplyr::na_if(group48, "NA [NA]")
+                ) |> 
+  dplyr::relocate(iso3)
+
+
+
+## save whr_final as .rds file ################
+my_save_data_file(
+  "whr-cantril/rds", 
+  whr_final, 
+  "whr_final.rds")
+
+skimr::skim(whr_final)
+```
+
+***
+
+There are many variables with missing values:
+
+- **39**: This corresponds to those `r glossary("WHR")` regions, that are not available in the official `r glossary("M49")` classification system: Kosovo, North Cyprus, Somaliland Region and Taiwan Province of China.
+- **130**: There are several region like "World" or "Latin America & Caribbean" where `income_group` is not defined.
+- **3531**: Many countries not eligible for a specific World Bank `lending_category`.
+- **10245**: `region8` resp. `code8` does only provide a partial set of all countries in the world.
+- **10776	- 10837**: These missing values represent missing data in the WHR reports.
+::::
+:::::
 
 
 
