@@ -1117,11 +1117,11 @@ whr_m49_first_try |>
 Combining the two datasets of M49 classification WHR leaves 16 country names in WHR empty because they do not match. The reasons are two fold:
 
 1. Many names do not match because of different names even both dataset mean the same countries.
-2. Some country names of the WHR data do not correspond to the official country classification.
+2. Some country names of the WHR data do not correspond to the official country classification (M49).
 
 The following table details the differences between the country names in the WHR and UNSD M49 datasets.
 
-| WHR country name         | Official UNSD M49 country name                       | Comment                                                 |
+| Country name WHR         | Country name M49                      | Comment                                                 |
 |:--------------------------|:------------------------------------------------------|:--------------------------------------------------------|
 | Bolivia                  | Bolivia (Plurinational State of)                     |                                                         |
 | DR Congo                 | Democratic Republic of the Congo                     |                                                         |
@@ -1158,38 +1158,38 @@ I change the WHR country designations to their official m49 country names. The e
 #| results: hold
 
 
-whr_2011_2024 <-  base::readRDS(
+whr_2011_2024_arrange <-  base::readRDS(
   "data/whr-cantril/rds/whr_2011_2024_arrange.rds")
 
-## revise whr data with m49 names ################
-whr_2011_2024_revised <-  whr_2011_2024 |> 
-  dplyr::mutate(`Official country name (M49)` =
+## revise WHR data with m49 names ################
+whr_2011_2024_revised <-  whr_2011_2024_arrange |> 
+  dplyr::rename(Country_WHR = `Country name`) |> 
+  dplyr::mutate(Country_M49 =
     dplyr::case_when(
-      `Country name` == "Bolivia" ~ "Bolivia (Plurinational State of)",
-      `Country name` == "DR Congo" ~ "Democratic Republic of the Congo",
-      `Country name` == "Hong Kong SAR of China" ~ "China, Hong Kong Special Administrative Region",
-      `Country name` == "Iran" ~ "Iran (Islamic Republic of)",
-      `Country name` == "Kosovo" ~ "[Kosovo]",
-      `Country name` == "Lao PDR" ~ "Lao People's Democratic Republic",
-      `Country name` == "Macedonia" ~ "North Macedonia",
-      `Country name` == "North Cyprus" ~ "[North Cyprus]",
-      `Country name` == "Somaliland Region" ~ "[Somaliland Region]",
-      `Country name` == "Swaziland" ~ "Eswatini",
-      `Country name` == "Syria" ~ "Syrian Arab Republic",
-      `Country name` == "Taiwan Province of China" ~ "[Taiwan Province of China]",
-      `Country name` == "Tanzania" ~ "United Republic of Tanzania",
-      `Country name` == "United Kingdom" ~ "United Kingdom of Great Britain and Northern Ireland",
-      `Country name` == "United States" ~ "United States of America",
-      `Country name` == "Venezuela" ~ "Venezuela (Bolivarian Republic of)",
-      TRUE ~ `Country name`
+      Country_WHR == "Bolivia" ~ "Bolivia (Plurinational State of)",
+      Country_WHR == "DR Congo" ~ "Democratic Republic of the Congo",
+      Country_WHR == "Hong Kong SAR of China" ~ "China, Hong Kong Special Administrative Region",
+      Country_WHR == "Iran" ~ "Iran (Islamic Republic of)",
+      Country_WHR == "Kosovo" ~ "[Kosovo]",
+      Country_WHR == "Lao PDR" ~ "Lao People's Democratic Republic",
+      Country_WHR == "Macedonia" ~ "North Macedonia",
+      Country_WHR == "North Cyprus" ~ "[North Cyprus]",
+      Country_WHR == "Somaliland Region" ~ "[Somaliland Region]",
+      Country_WHR == "Swaziland" ~ "Eswatini",
+      Country_WHR == "Syria" ~ "Syrian Arab Republic",
+      Country_WHR == "Taiwan Province of China" ~ "[Taiwan Province of China]",
+      Country_WHR == "Tanzania" ~ "United Republic of Tanzania",
+      Country_WHR == "United Kingdom" ~ "United Kingdom of Great Britain and Northern Ireland",
+      Country_WHR == "United States" ~ "United States of America",
+      Country_WHR == "Venezuela" ~ "Venezuela (Bolivarian Republic of)",
+      TRUE ~ Country_WHR
     )
   ) |> 
-  dplyr::rename(`Country name (WHR)` = `Country name`) |> 
-  dplyr::relocate(`Official country name (M49)`, .after = `Country name (WHR)`)
+  dplyr::relocate(Country_M49, .after = Country_WHR)
 
 ## select unique country rows  ################
 whr_2011_2024_revised |> 
-  dplyr::select(`Country name (WHR)`, `Official country name (M49)`) |> 
+  dplyr::select(Country_WHR, Country_M49) |> 
   dplyr::distinct() |> 
   DT::datatable(class = 'cell-border compact stripe', 
                   options = list(
@@ -1208,7 +1208,7 @@ my_save_data_file(
 ::::
 :::::
 
-I have saved the WHR data file as `whr_2011_2024_revised.rds` under "data/whr_cantril/rds" with the new column `Official country name (M49)` and have changed the old WHR column `Country name` to `Country name (WHR)`.
+I have saved the WHR data file as `whr_2011_2024_revised.rds` under "data/whr_cantril/rds" with the new column `Country_M49` and have changed the old WHR column `Country name` to `Country_WHR`.
 
 
 ### Combine WHR and M49 revised 
@@ -1236,13 +1236,13 @@ unsd_class_finale <-  base::readRDS(
 whr_m49 <- dplyr::left_join(
   x = whr_2011_2024_revised,
   y = unsd_class_finale,
-  by = dplyr::join_by(`Official country name (M49)` == country),
+  by = dplyr::join_by(Country_M49 == country),
       relationship = "many-to-one") 
 
 whr_m49 |> 
   dplyr::select(
-    `Country name (WHR)`, 
-    `Official country name (M49)`,
+    Country_WHR, 
+    Country_M49,
     m49, iso2, iso3
     ) |> 
   dplyr::distinct() |> 
@@ -1295,7 +1295,6 @@ whr_m49_wb_regions <- dplyr::left_join(
       relationship = "many-to-one") 
 
 whr_m49_regions <- whr_m49_wb_regions |> 
-  dplyr::rename(Country_M49 = "Official country name (M49)") |> 
   dplyr::select(Country_M49, Region) |> 
   dplyr::distinct()
 
@@ -1303,25 +1302,10 @@ whr_m49_regions <- whr_m49_wb_regions |>
 (
     dt_whr_m49_wb_regions <- class_scheme(
             df = whr_m49_regions,
-            sel1 = rlang::quo(Country_M49),
+            sel1 = rlang::quo(`Country_M49`),
             sel2 = rlang::quo(`Region`)
             )
 )
-
-# whr_m49_wb_regions |> 
-#   dplyr::select(
-#     `Country name (WHR)`, 
-#     `Official country name (M49)`,
-#     `Region`,
-#     m49, iso2, iso3
-#     ) |> 
-#   dplyr::distinct() |> 
-#   DT::datatable(class = 'cell-border compact stripe', 
-#                   options = list(
-#                     pageLength = 25,
-#                     lengthMenu = c(25, 50, 100, 200)
-#                     )
-#               )
 
 ## save whr_m49_wb_reegions as .rds file ################
 my_save_data_file(
@@ -1368,17 +1352,13 @@ wb_class_compositions_reduced <-  base::readRDS(
     x = whr_m49_wb_regions,
     y = wb_class_compositions_reduced,
     by = dplyr::join_by(iso3 == WB_Country_Code),
-        relationship = "many-to-many") |> 
-    dplyr::rename(
-      `Country (WHR)` = `Country name (WHR)`,
-      `Country (M49)` = `Official country name (M49)`
-    )
+        relationship = "many-to-many")
 
 ## show whr_m49_wb #########
 (
     dt_whr_m49_wb <- class_scheme2(
             df = whr_m49_wb,
-            sel1 = rlang::quo(`Country (M49)`),
+            sel1 = rlang::quo(`Country_M49`),
             sel2 = rlang::quo(`WB_Group_Name`)
             )
 )
@@ -1417,18 +1397,14 @@ whr_m49_wb_groups_2024 <- dplyr::left_join(
         relationship = "one-to-many") |> 
     dplyr::mutate(`WB_Group` = 
                     paste0(WB_Group_Name, " [", WB_Group_Code, "]")
-                  ) |> 
-    dplyr::rename(
-      `Country (WHR)` = `Country name (WHR)`,
-      `Country (M49)` = `Official country name (M49)`
-    )
+                  )
       
 
 ## show whr_m49_wb_2024_groups #########
 (
     dt_whr_m49_wb_groups_2024 <- class_scheme(
             df = whr_m49_wb_groups_2024,
-            sel1 = rlang::quo(`Country (M49)`),
+            sel1 = rlang::quo(`Country_M49`),
             sel2 = rlang::quo(`WB_Group`)
             )
 )
@@ -1494,7 +1470,10 @@ whr_final <- whr_m49_wb |>
                 paste0(wb_group_name, " [", wb_group_code, "]")
                 ) |> 
   dplyr::mutate(group48 =
-                  dplyr::na_if(group48, "NA [NA]")
+                  dplyr::case_match(
+                    group48, 
+                    "NA [NA]" ~ "World [WLD]",
+                    .default = group48)
                 ) |> 
   dplyr::relocate(iso3)
 
