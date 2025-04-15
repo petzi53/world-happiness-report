@@ -30,25 +30,45 @@ I will display the yearly variations of the `r glossary("cantril ladder")` value
 ::::
 :::::
 
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-show-eval-european-countries}
+: Evolution of life evaluation for Countries in Western Europe (2011-2024)
+::::::
+:::
+::::{.my-r-code-container}
 ```{r}
-#| label: line-graph-function
-#| include: false
+#| label: show-eval-european-countries
 
-country_selection_line_graph <-  function(df) {
-    ggplot2::ggplot(df,
-      ggplot2::aes(x = Year, y = `Ladder score`, color = `Country name`)
-      ) +
-    ggplot2::geom_line() +
-    ggplot2::geom_point(
-        shape = 21,
-        color = "black",
-        fill = "grey",
-        size = 2
-    ) +
-   ggplot2::scale_x_continuous(breaks = scales::pretty_breaks(n = 13))
-}
+
+base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
+      dplyr::filter(
+        region23 == "Western Europe"
+          ) |> 
+  plotly::plot_ly(
+    x = ~ year,
+    y = ~ ladder_score,
+    color = ~ country_whr,
+    type = "scatter",
+    mode = "lines+markers"
+  ) |> 
+  plotly::layout(
+    title = "Ladder Score for West European Countries 2011-2024",
+    legend = base::list(title = list(text = 'Country')),
+    xaxis = base::list(title = "Year"), 
+    yaxis = base::list(title = "Cantril Ladder Score")
+    )
+
 ```
+***
 
+For Monaco and Lichtenstein are no data available.
+::::
+:::::
+
+As I am especially interested in my native country the next graph will compare the three German speaking countries DACH = Germany (**D**eutschland), **A**ustria and Switzerland (Country iso2 code = **CH**))
 
 
 :::::{.my-r-code}
@@ -61,46 +81,30 @@ country_selection_line_graph <-  function(df) {
 ```{r}
 #| label: show-eval-DACH
 
-ranking_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024_arrange.rds")
-
-ranking_2024 |> 
+base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 
     dplyr::filter(
-        `Country name` == "Austria" |
-        `Country name` == "Germany" |
-        `Country name` == "Switzerland"
+        country_whr == "Austria" |
+        country_whr == "Germany" |
+        country_whr == "Switzerland"
         ) |> 
-    country_selection_line_graph()
+    dplyr::filter(group48 == "World [WLD]") |> 
+
+    plotly::plot_ly(
+      x = ~ year,
+      y = ~ ladder_score,
+      color = ~ country_whr,
+      type = "scatter",
+      mode = "lines+markers"
+    ) |> 
+    plotly::layout(
+      xaxis = base::list(title = "Year"), 
+      yaxis = base::list(title = "Cantril Ladder Score")
+      )
+
 ```
 
 ::::
 :::::
-
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-show-eval-european-countries}
-: Evolution of life evaluation for some European countries
-::::::
-:::
-::::{.my-r-code-container}
-```{r}
-#| label: show-eval-european-countries
-
-ranking_2024 <- base::readRDS("data/whr-cantril/rds/whr_2011_2024_arrange.rds")
-
-ranking_2024 |> 
-    dplyr::filter(
-        `Country name` == "Germany" |
-        `Country name` == "France" |
-        `Country name` == "Italy" | 
-        `Country name` == "Spain" |
-        `Country name` == "Poland"
-        ) |> 
-    country_selection_line_graph()
-```
-
-::::
-:::::
-
 
 ## Glossary
 
