@@ -17,7 +17,6 @@
 ##########################################################
 
 
-
 library(glossary)
 
 glossary::glossary_path("../glossary-pb/glossary.yml")

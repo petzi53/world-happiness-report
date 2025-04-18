@@ -1,6 +1,6 @@
 ---
 execute:
-  cache: false
+  cache: true
 ---
 
 # Regions and their Countries {#sec-02-countries-in-regions}
@@ -9,6 +9,7 @@ execute:
 #| label: setup
 #| results: hold
 #| include: false
+#| cache: false
 
 base::source(file = paste0(here::here(), "/R/helper.R"))
 
@@ -23,20 +24,25 @@ Country and Regions: Classifications for countries
 :::
 
 ::: my-objectives-container
-1.  Understanding the country classification used by my `r glossary("WHR")` data sources (@sec-02-whr-classification).
-2.  Inspecting different approaches to classify countries by
-    international organizations:
-    - World Bank and 
-    - United Nations Statistics Division
-3.  Modifying resp. adding country classifications to the WHR data where necessary
-    so that it conforms to the internationally
-    recognized and approved systems.
 
 I aim to compare different aspects of 
 countries. I want, for instance, to know how well Austria is doing
 compared to other European countries, the other member states of the
 European Union, or other OECD countries. It is, therefore, vital to have
 a consistent categorization system with different grouping schemes.
+
+My objective for this chapter are:
+
+1.  Understanding the country classification used by my `r glossary("WHR")` data sources (@sec-02-whr-classification).
+2.  Inspecting different approaches (@sec-02-official-classifications) to classify countries by
+    international organizations:
+    - World Bank and (@sec-02-inspect-wb)
+    - United Nations Statistics Division (@sec-02-inspect-unsd)
+3.  Integrating and harmonizing the official country classifications with the WHR data country names so that the dataset includes unofficial (WHR) regions but conforms otherwise to the internationally recognized and approved systems (@sec-02-combine-whr-with-m49) and (@sec-02-combine-whr-with-wb).
+4. The final result is the dataset `whr_final.rds` (@sec-02-final-dataset) containing `r nrow(base::readRDS("data/whr-cantril/rds/whr_final.rds"))` rows and `r ncol(base::readRDS("data/whr-cantril/rds/whr_final.rds"))` columns.
+5. In the summary I will show which countries belong to which regions by all official grouping classifications (@sec-02-summary).
+
+
 :::
 :::::
 
@@ -192,7 +198,7 @@ df_whr <-  base::readRDS(
 It worked! I got the same result as in @lst-whr-classification-2020.
 
 
-## Official classifications
+## Official classifications {#sec-02-official-classifications}
 
 There are already different classification systems in place:
 International organizations (e.g., [World
@@ -1012,7 +1018,7 @@ The UN geoscheme classification knows 248 countries divided the world into
 - 23 areas divides the continents into different parts **Tab Intermediate2**
 
 
-## Combining M49 and WHR
+## Combining M49 and WHR {#sec-02-combine-whr-with-m49}
 
 To use the different region with the WHR data I will combine the M49 classification data scheme with the WHR data. Ideally I would combine the two datasets with their unique ISO3 code, but unfortunately the WHR data are lacking these data. Thew next best approach is to link the two datasets via the country names. But here I have to take into account that the authoritative country names are provided by M49 and not by the WHR data.
 
@@ -1263,7 +1269,7 @@ my_save_data_file(
 ::::
 :::::
 
-## Combine `whr_m49` with World Bank data
+## Combine `whr_m49` with World Bank data {#sec-02-combine-whr-with-wb}
 
 There are two different sheets to combine with the `whr_m49` dataset: The `wb-class-List of economies.rds` and the `wb-class-compositions.rds`. 
 
@@ -1420,22 +1426,17 @@ my_save_data_file(
 ::::
 :::::
 
-## Summary
+### Create final dataset {#sec-02-final-dataset}
 
-The `whr_m49_wb.rds` file contains all data and is the result of combining the WHR data with the M49 and WB classification systems.
+To facilitate later work I will crate `whr_final.rds` as the final dataset with the following changes from `whr_m49_wb.rds`:
 
-There are two different approaches to use this dataset: filter by `Year` or/and filter by one of the may different classification criteria. There are four complete regional groups covering all countries of the world and two groups where not all or multiple countries are covered:
-
-| Column name | Old name      | Origin / Note                                                           |
-|-------------|---------------|-------------------------------------------------------------------------|
-| region5     | region_n      | M49 / continents                                                        |
-| region7     | Region        | WB / pre-defined standard                                               |
-| region17    | subr_n        | M49 / North-West-South-East                                             |
-| region23    | midr_n2       | M49 / detailed continent parts                                          |
-| group8      | midr_n        | M49 / Africa, South-America, Caribbean, Channel Islands + 140 undefined |
-| group48     | WB_Group_Name | WB / compositions all                                                   |
-
-: Different classification criteria {#tbl-02-class-criteria} {.striped .hover}
+(1) rename columns:
+    a) using lower letters, 
+    b) replace spaces with underscores
+    c) add number of groups after `code` and `region` markers
+(2) create a new column `group48` that combines World Bank group codes and names
+(3) change `NA` values (created as "NA [NA]" in step 2) to `World [WLD]`
+(4) relocate `iso3` as first column of the dataset
 
 
 :::::{.my-r-code}
@@ -1501,6 +1502,225 @@ There are many variables with missing values:
 :::::
 
 
+## Summary {#sec-02-summary}
+
+The `whr_final.rds` file contains all WHR data and is the result of combining the WHR data with the M49 and WB classification systems.
+
+There are two different approaches to use this dataset: 
+
+1. **To compare countries of a specific year** 
+  - filter by `Year` and by one of the 48 different classification criteria of `group48` or 
+  - filter by `Year` and (one value of) one of the four regional groups of countries you and by `group48 == "World [WLD]"`.
+2. **To compare the development of countries**
+  - filter by one value of the 48 different classification criteria of `group48` 
+  - filter by (one value of) one of the four regional groupings (`region5`, `region7`, `region17`, or `region23`) and by `group48 == "World [WLD]"`.
+  
+
+There are four complete regional groups covering all countries of the world and two groups where not all `group8` or multiple countries `group48` are covered. To get a reference for future use I will display all countries of these six classification criteria. I will not use an R code collection because I want to have a direct link with each of these different classifications.
+
+| Column name | Old name      | Origin / Note                                                           |
+|-------------|---------------|-------------------------------------------------------------------------|
+| region5 @sec-02-region5     | region_n      | M49 / continents                                                        |
+| region7  @sec-02-region7   | Region        | WB / pre-defined standard                                               |
+| region17 @sec-02-region17   | subr_n        | M49 / North-West-South-East                                             |
+| region23 @sec-02-region23   | midr_n2       | M49 / detailed continent parts                                          |
+| group8  @sec-02-group8    | midr_n        | M49 / Africa, South-America, Caribbean, Channel Islands + 140 undefined |
+| group48  @sec-02-group48   | WB_Group_Name | WB / compositions all                                                   |
+
+: Different classification criteria {#tbl-02-class-criteria} {.striped .hover}
+
+### Regions
+
+#### region5 {#sec-02-region5}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-region5}
+: Show countries for `region5`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-region5
+
+
+df <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 
+  dplyr::filter(year == 2024 & group48 == "World [WLD]")
+
+(
+  dt_region5 <- class_scheme(
+              df,
+              sel1 = rlang::quo(`country_m49`),
+              sel2 = rlang::quo(`region5`)
+              )
+)
+```
+
+`regional5` classification results to **`r length(dt_region5$x$data$N)` regions containing `r sum(dt_region5$x$data$N)` countries** (including another group with 2 regions that not part of the official M49 classification.)
+
+
+::::
+:::::
+
+
+#### region7 {#sec-02-region7}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-region7}
+: Show countries for `region7`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-region7
+
+
+df <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 
+  dplyr::filter(year == 2024 & group48 == "World [WLD]")
+
+(
+  dt_region7 <- class_scheme(
+              df,
+              sel1 = rlang::quo(`country_m49`),
+              sel2 = rlang::quo(`region7`)
+              )
+)
+```
+
+`regional7` classification results to **`r length(dt_region7$x$data$N)` regions containing `r sum(dt_region7$x$data$N)` countries** (including another group with 2 regions that not part of the official M49 classification.)
+
+
+::::
+:::::
+
+#### region17 {#sec-02-region17}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-region17}
+: Show countries for `region17`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-region17
+
+
+df <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 
+  dplyr::filter(year == 2024 & group48 == "World [WLD]")
+
+(
+  dt_region17 <- class_scheme(
+              df,
+              sel1 = rlang::quo(`country_m49`),
+              sel2 = rlang::quo(`region17`)
+              )
+)
+```
+
+`regional17` classification results to **`r length(dt_region17$x$data$N)` regions containing `r sum(dt_region17$x$data$N)` countries** (including another group with 2 regions that not part of the official M49 classification.)
+
+There are three region missing from the M49 classification: Melanesia, Micronesia, and Polynesia.
+
+
+::::
+:::::
+
+#### region23 {#sec-02-region23}
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-region5}
+: Show countries for `region23`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-region23
+
+
+df <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 
+  dplyr::filter(year == 2024 & group48 == "World [WLD]")
+
+(
+  dt_region23 <- class_scheme(
+              df,
+              sel1 = rlang::quo(`country_m49`),
+              sel2 = rlang::quo(`region23`)
+              )
+)
+```
+
+`regional23` classification results to **`r length(dt_region23$x$data$N)` regions containing `r sum(dt_region23$x$data$N)` countries** (including another group with 2 regions that not part of the official M49 classification.)
+
+There are four region missing from the M49 classification: Channel Island, Melanesia, Micronesia, Polynesia.
+
+
+::::
+:::::
+
+### Groups
+
+#### group8 {#sec-02-group8}
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-group8}
+: Show countries for `group8`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-group8
+
+
+df <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 
+  dplyr::filter(year == 2024 & group48 == "World [WLD]")
+
+(
+  dt_group8 <- class_scheme(
+              df,
+              sel1 = rlang::quo(`country_m49`),
+              sel2 = rlang::quo(`group8`)
+              )
+)
+```
+
+`regional8` classification results to **`r length(dt_group8$x$data$N)` regions containing `r sum(dt_group8$x$data$N)` countries**. It includes a (unspecified) group with with 90 countries including those regions used by the WHR data that are not official countries by the M49 classification.
+::::
+:::::
+
+#### group48 {#sec-02-group48}
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-02-group48}
+: Show countries for `group48`
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-group48
+
+
+df <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 
+  dplyr::filter(year == 2024)
+
+(
+  dt_group48 <- class_scheme(
+              df,
+              sel1 = rlang::quo(`country_m49`),
+              sel2 = rlang::quo(`group48`)
+              )
+)
+```
+
+`group48` classification results to **`r length(dt_group48$x$data$N)` regions containing `r sum(dt_group48$x$data$N)` countries**. There is one group containing Kosovo and Somaliland with the code "NA [NA]" missing, because I have recoded all "NA [NA]" to "World [WLD]".
+::::
+:::::
 
 ## Glossary
 
