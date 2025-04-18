@@ -24,13 +24,15 @@ Objective of this chapter
 
 ::: {.my-objectives-container}
 
-I will display the yearly variations of the `r glossary("cantril ladder")` values for certain countries. My focus will be on German speaking countries (Austria, Germany, Switzerland) and on some major European countries.
+I will display the yearly variations of the `r glossary("cantril ladder")` values for certain group of countries. Additionally I will compute and integrate the mean for the ladder scores of each group.
 
 :::
 ::::
 :::::
 
+## Western Europe
 
+### Ladder Scores
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -40,26 +42,55 @@ I will display the yearly variations of the `r glossary("cantril ladder")` value
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: show-eval-european-countries
+#| label: show-scores-west-europe
 
-
-base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
+df_west_europe <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
       dplyr::filter(
-        region23 == "Western Europe"
+        region23 == "Western Europe" & group48 == "World [WLD]"
           ) |> 
+      dplyr::select(year, country_whr, ladder_score)
+
+df_west_europe_mean <- df_west_europe |> 
+      dplyr::group_by(year) |> 
+      dplyr::summarize(mean = mean(ladder_score))
+
+
+
+df_we <- dplyr::left_join(
+  x = df_west_europe,
+  y = df_west_europe_mean,
+  by = dplyr::join_by(year)
+)
+
+
+df_we |> 
   plotly::plot_ly(
-    x = ~ year,
-    y = ~ ladder_score,
-    color = ~ country_whr,
+    x = ~year,
+    y = ~ladder_score
+  ) |> 
+  plotly::add_trace(
+    color = ~factor(country_whr),
     type = "scatter",
     mode = "lines+markers"
+  ) |> 
+  plotly::add_lines(
+      y = ~mean,
+      name = "mean",
+      mode = "lines+marker",
+      line = list(
+        width = 6, 
+        dash = "dot",
+        color = "darkblue",
+        opacity = 0
+        )
   ) |> 
   plotly::layout(
     title = "Ladder Score for West European Countries 2011-2024",
     legend = base::list(title = list(text = 'Country')),
     xaxis = base::list(title = "Year"), 
     yaxis = base::list(title = "Cantril Ladder Score")
-    )
+  ) 
+
 
 ```
 ***
@@ -68,8 +99,86 @@ For Monaco and Lichtenstein are no data available.
 ::::
 :::::
 
+How has the evolution of the life evaluation changed for a group of countries? To get this figure I need to summarize the values for each year of the group members (= West Europe).
+
+### Summarized Changes of Life Evoluation for Countries of Western Europe 
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-show-eval-european-countries}
+: Evolution of life evaluation for Countries in Western Europe (2011-2024)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: summarise-scores-west-europe
+
+
+base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
+      dplyr::filter(
+        region23 == "Western Europe"
+          ) |> 
+      dplyr::group_by(year) |> 
+      dplyr::summarize(mean = mean(ladder_score)) |> 
+  plotly::plot_ly(
+    x = ~ year,
+    y = ~ mean,
+    type = "scatter",
+    mode = "lines+markers",
+    line = list(color = 'black', width= 4, dash = 'dash'),
+    marker = list(symbol = "star-diamond", color = 'darkred',size = 12)
+  ) |> 
+  plotly::layout(
+    title = "Summarized Ladder Score for West European Countries 2011-2024",
+    legend = base::list(title = list(text = 'Country')),
+    xaxis = base::list(title = "Year"), 
+    yaxis = base::list(title = "Summarized Cantril Ladder Score")
+    )
+
+```
+
+::::
+:::::
+
+### Rankings
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-04-west-europe-ranks}
+: Rank changes for Countries in Western Europe 2011-2024
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-rankings-west-europe
+
+base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
+      dplyr::filter(
+        region23 == "Western Europe"
+          ) |> 
+  plotly::plot_ly(
+    x = ~ year,
+    y = ~ rank,
+    color = ~ country_whr,
+    type = "scatter",
+    mode = "lines+markers"
+  ) |> 
+  plotly::layout(
+    title = "Changes in the Rank for West European Countries 2011-2024",
+    legend = base::list(title = list(text = 'Country')),
+    xaxis = base::list(title = "Year"), 
+    yaxis = base::list(title = "Rank", autorange = "reversed")
+    )
+```
+
+::::
+:::::
+
+## DACH countries
+
 As I am especially interested in my native country the next graph will compare the three German speaking countries DACH = Germany (**D**eutschland), **A**ustria and Switzerland (Country iso2 code = **CH**))
 
+### Ladder scores
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -79,7 +188,7 @@ As I am especially interested in my native country the next graph will compare t
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: show-eval-DACH
+#| label: show-life-eval-DACH
 
 base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 
     dplyr::filter(
@@ -97,8 +206,49 @@ base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
       mode = "lines+markers"
     ) |> 
     plotly::layout(
+      title = "Changes in the Ladder Scores for DACH Countries 2011-2024",
+      legend = base::list(title = list(text = 'Country')),
       xaxis = base::list(title = "Year"), 
       yaxis = base::list(title = "Cantril Ladder Score")
+      )
+
+```
+
+::::
+:::::
+
+### Rankings
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-show-eval-DACH}
+: Evolution of life evaluation for German speaking countries
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: show-rankings-DACH
+
+base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 
+    dplyr::filter(
+        country_whr == "Austria" |
+        country_whr == "Germany" |
+        country_whr == "Switzerland"
+        ) |> 
+    dplyr::filter(group48 == "World [WLD]") |> 
+
+    plotly::plot_ly(
+      x = ~ year,
+      y = ~ rank,
+      color = ~ country_whr,
+      type = "scatter",
+      mode = "lines+markers"
+    ) |> 
+    plotly::layout(
+      title = "Ranking Changes of Live Evaluations for DACH Countries 2011-2024",
+      legend = base::list(title = list(text = 'Country')),
+      xaxis = base::list(title = "Year"), 
+      yaxis = base::list(title = "Rank", autorange = "reversed")
       )
 
 ```
