@@ -14,6 +14,8 @@ execute:
 base::source(file = paste0(here::here(), "/R/helper.R"))
 
 ggplot2::theme_set(ggplot2::theme_bw())
+
+
 ```
 
 ::::: {#obj-chapter-template}
@@ -30,115 +32,152 @@ I will display the yearly variations of the `r glossary("cantril ladder")` value
 ::::
 :::::
 
-## Western Europe
+::: {.callout-important #imp-ls-functions}
+To facilitate computing and plotting I have developed two functions:
 
-### Ladder Scores
+- `my_get_ls_data`: creates the ladder score data for a country/region/group
+- `my_ls-region`: display the ladder score line graph for a country/region/group
+
+Both functions are called from the "R/helper.r" file, where you can also find the name and type of the necessary parameters. Typically I have used the following code chunk:
+
+```
+my_ls_region(
+  df = my_get_ls_data(
+    region_name = rlang::quo(`region5`), # specific column name for a regional group
+    world_bank_group = "World [WLD]",    # specific world bank group to select all countries of the workd, removing duplicates from other world bank grouping classifications
+    filter_string = "." # = no filter, "Europe" filters all values that contain "Europe, "^Europe$" filters all values with the exact name of "Europe".
+  ), 
+  fig_title = "Ladder Score for continents 2011-2024",
+  mean_column = TRUE # standard, calculate the mean values for all regions
+  legend_title = "Continent" # standard value = "Region"
+)
+```
+
+
+:::
+
+
+## Continents
+
+In the following chapter I will present the ladder score for the five continents (Africa, Americas, Asia, Europe and Oceania). To see which country belongs to which continent have a look at @tbl-show-region5.
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
-:::::: {#cnj-show-eval-european-countries}
+:::::: {#cnj-04-ls-continents}
+: Ladder Score by Continents
+::::::
+:::
+::::{.my-r-code-container}
+
+
+```{r}
+#| label: ls-continent
+
+my_ls_region(
+  df = my_get_ls_data(
+    group_name  = rlang::quo(`region5`),
+    region_name = rlang::quo(`region5`),
+    world_bank_group = "World [WLD]",
+    filter_string = "."
+  ), 
+  fig_title = "Ladder score for continents (2011-2024)",
+  legend_title = "Continent"
+)
+
+```
+
+::::
+:::::
+
+
+### Africa
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-04-african-region}
+: Ladder Score by African regions
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: ls-africa
+
+my_ls_region(
+  my_get_ls_data(
+    group_name  = rlang::quo(`region23`),
+    region_name = rlang::quo(`region23`),
+    world_bank_group = "World [WLD]",
+    filter_string = "Africa"
+  ), 
+  fig_title = "Ladder score for African regions (2011-2024)"
+)
+```
+You can see the negative impact of the corona crisis especially in Middle and Western Africa. To see which country belongs to which continent have a look at @tbl-show-region23.
+::::
+:::::
+
+### Europe
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-04-ls-europe}
+: Ladder Score for European regions (2011-2024)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: ls-europe
+
+my_ls_region(
+  my_get_ls_data(
+    group_name  = rlang::quo(`region23`),
+    region_name = rlang::quo(`region23`),
+    world_bank_group = "World [WLD]",
+    filter_string = "Europe"
+  ), 
+  fig_title = "Ladder score for European regions (2011-2024)"
+)
+
+```
+
+::::
+:::::
+
+
+
+
+### Western Europe
+
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-04-ls-western-europe}
 : Evolution of life evaluation for Countries in Western Europe (2011-2024)
 ::::::
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: show-scores-west-europe
+#| label: ls-western-europe
 
-df_west_europe <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
-      dplyr::filter(
-        region23 == "Western Europe" & group48 == "World [WLD]"
-          ) |> 
-      dplyr::select(year, country_whr, ladder_score)
-
-df_west_europe_mean <- df_west_europe |> 
-      dplyr::group_by(year) |> 
-      dplyr::summarize(mean = mean(ladder_score))
-
-
-
-df_we <- dplyr::left_join(
-  x = df_west_europe,
-  y = df_west_europe_mean,
-  by = dplyr::join_by(year)
+my_ls_region(
+  my_get_ls_data(
+    group_name  = rlang::quo(`region23`),
+    region_name = rlang::quo(`country_whr`),
+    world_bank_group = "World [WLD]",
+    filter_string = "Western Europe"
+  ), 
+  fig_title    = "Ladder score for countries in Western Europe (2011-2024)",
+  legend_title = "Country"
 )
-
-
-df_we |> 
-  plotly::plot_ly(
-    x = ~year,
-    y = ~ladder_score
-  ) |> 
-  plotly::add_trace(
-    color = ~factor(country_whr),
-    type = "scatter",
-    mode = "lines+markers"
-  ) |> 
-  plotly::add_lines(
-      y = ~mean,
-      name = "mean",
-      mode = "lines+marker",
-      line = list(
-        width = 6, 
-        dash = "dot",
-        color = "darkblue",
-        opacity = 0
-        )
-  ) |> 
-  plotly::layout(
-    title = "Ladder Score for West European Countries 2011-2024",
-    legend = base::list(title = list(text = 'Country')),
-    xaxis = base::list(title = "Year"), 
-    yaxis = base::list(title = "Cantril Ladder Score")
-  ) 
-
 
 ```
 ***
 
-For Monaco and Lichtenstein are no data available.
+For Western Europe countries Monaco and Lichtenstein are no data available.
 ::::
 :::::
 
-How has the evolution of the life evaluation changed for a group of countries? To get this figure I need to summarize the values for each year of the group members (= West Europe).
 
-### Summarized Changes of Life Evoluation for Countries of Western Europe 
-
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-show-eval-european-countries}
-: Evolution of life evaluation for Countries in Western Europe (2011-2024)
-::::::
-:::
-::::{.my-r-code-container}
-```{r}
-#| label: summarise-scores-west-europe
-
-
-base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
-      dplyr::filter(
-        region23 == "Western Europe"
-          ) |> 
-      dplyr::group_by(year) |> 
-      dplyr::summarize(mean = mean(ladder_score)) |> 
-  plotly::plot_ly(
-    x = ~ year,
-    y = ~ mean,
-    type = "scatter",
-    mode = "lines+markers",
-    line = list(color = 'black', width= 4, dash = 'dash'),
-    marker = list(symbol = "star-diamond", color = 'darkred',size = 12)
-  ) |> 
-  plotly::layout(
-    title = "Summarized Ladder Score for West European Countries 2011-2024",
-    legend = base::list(title = list(text = 'Country')),
-    xaxis = base::list(title = "Year"), 
-    yaxis = base::list(title = "Summarized Cantril Ladder Score")
-    )
-
-```
-
-::::
-:::::
 
 ### Rankings
 
@@ -156,6 +195,7 @@ base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
       dplyr::filter(
         region23 == "Western Europe"
           ) |> 
+        base::droplevels() |> 
   plotly::plot_ly(
     x = ~ year,
     y = ~ rank,
@@ -164,7 +204,7 @@ base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
     mode = "lines+markers"
   ) |> 
   plotly::layout(
-    title = "Changes in the Rank for West European Countries 2011-2024",
+    title = "Changes in the Rank for West European Countries (2011-2024)",
     legend = base::list(title = list(text = 'Country')),
     xaxis = base::list(title = "Year"), 
     yaxis = base::list(title = "Rank", autorange = "reversed")
@@ -197,6 +237,7 @@ base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
         country_whr == "Switzerland"
         ) |> 
     dplyr::filter(group48 == "World [WLD]") |> 
+    base::droplevels() |> 
 
     plotly::plot_ly(
       x = ~ year,
@@ -206,7 +247,7 @@ base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
       mode = "lines+markers"
     ) |> 
     plotly::layout(
-      title = "Changes in the Ladder Scores for DACH Countries 2011-2024",
+      title = "Changes in the Ladder Scores for DACH Countries (2011-2024)",
       legend = base::list(title = list(text = 'Country')),
       xaxis = base::list(title = "Year"), 
       yaxis = base::list(title = "Cantril Ladder Score")
@@ -236,6 +277,7 @@ base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
         country_whr == "Switzerland"
         ) |> 
     dplyr::filter(group48 == "World [WLD]") |> 
+    base::droplevels() |> 
 
     plotly::plot_ly(
       x = ~ year,
@@ -245,7 +287,7 @@ base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
       mode = "lines+markers"
     ) |> 
     plotly::layout(
-      title = "Ranking Changes of Live Evaluations for DACH Countries 2011-2024",
+      title = "Ranking Changes of Live Evaluations for DACH Countries (2011-2024)",
       legend = base::list(title = list(text = 'Country')),
       xaxis = base::list(title = "Year"), 
       yaxis = base::list(title = "Rank", autorange = "reversed")

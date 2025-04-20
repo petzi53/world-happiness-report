@@ -1,6 +1,6 @@
 ---
 execute:
-  cache: true
+  cache: false
 ---
 
 # Regions and their Countries {#sec-02-countries-in-regions}
@@ -134,7 +134,10 @@ class_scheme <- function(df, sel1, sel2) {
         DT::datatable(class = 'cell-border compact stripe', 
             options = list(
               pageLength = 25,
-              lengthMenu = c(5, 10, 15, 20, 25, 50)
+              lengthMenu = c(5, 10, 15, 20, 25, 50),
+              columnDefs = list(
+                  list(className = 'dt-body-left', targets = 2)
+                  )
               )
         )
 }
@@ -1437,6 +1440,8 @@ To facilitate later work I will crate `whr_final.rds` as the final dataset with 
 (2) create a new column `group48` that combines World Bank group codes and names
 (3) change `NA` values (created as "NA [NA]" in step 2) to `World [WLD]`
 (4) relocate `iso3` as first column of the dataset
+(5) factorize all character columns
+    
 
 
 :::::{.my-r-code}
@@ -1476,7 +1481,10 @@ whr_final <- whr_m49_wb |>
                     "NA [NA]" ~ "World [WLD]",
                     .default = group48)
                 ) |> 
-  dplyr::relocate(iso3)
+  dplyr::relocate(iso3) |> 
+  dplyr::mutate(dplyr::across(
+    .cols = dplyr::where(is.character), .fns = base::factor)
+    )
 
 
 
@@ -1540,8 +1548,11 @@ There are four complete regional groups covering all countries of the world and 
 ::::::
 :::
 ::::{.my-r-code-container}
+
 ```{r}
-#| label: show-region5
+#| label: tbl-show-region5
+#| tbl-cap: "WHR countries grouped by five continents"
+
 
 
 df <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 
@@ -1552,9 +1563,11 @@ df <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
               df,
               sel1 = rlang::quo(`country_m49`),
               sel2 = rlang::quo(`region5`)
-              )
+              ) 
 )
 ```
+
+***
 
 `regional5` classification results to **`r length(dt_region5$x$data$N)` regions containing `r sum(dt_region5$x$data$N)` countries** (including another group with 2 regions that not part of the official M49 classification.)
 
@@ -1637,7 +1650,8 @@ There are three region missing from the M49 classification: Melanesia, Micronesi
 :::
 ::::{.my-r-code-container}
 ```{r}
-#| label: show-region23
+#| label: tbl-show-region23
+#| tbl-cap: "WHR countries grouped by 23 regions"
 
 
 df <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 

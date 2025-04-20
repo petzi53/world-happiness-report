@@ -1,298 +1,24 @@
-##########################################################
+## HEADER #######################################################
 # Project: Some utility scripts for my Quarto books
 # Author: Peter Baumgartner
-# Edit date: May 19, 2024
+# Last edit date: April 20, 2025
 # CONTENT:
-## - my_glance_data: glance at a specified number of random data
-## - my_qq_plot: create histogram with overlaid dnorm curve
-## - my_scatter: create scatterplot with lm and loess curve
-## - list_plotter: plot color list as a palette
+## - load glossary package
 ## - my_create_folder: create folder at path if it not already exists
 ## - my_save_data_file: save data file
 ## - my_excel_as_csv_and_rds:
 ##            save content of stored Excel file with all sheets
 ##            as CSV snapshots and RDS objects
-## - pkgs_dl: package downloads
-## - t_col: transparent colors
-##########################################################
+## - my_ls_region: well being ladder score line chart for regions
 
 
+## glossary #####################################################
 library(glossary)
 
 glossary::glossary_path("../glossary-pb/glossary.yml")
 
 
-##########################################################
-# my_glance_data: Glance at a specified number of random data
-# Purpose:
-  # To prevent possible bias with head()/tail() or
-  # other function that print some data excerpts
-# Used in "Statistics with R"
-# See: https://bookdown.org/pbaumgartner/swr-harris/
-##########################################################
-
-# df   = dataframe or tibble
-# N    = number of records chosen randomly
-# seed = set.seed for reproducibility
-
-my_glance_data <- function(df, N = 8, seed = 42){
-    df_temp <- first_and_last_row(df)
-
-    set.seed(seed)
-    df |>
-        dplyr::mutate(obs = dplyr::row_number()) |>
-        dplyr::relocate(obs) |>
-        dplyr::slice_sample(n = N) |>
-        dplyr::bind_rows(df_temp) |>
-        dplyr::arrange(obs)
-}
-
-first_and_last_row <-  function(df) {
-    df |>
-        dplyr::mutate(obs = dplyr::row_number()) |>
-        dplyr::filter(dplyr::row_number() %in% base::c(1, dplyr::n()))
-}
-
-##########################################################
-# : Create histogram with overlaid dnorm curve
-# Purpose:
-# Compare histogram with normal distribution and density
-# Author: Peter Baumgartner
-# Used in my personal notes on "Statistics with R"
-# See: https://bookdown.org/pbaumgartner/swr-harris/
-##########################################################
-
-# df        = data.frame or tibble
-# v         = character: numerical column of data.frame:
-#             syntax for call = df$v (NA's are allowed)
-# x_label   = character: title for x-axis
-# nbins     = numeric: number of bins
-# col_fill  = character: fill color
-# col_color = character: border color of bins
-# col_dens  = character: color of density curve
-# col_dnorm = character: color of dnorm curve
-
-my_hist_dnorm <- function(df, v, n_bins = 30,
-                       col_fill = "gray90",
-                       col_color = "black",
-                       col_dnorm = "Normal",
-                       col_dens = "Density",
-                       x_label = "x") {
-    p <- df |>
-        ggplot2::ggplot(ggplot2::aes(v)) +
-        ggplot2::geom_histogram(
-            ggplot2::aes(y = ggplot2::after_stat(density)),
-            bins = n_bins,
-            fill = col_fill,
-            color = col_color,
-            na.rm = TRUE) +
-        ggplot2::geom_density(
-            na.rm = TRUE,
-            ggplot2::aes(color = col_dens),
-            linewidth = 1,
-            ) +
-        ggplot2::stat_function(
-            fun = dnorm,
-            args = c(mean = mean(v, na.rm = TRUE),
-                    sd = sd(v, na.rm = TRUE)),
-            ggplot2::aes(color = col_dnorm),
-            na.rm = TRUE,
-            linewidth = 1,
-            ) +
-        ggplot2::theme_bw() +
-        ggplot2::xlab(x_label) +
-        ggplot2::scale_color_manual(
-            name = "Colors",
-            values = c("steelblue", "tomato")
-        ) +
-        ggplot2::theme(legend.position = "top")
-
-
-    p
-
-}
-
-##########################################################
-# my_qq_plot: Create q-q-plot
-# Purpose:
-# Generate check normality assumption
-# Author: Peter Baumgartner
-# Used in my personal notes on "Statistics with R"
-# See: https://bookdown.org/pbaumgartner/swr-harris/
-##########################################################
-
-# df        = data.frame or tibble
-# v         = character: numerical column of data.frame:
-#             syntax for call = df$v (NA's are allowed)
-# x_label   = character: title for x-axis
-# y_label   = character: title for y-axis
-# col_qq    = character: color of data
-# line_qq.  = character: color of theoretical normal distribution
-
-
-my_qq_plot <- function(
-        df,
-        v,
-        col_qq = "Data distributed",
-        line_qq = "Normally distributed",
-        x_label = "x",
-        y_label = "y"
-        ) {
-    p <- df |>
-    ggplot2::ggplot(
-        ggplot2::aes(sample = v)
-    ) +
-    ggplot2::stat_qq(
-        ggplot2::aes(color = col_qq),
-        na.rm = TRUE
-    ) +
-    ggplot2::stat_qq_line(
-        ggplot2::aes(linetype = line_qq),
-        linewidth = 1,
-        na.rm = TRUE
-    ) +
-    ggplot2::labs(
-        x = x_label,
-        y = y_label
-    ) +
-    ggplot2::scale_color_manual(
-        name = "",
-        values = ("purple3")
-    ) +
-    ggplot2::scale_linetype_manual(
-        name = "",
-        values = ("solid")
-    ) +
-    ggplot2::guides(
-        color = ggplot2::guide_legend(order = 1),
-        linetype = ggplot2::guide_legend(order = 2)
-    ) +
-    ggplot2::theme_bw() +
-    ggplot2::theme(legend.position = "top")
-
-    p
-}
-
-##########################################################
-# my_scatter: Create scatterplot with lm and loess curve
-# Purpose:
-# Generate check
-# Author: Peter Baumgartner
-# Used in my personal notes on "Statistics with R"
-# See: https://bookdown.org/pbaumgartner/swr-harris/
-##########################################################
-
-# df        = data.frame or tibble
-# v         = character: numerical column of data.frame:
-#             syntax for call = df$v (NA's are allowed)
-# w         = character: numerical column of data.frame
-#             syntax for call = df$w (NA's are allowed)
-# x_label   = character: title for x-axis
-# y_label   = character: title for y-axis
-# col_point = character: color of points
-# col_lm    = character: color of linear model
-# col_loess = character: color of loess curve
-
-
-my_scatter <- function(
-        df,
-        v,
-        w,
-        col_point = "Point",
-        col_lm = "Linear",
-        col_loess = "Loess",
-        x_label = "x",
-        y_label = "y"
-) {
-    p <- df |>
-        ggplot2::ggplot(
-            ggplot2::aes(
-                x = v,
-                y = w
-            )
-        ) +
-        ggplot2::geom_point(
-            alpha = 0.6,
-            ggplot2::aes(color = col_point),
-            na.rm = TRUE
-        ) +
-        ggplot2::geom_smooth(
-            formula = y ~ x,
-            method = "lm",
-            se = FALSE,
-            ggplot2::aes(color = col_lm),
-            na.rm = TRUE
-        ) +
-        ggplot2::geom_smooth(
-            formula = y ~ x,
-            method = "loess",
-            se = FALSE,
-            ggplot2::aes(color = col_loess),
-            na.rm = TRUE
-        ) +
-        ggplot2::labs(
-            x = x_label,
-            y = y_label
-        ) +
-        ggplot2::theme_bw() +
-        ggplot2::theme(legend.position = "top") +
-        ggplot2::scale_color_manual(
-            name = "",
-            values = c("purple3", "black", "tomato"),
-            breaks = c(col_point, col_lm, col_loess)
-        )
-
-    p
-}
-################################################################
-# list_plotter: Plot color list as a palette
-# Purpose:
-# Display different color palettes for easy comparison
-# Author: Emil Hvitfeldt
-# Developed for r-color-palettes and {paletteer} package
-# See: https://github.com/EmilHvitfeldt/r-color-palettes/blob/main/R/list_plotter.R
-# I have used it in my personal notes on "Statistics with R"
-# # See: https://bookdown.org/pbaumgartner/swr-harris/
-################################################################
-
-
-
-list_plotter <- function(color_list, names, package_name) {
-    par(mar = c(0, 0, 0, 0) + 0.1)
-
-    plot(
-        0,
-        0,
-        type = "n",
-        axes = FALSE,
-        bty = "n",
-        xlab = "",
-        ylab = "",
-        xlim = c(0, 1),
-        ylim = c(-length(color_list) - 1, 0)
-    )
-
-    title(package_name, line = -3)
-    for (i in seq_len(length(color_list))) {
-        colors_len <- length(color_list[[i]])
-        breaks <- seq(from = 0,
-                      to = 1,
-                      length = colors_len + 1)
-
-
-        text(0, -i, names[i], pos = 4)
-        rect(
-            xleft = breaks[1:colors_len],
-            xright = breaks[1:colors_len + 1],
-            ytop = -0.15 - i,
-            ybottom = -0.8 - i,
-            col = color_list[[i]],
-            border = NA
-        )
-    }
-}
-
-################################################################
+## my_create_folder #############################################
 # my_create_folder:
 # Purpose:
 # check if folder already exists at parameter "path"
@@ -300,7 +26,6 @@ list_plotter <- function(color_list, names, package_name) {
 # Author: Peter Baumgartner
 # path = character string:
 #                example: "/Users/xxyyzz/Documents/my-data/"
-################################################################
 
 my_create_folder <- function(path){
 
@@ -309,7 +34,7 @@ my_create_folder <- function(path){
 }
 
 
-################################################################
+## my_save_data_file ############################################
 # my_save_data_file: Save data file for the specified chapter
 # Purpose:
 # If folder not exists, create it and save object as .rds file
@@ -318,9 +43,6 @@ my_create_folder <- function(path){
 #                  example "chap05"
 # object = data to save
 # file_name = character: example "xy_object.rds"
-# I have used the function in my notes on "Statistics with R"
-# # See: https://bookdown.org/pbaumgartner/swr-harris/
-################################################################
 
 my_save_data_file <- function(chapter_folder, object, file_name){
     data_folder <- base::paste0(here::here(), "/data/")
@@ -341,12 +63,14 @@ my_save_data_file <- function(chapter_folder, object, file_name){
 
 
 
-################################################################
+## my_excel_as_csv_and_rds ######################################
 # my_excel_as_csv_and_rds:
 # Purpose:
 #            save content of stored Excel file with all sheets
 #            as CSV snapshots and RDS objects
 # Author: Peter Baumgartner
+
+
 # sheet: vector of sheet names
 # path_excel: path to the already saved excel file
 # path_csv: folder path where to store all Excel sheets as .csv files
@@ -363,56 +87,103 @@ my_excel_as_csv_and_rds <- function(
     readr::write_rds(base::paste0(path_rds, path_base, "-", sheet, ".rds"))
 }
 
-
-################################################################
-# pkgs_downloads: Get number of downloads from RStudio CRAN Mirror
-# Purpose:
-# Compare popularity of different packages
+## my_ls_region ######################################
+# Create plotly line chart with well being ladder scores (ls)
+# Data from the World Happiness Report (WHR)
+# Using as origin data my `whr_final`
+# combining WHR data and M49/World Bank classification dataset
 # Author: Peter Baumgartner
-# pkgs = character vector of package names
-# period = "last-day" "last-week", "last-month"
-# days: period days = 1, 7, 30
-# returns: tibble with packages sorted by download figures
-# I have used the function in my notes on "Statistics with R"
-# # See: https://bookdown.org/pbaumgartner/swr-harris/
-################################################################
-pkgs_dl <-  function(pkgs, period = "last-week", days = 7) {
-    dl_pkgs <- cranlogs::cran_downloads(when = period, packages = pkgs)
-
-    start_date = base::min(dl_pkgs$date)
-    end_date = base::max(dl_pkgs$date)
-
-    dl_pkgs |>
-        dplyr::group_by(package) |>
-        dplyr::summarize(average = trunc(sum(count) / days)) |>
-        dplyr::arrange(desc(average)) |>
-        dplyr::mutate(
-            from = start_date,
-            to = end_date
-            )
-}
 
 
-## Transparent colors
-## Mark Gardener 2015
-## www.dataanalytics.org.uk
+my_ls_region <- function(
+    df,                     # dataset with three or four columns
+                            #   - year (numeric)
+                            #   - region (factor)
+                            #   - score (numeric)
+    fig_title,              # figure title (character)
+    mean_column  = TRUE,    #  is there a mean column (logical)
+    legend_title = "Region" # legend title (character)
+    ) {
 
-t_col <- function(color, percent = 50, name = NULL) {
-    #      color = color name
-    #    percent = % transparency
-    #       name = an optional name for the color
+if (mean_column) {
+      df_mean <- df |>
+        dplyr::group_by(year) |>
+        dplyr::summarize(
+          mean = mean(score)
+        )
 
-    ## Get RGB values for named color
-    rgb.val <- col2rgb(color)
+      df <- dplyr::left_join(
+        x = df,
+        y = df_mean,
+        by = dplyr::join_by(year)
+      )
+    }
 
-    ## Make new color using input color as base and alpha set by transparency
-    t.col <- rgb(rgb.val[1], rgb.val[2], rgb.val[3],
-                 max = 255,
-                 alpha = (100 - percent) * 255 / 100,
-                 names = name)
+p <- df |>
+      plotly::plot_ly(
+        x = ~year,
+        y = ~score
+      ) |>
+      plotly::add_trace(
+        color = ~region,
+        type = "scatter",
+        mode = "lines+markers"
+      )
 
-    ## Save the color
-    invisible(t.col)
-}
+      (function(x) if (mean_column) {
+        plotly::add_lines(
+          p,
+          y = ~mean,
+          name = "mean",
+          mode = "lines+marker",
+          line = list(
+            width = 6,
+            dash = "dot",
+            color = "darkblue",
+            opacity = 0
+          )
+        )
+       }else (x))() |>
+
+      plotly::layout(
+        title = fig_title,
+        legend = base::list(title = list(text = legend_title)),
+        xaxis = base::list(title = "Year"),
+        yaxis = base::list(title = "Cantril Ladder Score")
+      )
+  }
+
+
+my_get_ls_data <-  function(
+  group_name,
+  region_name,
+  world_bank_group,
+  filter_string
+  ) {
+
+    base::readRDS(
+      base::paste0(here::here(),
+                   "/data/whr-cantril/rds/whr_final.rds")
+    ) |>
+    # dplyr::rename(
+    #   group  = !!group_name,
+    #   region = !!region_name
+    #   ) |>
+    dplyr::filter(
+      stringr::str_detect(
+        !!group_name, filter_string) &
+        group48 == world_bank_group
+      ) |>
+    dplyr::select(year, !!region_name, ladder_score) |>
+    dplyr::summarize(
+      score = mean(ladder_score), .by = c(year, !!region_name)
+    ) |>
+    dplyr::rename(region = !!region_name) |>
+    base::droplevels()
+  }
+
+
+
+
 ## END
 
