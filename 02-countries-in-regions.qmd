@@ -1194,7 +1194,12 @@ whr_2011_2024_revised <-  whr_2011_2024_arrange |>
       TRUE ~ Country_WHR
     )
   ) |> 
-  dplyr::relocate(Country_M49, .after = Country_WHR)
+  dplyr::relocate(Country_M49, .after = Country_WHR) |> 
+
+  ## special case: change Macedonia in Country_WHR to "North Macedonia"
+  dplyr::mutate(Country_WHR =
+        stringr::str_replace(Country_WHR, "^Macedonia$", "North Macedonia")) |> 
+  dplyr::arrange(Country_WHR, Year)
 
 ## select unique country rows  ################
 whr_2011_2024_revised |> 

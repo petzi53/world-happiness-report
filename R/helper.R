@@ -87,6 +87,46 @@ my_excel_as_csv_and_rds <- function(
     readr::write_rds(base::paste0(path_rds, path_base, "-", sheet, ".rds"))
 }
 
+class_scheme <- function(df, sel1, sel2) {
+  ## df = dataframe to show
+  ## sel1 = name of the first column (country names) to select
+  ## sel2 = name of the column with the regional indicator
+  df |>
+    dplyr::select(!!sel1, !!sel2) |>
+    dplyr::nest_by(!!sel2) |>
+    dplyr::mutate(data = as.vector(data)) |>
+    dplyr::mutate(data = stringr::str_c(data, collapse = "; ")) |>
+    dplyr::mutate(data = paste(data, ";")) |>
+    dplyr::mutate(N = lengths(gregexpr(";", data))) |>
+    dplyr::rename(Country = data) |>
+    dplyr::arrange(!!sel2) |>
+    DT::datatable(class = 'cell-border compact stripe',
+                  options = list(
+                    pageLength = 25,
+                    lengthMenu = c(5, 10, 15, 20, 25, 50),
+                    columnDefs = list(
+                      list(className = 'dt-body-left', targets = 2)
+                    )
+                  )
+    )
+}
+
+class_scheme2 <- function(df, sel1, sel2) {
+  ## df = dataframe to show
+  ## sel1 = name of the first column (country names) to select
+  ## sel2 = name of the column with the regional indicator
+  df |>
+    dplyr::select(!!sel1, !!sel2) |>
+    dplyr::nest_by(!!sel2) |>
+    dplyr::mutate(data = as.vector(data)) |>
+    dplyr::mutate(data = stringr::str_c(data, collapse = "; ")) |>
+    dplyr::mutate(data = paste(data, ";")) |>
+    dplyr::mutate(N = lengths(gregexpr(";", data))) |>
+    dplyr::rename(Country = data) |>
+    dplyr::arrange(!!sel2)
+}
+
+
 ## my_ls_region ######################################
 # Create plotly line chart with well being ladder scores (ls)
 # Data from the World Happiness Report (WHR)
@@ -125,21 +165,24 @@ p <- df |>
         y = ~score
       ) |>
       plotly::add_trace(
-        color = ~region,
+        color = ~ forcats::fct_reorder2(
+          region, year, score, .fun = forcats::last2
+        ),
         type = "scatter",
-        mode = "lines+markers"
+        mode = "lines+markers",
+        colors = my_colors13()
       )
 
       (function(x) if (mean_column) {
         plotly::add_lines(
           p,
           y = ~mean,
-          name = "mean",
+          name = "<b>mean</b>",
           mode = "lines+marker",
           line = list(
             width = 6,
             dash = "dot",
-            color = "darkblue",
+            color = "black",
             opacity = 0
           )
         )
@@ -147,10 +190,14 @@ p <- df |>
 
       plotly::layout(
         title = fig_title,
-        legend = base::list(title = list(text = legend_title)),
+        legend = base::list(title =
+                base::list(text =
+                base::paste0('<b>', legend_title, '</b>'))
+            ),
         xaxis = base::list(title = "Year"),
         yaxis = base::list(title = "Cantril Ladder Score")
-      )
+      ) |>
+      plotly::config(doubleClickDelay = 1000)
   }
 
 
@@ -165,10 +212,6 @@ my_get_ls_data <-  function(
       base::paste0(here::here(),
                    "/data/whr-cantril/rds/whr_final.rds")
     ) |>
-    # dplyr::rename(
-    #   group  = !!group_name,
-    #   region = !!region_name
-    #   ) |>
     dplyr::filter(
       stringr::str_detect(
         !!group_name, filter_string) &
@@ -183,7 +226,31 @@ my_get_ls_data <-  function(
   }
 
 
+## my_colors13 ######################################
+# Southern Europe has 13 categories
+# add 13th color to RColorBrewer "Set3" with 12 colors
+# idea from Brave-KI "RColorBrewer what to do with 13 categories"
+# Author: Peter Baumgartner
 
+my_colors13 <-  function() {
+  c(RColorBrewer::brewer.pal(12, "Paired"), "#999999")
+}
+
+## my_colors ######################################
+# Sometimes I need more than colors for max. 12 categories
+# Combine different palettes 'Paired' and 'Set3'
+# resulting in 24 colors
+# idea from Brave-KI "RColorBrewer combining multiple palettes"
+# see also: https://stackoverflow.com/a/70739992/7322615
+# and: https://stackoverflow.com/questions/15282580/
+# Author: Peter Baumgartner
+
+my_colors <-  function() {
+  c(
+    RColorBrewer::brewer.pal(12,'Paired'),
+    RColorBrewer::brewer.pal(12,'Set3')
+  )
+}
 
 ## END
 

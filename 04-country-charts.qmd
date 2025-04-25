@@ -32,24 +32,30 @@ I will display the yearly variations of the `r glossary("cantril ladder")` value
 ::::
 :::::
 
-::: {.callout-important #imp-ls-functions}
+::: {.callout-note #nte-ls-functions}
+##### Using two functions
+
 To facilitate computing and plotting I have developed two functions:
 
 - `my_get_ls_data`: creates the ladder score data for a country/region/group
 - `my_ls-region`: display the ladder score line graph for a country/region/group
 
-Both functions are called from the "R/helper.r" file, where you can also find the name and type of the necessary parameters. Typically I have used the following code chunk:
+Both functions are called from the `R/helper.r` file, where you can also find the name and type of the necessary parameters. Typically I have used the following code chunk:
 
 ```
 my_ls_region(
   df = my_get_ls_data(
     region_name = rlang::quo(`region5`), # specific column name for a regional group
-    world_bank_group = "World [WLD]",    # specific world bank group to select all countries of the workd, removing duplicates from other world bank grouping classifications
-    filter_string = "." # = no filter, "Europe" filters all values that contain "Europe, "^Europe$" filters all values with the exact name of "Europe".
+    world_bank_group = "World [WLD]",    # specific world bank group to select 
+                                         # all countries of the workd, 
+                                         # removing duplicates from world bank groupings
+    filter_string = "."                  # "." = no filter, 
+                                         # "Europe" = all values that contain "Europe           
+                                         # "^Europe$" all values of "Europe" exactly
   ), 
   fig_title = "Ladder Score for continents 2011-2024",
-  mean_column = TRUE # standard, calculate the mean values for all regions
-  legend_title = "Continent" # standard value = "Region"
+  mean_column = TRUE                     # standard, calculate mean values
+  legend_title = "Continent"             # standard value = "Region"
 )
 ```
 
@@ -60,6 +66,25 @@ my_ls_region(
 ## Continents
 
 In the following chapter I will present the ladder score for the five continents (Africa, Americas, Asia, Europe and Oceania). To see which country belongs to which continent have a look at @tbl-show-region5.
+
+::: {.callout-note #nte-plotly-interactivity}
+##### How to interact with {**plotly**} graphs?
+
+a) If you hover over a {**plotly**} figure you will see additional information.
+b) If you hover over the {**plotly**} menu bar on the top right margin of the graph, you will get tool tips for different presentation modes. Try them out to see what they do.
+c) If you click on one of the legend categories of the figure you will hide this category from the graph. You can do this with several categories one after the other. A double click sets the graph to the default state, the original visibility.
+d) If you double click on one of the legend categories you will see the line of this category isolated. Another click of one of the other categories will add the line of this category. A double click sets the graph to the default state, the original visibility.
+
+After changing the number of visible lines with c) or d) the axes may change accordingly so that the resulting graph remains still in the middle of the canvas.
+
+:::
+
+::: {.callout-important style="color: red;" #imp-about-the-mean-line}
+##### Things to know about the mean line
+
+1. Change of the number of visible lines does not change the mean values. The mean is always related to the standard view with all categories active.
+2. The mean is calculated by the number of countries and not weighted by population size.
+:::
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -89,34 +114,27 @@ my_ls_region(
 ::::
 :::::
 
+There is hardly any change seen worldwide. We see a sharp level distinction between two groups: Oceania, the Americas and Europe have life satisfactions above 6, whereas Asia below 5.5 and Africa even below 4.5.
 
-### Africa
-
-:::::{.my-r-code}
-:::{.my-r-code-header}
-:::::: {#cnj-04-african-region}
-: Ladder Score by African regions
-::::::
-:::
-::::{.my-r-code-container}
-```{r}
-#| label: ls-africa
-
-my_ls_region(
-  my_get_ls_data(
-    group_name  = rlang::quo(`region23`),
-    region_name = rlang::quo(`region23`),
-    world_bank_group = "World [WLD]",
-    filter_string = "Africa"
-  ), 
-  fig_title = "Ladder score for African regions (2011-2024)"
-)
-```
-You can see the negative impact of the corona crisis especially in Middle and Western Africa. To see which country belongs to which continent have a look at @tbl-show-region23.
-::::
-:::::
+But these values as mean values hide country specific developments. In the next step I will explore more in detail the evolution of life satisfaction of the European countries.
 
 ### Europe
+
+::: {.my-code-collection}
+:::: {.my-code-collection-header}
+::::: {.my-code-collection-icon}
+:::::
+:::::: {#exm-04-ls-europe}
+: Life evolution for different groups of European regions and countries (2011-2024)
+::::::
+
+::::
+
+::::{.my-code-collection-container}
+
+::: {.panel-tabset}
+
+###### European regions
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
@@ -143,16 +161,15 @@ my_ls_region(
 ::::
 :::::
 
+There is a big difference between Western and Northern Europe to Eastern and Southern Europe. The European mean of the life evaluation rises between 2015 to 2020 but stagnates later. The main reason is a sharp drop in the Western European countries, presumably connected with the COVID-19 crisis.
 
 
-
-### Western Europe
-
+###### West
 
 :::::{.my-r-code}
 :::{.my-r-code-header}
 :::::: {#cnj-04-ls-western-europe}
-: Evolution of life evaluation for Countries in Western Europe (2011-2024)
+: Life evaluation for Countries in Western Europe (2011-2024)
 ::::::
 :::
 ::::{.my-r-code-container}
@@ -169,11 +186,151 @@ my_ls_region(
   fig_title    = "Ladder score for countries in Western Europe (2011-2024)",
   legend_title = "Country"
 )
-
 ```
 ***
 
-For Western Europe countries Monaco and Lichtenstein are no data available.
+<center>No data available for Monaco and Lichtenstein.</center>
+
+
+::::
+:::::
+
+Remarkable is the decline starting with the year 2020 presumably connected with COVID-19. Only Belgium has reached 2024 a level above the value of 2020. 
+
+Most of the countries have somewhat stabilized with 2024, the last available year of the life evaluation. This was not the case for Switzerland, Austria, and to a lesser extend for France. Life evaluation measured by the `r glossary("Cantril ladder")` declined since 2020 especially for the so-called `r glossary("DACH")` countries: Switzerland (-0.625), followed by Austria (-0.458) and Germany (-0.402).
+
+###### East
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-04-ls-eastern-europe}
+: Life evaluation for Countries in Eastern Europe (2011-2024)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: ls-eastern-europe
+
+my_ls_region(
+  my_get_ls_data(
+    group_name  = rlang::quo(`region23`),
+    region_name = rlang::quo(`country_whr`),
+    world_bank_group = "World [WLD]",
+    filter_string = "Eastern Europe"
+  ), 
+  fig_title    = "Ladder score for countries in Eastern Europe (2011-2024)",
+  legend_title = "Country"
+)
+
+```
+
+
+::::
+:::::
+
+###### South
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-04-ls-southern-europe}
+: Life evaluation for Countries in Soutern Europe (2011-2024)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: ls-southern-europe
+
+my_ls_region(
+  my_get_ls_data(
+    group_name  = rlang::quo(`region23`),
+    region_name = rlang::quo(`country_whr`),
+    world_bank_group = "World [WLD]",
+    filter_string = "Southern Europe"
+  ), 
+  fig_title    = "Ladder score for countries in Southern Europe (2011-2024)",
+  legend_title = "Country"
+)
+
+```
+
+***
+
+<center>No data available for Andorra, Gibraltar, Holy See, San Marino and Lichtenstein.</center>
+
+::::
+:::::
+
+We notice generally a lower level of life satisfaction than in Western Europe. But with the exception of Spain and Malta (both experiencing a relative high life satisfaction) all country of Southern Europe caught up tremendously starting about 2015. There is also to notice a buckling around the years of the Corona pandemic but the decline is much lesser than in Western Europe.
+
+It is somewhat surprising that even Italy -- where we have heard and seen dreadful COVID-19 condition -- was not so hard hit than the three German speaking countries.
+
+###### North
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-04-ls-nothern-europe}
+: Life evaluation for Countries in Northern Europe (2011-2024)
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: ls-northern-europe
+
+my_ls_region(
+  my_get_ls_data(
+    group_name  = rlang::quo(`region23`),
+    region_name = rlang::quo(`country_whr`),
+    world_bank_group = "World [WLD]",
+    filter_string = "Northern Europe"
+  ), 
+  fig_title    = "Ladder score for countries in Northern Europe (2011-2024)",
+  legend_title = "Country"
+)
+
+```
+
+
+::::
+:::::
+
+:::
+
+::::
+:::::
+
+
+
+
+
+
+
+
+
+
+
+### Africa
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-04-african-region}
+: Ladder Score by African regions
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: ls-africa
+
+my_ls_region(
+  my_get_ls_data(
+    group_name  = rlang::quo(`region23`),
+    region_name = rlang::quo(`region23`),
+    world_bank_group = "World [WLD]",
+    filter_string = "Africa"
+  ), 
+  fig_title = "Ladder score for African regions (2011-2024)"
+)
+```
+You can see the negative impact of the corona crisis especially in Middle and Western Africa. To see which country belongs to which continent have a look at @tbl-show-region23.
 ::::
 :::::
 
@@ -297,6 +454,47 @@ base::readRDS("data/whr-cantril/rds/whr_final.rds") |>
 
 ::::
 :::::
+
+:::::{.my-r-code}
+:::{.my-r-code-header}
+:::::: {#cnj-04-dach-legend-ordered}
+: DACH with ordered legend
+::::::
+:::
+::::{.my-r-code-container}
+```{r}
+#| label: dach-legend-ordered
+
+DACH <- base::readRDS("data/whr-cantril/rds/whr_final.rds") |> 
+    dplyr::filter(
+        country_whr == "Austria" |
+        country_whr == "Denmark" |
+        country_whr == "Finland"
+        ) |> 
+    dplyr::filter(group48 == "World [WLD]") |> 
+    dplyr::select(year, rank, country_whr, ladder_score) |> 
+    base::droplevels()
+
+DACH |> plotly::plot_ly(
+    x = ~ year,
+    y = ~ ladder_score,
+    color = ~ forcats::fct_reorder2(
+      country_whr, year, ladder_score, .fun = forcats::last2
+      ),
+    type = "scatter",
+    mode = "lines+markers"
+  ) |> 
+  plotly::layout(
+    title = "Changes in the Ladder Scores for DACH Countries (2011-2024)",
+    legend = base::list(title = list(text = 'Country')),
+    xaxis = base::list(title = "Year"), 
+    yaxis = base::list(title = "Cantril Ladder Score")
+    )
+```
+
+::::
+:::::
+
 
 ## Glossary
 
